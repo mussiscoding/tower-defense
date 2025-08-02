@@ -59,10 +59,17 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick }) => {
     setBurnDamageNumbers((prev) => prev.filter((num) => num.id !== id));
   };
 
+  // Check if enemy is slowed (same pattern as burn effects)
+  const isSlowed = !!(
+    enemy.slowEffect &&
+    enemy.slowEndTime &&
+    Date.now() < enemy.slowEndTime
+  );
+
   return (
     <>
       <div
-        className="enemy"
+        className={`enemy ${isSlowed ? "enemy-slow" : ""}`}
         style={{
           left: `${enemy.x}px`,
           top: `${enemy.y}px`,

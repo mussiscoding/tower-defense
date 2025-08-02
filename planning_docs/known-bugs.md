@@ -1,5 +1,10 @@
 # Known Bugs
 
+## Fire gets no exp from burn
+
+Major bug.
+Fire gets most of its damage from burn, but only exp from the initial hit.
+
 ## XP Duplication Bug
 
 ### Description

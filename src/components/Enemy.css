@@ -54,3 +54,8 @@
 .enemy-health-text {
   display: none;
 }
+
+.enemy-slow {
+  box-shadow: 0 0 8px 2px #4fc3f7, 0 0 12px 4px #29b6f6;
+  border-radius: 8px;
+}

@@ -23,7 +23,7 @@ export const elements: Record<ElementType, ElementDefinition> = {
   ice: {
     name: "Ice",
     baseStats: { damage: 8, attackSpeed: 1.0, range: 700 },
-    abilities: { slowEffect: 0, slowDuration: 0 },
+    abilities: { slowEffect: 5, slowDuration: 3 },
     upgradeFactors: { slowEffect: 1.2, slowDuration: 1.3 },
   },
   earth: {
@@ -127,11 +127,19 @@ export const calculateElementAbilities = (
         ),
       };
     }
-    case "ice":
+    case "ice": {
+      const slowEffectUpgrades = purchases["ice_slow_effect_upgrade"] || 0;
+      const slowDurationUpgrades = purchases["ice_slow_duration_upgrade"] || 0;
+
       return {
-        slowEffect: baseAbilities.slowEffect,
-        slowDuration: baseAbilities.slowDuration,
+        slowEffect: Math.floor(
+          (baseAbilities.slowEffect || 0) + slowEffectUpgrades
+        ),
+        slowDuration: Math.floor(
+          (baseAbilities.slowDuration || 0) + slowDurationUpgrades
+        ),
       };
+    }
     case "earth":
       return {
         splashDamage: baseAbilities.splashDamage,

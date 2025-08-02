@@ -10,6 +10,7 @@ This file tracks additional features and improvements that come up during develo
 
 - [ ] **Castle death animation**: When the castle is destroyed, add a visual animation (cracked/broken castle appearance, explosion effect, etc.)
 - [ ] **Enemy walking animations**: Add walking/movement animations for enemies instead of static sprites
+- [ ] **Sprite-based element effects**: Replace square borders with sprite-shaped borders that follow the actual enemy sprite shape for better visual integration
 
 ## UI/UX Improvements
 

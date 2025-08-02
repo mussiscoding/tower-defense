@@ -62,7 +62,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
 
     const gameLoop = setInterval(() => {
       setGameState((prev) => {
-        const movedEnemies = moveEnemies(prev.enemies);
+        const movedEnemies = moveEnemies(prev.enemies, Date.now());
         const enemiesWithBurnDamage = processBurnDamage(
           movedEnemies,
           Date.now()

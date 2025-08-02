@@ -51,4 +51,45 @@ export const upgradeShopItems: UpgradeShopItem[] = [
       };
     },
   },
+  // Ice element ability upgrades
+  {
+    id: "ice_slow_effect_upgrade",
+    name: "Slow Effect",
+    description: "Increase slow effect +1%",
+    cost: 200,
+    type: "upgrade",
+    scalingFactor: 1.15,
+    effect: (state: GameState) => {
+      const currentUpgrades = state.purchases["ice_slow_effect_upgrade"] || 0;
+      const newUpgrades = currentUpgrades + 1;
+
+      return {
+        ...state,
+        purchases: {
+          ...state.purchases,
+          ice_slow_effect_upgrade: newUpgrades,
+        },
+      };
+    },
+  },
+  {
+    id: "ice_slow_duration_upgrade",
+    name: "Slow Duration",
+    description: "Increase slow duration +1s",
+    cost: 300,
+    type: "upgrade",
+    scalingFactor: 1.2,
+    effect: (state: GameState) => {
+      const currentUpgrades = state.purchases["ice_slow_duration_upgrade"] || 0;
+      const newUpgrades = currentUpgrades + 1;
+
+      return {
+        ...state,
+        purchases: {
+          ...state.purchases,
+          ice_slow_duration_upgrade: newUpgrades,
+        },
+      };
+    },
+  },
 ];
