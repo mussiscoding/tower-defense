@@ -1,0 +1,36 @@
+.App {
+  height: 100vh;
+  max-height: 900px; /* Limit height for desktop screens */
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #2d5a27 0%, #1a3d17 100%);
+  color: white;
+  font-family: "Arial", sans-serif;
+  margin: 0 auto; /* Center the game on larger screens */
+  width: 100%;
+  max-width: 1400px; /* Limit width for very wide screens */
+}
+
+.game-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0; /* Allow flex container to shrink */
+}
+
+/* Responsive design for smaller screens */
+@media (max-height: 800px) {
+  .App {
+    max-height: 100vh;
+  }
+}
+
+@media (max-width: 1200px) {
+  .App {
+    max-width: 100%;
+  }
+}
+
+/* Header styles will be added in GameHeader component */
+/* Game area styles will be added in GameArea component */
+/* Sidebar styles will be added in GameSidebar component */

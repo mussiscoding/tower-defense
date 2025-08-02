@@ -1,0 +1,25 @@
+.arrow {
+  position: absolute;
+  font-size: 16px;
+  color: #ffd700;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  z-index: 15;
+  pointer-events: none;
+  transform-origin: center;
+  animation: arrowGlow 0.5s ease-out;
+}
+
+@keyframes arrowGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(var(--arrow-rotation, 0deg));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(var(--arrow-rotation, 0deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(var(--arrow-rotation, 0deg));
+  }
+}

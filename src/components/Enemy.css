@@ -1,0 +1,56 @@
+.enemy {
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+  z-index: 5;
+  transition: transform 0.1s ease;
+}
+
+.enemy:active {
+  transform: scale(0.95);
+}
+
+.enemy-dying {
+  animation: enemyDeath 0.5s ease-out forwards;
+}
+
+@keyframes enemyDeath {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.enemy-sprite {
+  font-size: 2em;
+  text-align: center;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.enemy-health-bar {
+  width: 60px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  border-radius: 3px;
+  margin: 0 auto 1px auto;
+  overflow: hidden;
+}
+
+.enemy-health-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4444 0%, #ff6666 100%);
+  transition: width 0.2s ease;
+}
+
+.enemy-health-text {
+  display: none;
+}
