@@ -4,9 +4,17 @@ import type {
   Defender,
   Arrow,
   GoldPopup,
+  ElementData,
 } from "../types/GameState";
 import { getAvailableEnemies, fallbackEnemy } from "../data/enemies";
 import { getDefenderData, generateDefenderId } from "../data/defenders";
+import {
+  getLevelFromXP,
+  calculateElementStats,
+  calculateElementAbilities,
+} from "../data/elements";
+import { addElementEffects } from "./elementEffects";
+import type { ElementType } from "../data/elements";
 
 export const generateEnemyId = (): string => {
   return `enemy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -38,6 +46,49 @@ export const createEnemy = (
     goldValue: selectedEnemy.goldValue,
     type: selectedEnemy.type,
   };
+};
+
+export const processBurnDamage = (
+  enemies: Enemy[],
+  currentTime: number
+): Enemy[] => {
+  return enemies.map((enemy) => {
+    if (
+      !enemy.burnDamage ||
+      !enemy.burnEndTime ||
+      currentTime > enemy.burnEndTime
+    ) {
+      // No burn effect or burn has expired
+      if (enemy.burnDamage || enemy.burnEndTime) {
+        console.log(`🔥 Burn expired for enemy ${enemy.id} (${enemy.type})`);
+      }
+      return {
+        ...enemy,
+        burnDamage: undefined,
+        burnEndTime: undefined,
+      };
+    }
+
+    // Apply burn damage every 500ms
+    const burnTickInterval = 500;
+    const burnStartTime = enemy.burnEndTime - 2000; // 2 second duration
+    const timeSinceBurnStart = currentTime - burnStartTime;
+    const currentTick = Math.floor(timeSinceBurnStart / burnTickInterval);
+
+    // Only apply damage if we're on a new tick
+    if (currentTick > 0 && timeSinceBurnStart % burnTickInterval < 50) {
+      const newHealth = Math.max(0, enemy.health - enemy.burnDamage);
+      console.log(
+        `🔥 Burn tick ${currentTick}: Enemy ${enemy.id} (${enemy.type}) took ${enemy.burnDamage} burn damage. Health: ${enemy.health} → ${newHealth}`
+      );
+      return {
+        ...enemy,
+        health: newHealth,
+      };
+    }
+
+    return enemy;
+  });
 };
 
 export const moveEnemies = (enemies: Enemy[]): Enemy[] => {
@@ -99,7 +150,7 @@ export const handleCastleDestruction = (gameState: GameState): GameState => {
 export const createDefender = (
   x: number,
   y: number,
-  defenderType: string
+  defenderType: ElementType
 ): Defender => {
   const defenderData = getDefenderData(defenderType);
   if (!defenderData) {
@@ -149,7 +200,7 @@ export const canDefenderAttack = (
   defender: Defender,
   currentTime: number
 ): boolean => {
-  return currentTime - defender.lastAttack >= 1000 / defender.attackSpeed;
+  return currentTime - defender.lastAttack > 1000 / defender.attackSpeed;
 };
 
 export const updateDefenders = (
@@ -207,6 +258,7 @@ export const updateDefenders = (
       predictedX + 20, // Center of predicted enemy position
       predictedY + 20,
       currentTime,
+      defender.type, // Element type of the defender
       target.id // Store the target enemy ID for precise targeting
     );
     newArrows.push(arrow);
@@ -226,7 +278,9 @@ export const updateDefenders = (
 };
 
 export const generateArrowId = (): string => {
-  return `arrow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `arrow_${Date.now()}_${Math.random()
+    .toString(36)
+    .substr(2, 9)}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
 export const createArrow = (
@@ -235,6 +289,7 @@ export const createArrow = (
   endX: number,
   endY: number,
   currentTime: number,
+  elementType: ElementType,
   targetEnemyId?: string
 ): Arrow => {
   const distance = Math.sqrt(
@@ -251,6 +306,7 @@ export const createArrow = (
     endY,
     startTime: currentTime,
     duration,
+    elementType,
     targetEnemyId, // Store the target enemy ID for precise targeting
   };
 };
@@ -270,27 +326,37 @@ export const getArrowProgress = (arrow: Arrow, currentTime: number): number => {
 export const processArrowImpacts = (
   arrows: Arrow[],
   enemies: Enemy[],
-  defenders: Defender[],
   currentTime: number,
-  predictedDamage: Map<string, number>
+  predictedDamage: Map<string, number>,
+  elements: Record<ElementType, ElementData>,
+  purchases: Record<string, number>
 ): {
   arrows: Arrow[];
   enemies: Enemy[];
   goldGained: number;
   goldPopups: GoldPopup[];
   predictedDamage: Map<string, number>;
+  elements: Record<ElementType, ElementData>;
 } => {
   const activeArrows: Arrow[] = [];
   let updatedEnemies = [...enemies];
   let totalGoldGained = 0;
   const newGoldPopups: GoldPopup[] = [];
   const updatedPredictedDamage = new Map(predictedDamage);
+  const updatedElements = { ...elements };
+  const processedArrowIds = new Set<string>();
 
   arrows.forEach((arrow) => {
+    // Skip if this arrow has already been processed
+    if (processedArrowIds.has(arrow.id)) {
+      return;
+    }
+
     const progress = getArrowProgress(arrow, currentTime);
 
     if (progress >= 1) {
       // Arrow has reached its target
+      processedArrowIds.add(arrow.id); // Mark as processed
       let targetEnemy: Enemy | undefined;
 
       if (arrow.targetEnemyId) {
@@ -310,33 +376,76 @@ export const processArrowImpacts = (
       }
 
       if (targetEnemy) {
-        // Find the defender that fired this arrow (closest to arrow start position)
-        const firingDefender = defenders.find((defender) => {
-          const distance = Math.sqrt(
-            Math.pow(defender.x + 20 - arrow.startX, 2) +
-              Math.pow(defender.y + 20 - arrow.startY, 2)
-          );
-          return distance < 30; // Within 30px of arrow start point
-        });
-
-        const damage = firingDefender?.damage || 1;
+        // Get damage from the element's current stats
+        const element = updatedElements[arrow.elementType];
+        const damage = element?.baseStats.damage || 1;
         const { enemy: damagedEnemy, isDead } = damageEnemy(
           targetEnemy,
           damage
         );
 
+        // Grant XP to elements based on damage dealt (1 damage = 1 XP)
+        if (element) {
+          element.xp += damage;
+          element.totalDamage += damage;
+
+          // Check for level up
+          const newLevel = getLevelFromXP(element.xp);
+          if (newLevel > element.level) {
+            element.level = newLevel;
+            // Update stats based on new level
+            element.baseStats = calculateElementStats(
+              arrow.elementType,
+              newLevel
+            );
+          }
+        }
+
         // Reduce predicted damage since this arrow has hit
         const currentPredictedDamage =
           updatedPredictedDamage.get(targetEnemy.id) || 0;
         const newPredictedDamage = Math.max(0, currentPredictedDamage - damage);
-        if (newPredictedDamage === 0) {
-          updatedPredictedDamage.delete(targetEnemy.id);
+
+        // For fire arrows, also add burn damage to predicted damage
+        if (
+          arrow.elementType === "fire" &&
+          targetEnemy.burnDamage &&
+          targetEnemy.burnEndTime
+        ) {
+          const burnDamagePerTick = targetEnemy.burnDamage;
+          const burnDuration = (targetEnemy.burnEndTime - currentTime) / 1000; // Duration in seconds
+          const totalBurnTicks = Math.floor(burnDuration * 2); // 2 ticks per second
+          const totalBurnDamage = burnDamagePerTick * totalBurnTicks;
+
+          // Add burn damage to predicted damage
+          const totalPredictedDamage = newPredictedDamage + totalBurnDamage;
+          updatedPredictedDamage.set(targetEnemy.id, totalPredictedDamage);
         } else {
-          updatedPredictedDamage.set(targetEnemy.id, newPredictedDamage);
+          if (newPredictedDamage === 0) {
+            updatedPredictedDamage.delete(targetEnemy.id);
+          } else {
+            updatedPredictedDamage.set(targetEnemy.id, newPredictedDamage);
+          }
+        }
+
+        // Apply element effects
+        const elementAbilities = calculateElementAbilities(
+          arrow.elementType,
+          purchases
+        );
+        const { enemy: finalEnemy, logMessage } = addElementEffects(
+          damagedEnemy,
+          arrow.elementType,
+          elementAbilities,
+          currentTime
+        );
+
+        if (logMessage) {
+          console.log(logMessage);
         }
 
         updatedEnemies = updatedEnemies.map((enemy) =>
-          enemy.id === targetEnemy.id ? damagedEnemy : enemy
+          enemy.id === targetEnemy.id ? finalEnemy : enemy
         );
 
         if (isDead) {
@@ -357,14 +466,9 @@ export const processArrowImpacts = (
         if (arrow.targetEnemyId) {
           const currentPredictedDamage =
             updatedPredictedDamage.get(arrow.targetEnemyId) || 0;
-          const firingDefender = defenders.find((defender) => {
-            const distance = Math.sqrt(
-              Math.pow(defender.x + 20 - arrow.startX, 2) +
-                Math.pow(defender.y + 20 - arrow.startY, 2)
-            );
-            return distance < 30;
-          });
-          const damage = firingDefender?.damage || 1;
+          // Get damage from the element's current stats
+          const element = updatedElements[arrow.elementType];
+          const damage = element?.baseStats.damage || 1;
           const newPredictedDamage = Math.max(
             0,
             currentPredictedDamage - damage
@@ -389,6 +493,7 @@ export const processArrowImpacts = (
     goldGained: totalGoldGained,
     goldPopups: newGoldPopups,
     predictedDamage: updatedPredictedDamage,
+    elements: updatedElements,
   };
 };
 

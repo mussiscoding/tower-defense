@@ -1,8 +1,10 @@
 import type { GameState } from "../types/GameState";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
+import { upgradeShopItems } from "../data/upgrades";
 import { createDefender } from "../utils/gameLogic";
-import { useState } from "react";
+
 import "./GameSidebar.css";
+import Mages from "./Mages";
 
 interface GameSidebarProps {
   gameState: GameState;
@@ -13,26 +15,18 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
   gameState,
   setGameState,
 }) => {
-  const [activeTab, setActiveTab] = useState<"defenders" | "upgrades">(
-    "defenders"
-  );
-
-  const defenderItems = shopItems.filter((item) => item.type === "defender");
-  const upgradeItems = shopItems.filter((item) => item.type === "upgrade");
-
   const handlePurchase = (itemId: string) => {
     const item = shopItems.find((shopItem) => shopItem.id === itemId);
     const currentPrice = getCurrentPrice(item!, gameState.purchases);
     if (!item || gameState.gold < currentPrice) return;
 
     setGameState((prev) => {
-      // Handle defender purchases
-      if (item.type === "defender") {
-        const randomY = Math.random() * 400 + 50;
+      // Handle click damage upgrade (special case)
+      if (itemId === "click_damage_upgrade") {
         return {
           ...prev,
           gold: prev.gold - currentPrice,
-          defenders: [...prev.defenders, createDefender(50, randomY, itemId)],
+          clickDamage: prev.clickDamage + 1,
           purchases: {
             ...prev.purchases,
             [itemId]: (prev.purchases[itemId] || 0) + 1,
@@ -40,122 +34,54 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
         };
       }
 
-      // Handle upgrade purchases
-      switch (itemId) {
-        case "click_damage_upgrade":
-          return {
-            ...prev,
-            gold: prev.gold - currentPrice,
-            clickDamage: prev.clickDamage + 1,
-            purchases: {
-              ...prev.purchases,
-              [itemId]: (prev.purchases[itemId] || 0) + 1,
-            },
-          };
-
-        case "archer_damage_upgrade":
-          return {
-            ...prev,
-            gold: prev.gold - currentPrice,
-            defenders: prev.defenders.map((defender) =>
-              defender.type === "archer"
-                ? { ...defender, damage: defender.damage + 1 }
-                : defender
-            ),
-            purchases: {
-              ...prev.purchases,
-              [itemId]: (prev.purchases[itemId] || 0) + 1,
-            },
-          };
-
-        case "archer_speed_upgrade":
-          return {
-            ...prev,
-            gold: prev.gold - currentPrice,
-            defenders: prev.defenders.map((defender) =>
-              defender.type === "archer"
-                ? { ...defender, attackSpeed: defender.attackSpeed + 0.5 }
-                : defender
-            ),
-            purchases: {
-              ...prev.purchases,
-              [itemId]: (prev.purchases[itemId] || 0) + 1,
-            },
-          };
-
-        default:
-          return prev;
+      // Handle upgrade shop items (they define their own effects)
+      const upgradeItem = upgradeShopItems.find(
+        (upgrade) => upgrade.id === itemId
+      );
+      if (upgradeItem) {
+        const updatedState = upgradeItem.effect(prev);
+        return {
+          ...updatedState,
+          gold: prev.gold - currentPrice,
+          purchases: {
+            ...prev.purchases,
+            [itemId]: (prev.purchases[itemId] || 0) + 1,
+          },
+        };
       }
+
+      return prev;
     });
   };
 
   return (
     <div className="game-sidebar">
       <div className="sidebar-section">
-        <h3>🏪 Shop</h3>
-
-        {/* Tab Navigation */}
-        <div className="shop-tabs">
-          <button
-            className={`tab-button ${
-              activeTab === "defenders" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("defenders")}
-          >
-            🛡️ Defenders
-          </button>
-          <button
-            className={`tab-button ${activeTab === "upgrades" ? "active" : ""}`}
-            onClick={() => setActiveTab("upgrades")}
-          >
-            ⚡ Upgrades
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="shop-items">
-          {activeTab === "defenders" &&
-            defenderItems.map((item) => (
-              <div
-                key={item.id}
-                className={`shop-item ${
-                  gameState.gold >= getCurrentPrice(item, gameState.purchases)
-                    ? "affordable"
-                    : "expensive"
-                }`}
-                onClick={() => handlePurchase(item.id)}
-              >
-                <div className="item-header">
-                  <h4>{item.name}</h4>
-                  <span className="item-cost">
-                    💰 {getCurrentPrice(item, gameState.purchases)}
-                  </span>
-                </div>
-                <p className="item-description">{item.description}</p>
-              </div>
-            ))}
-
-          {activeTab === "upgrades" &&
-            upgradeItems.map((item) => (
-              <div
-                key={item.id}
-                className={`shop-item ${
-                  gameState.gold >= getCurrentPrice(item, gameState.purchases)
-                    ? "affordable"
-                    : "expensive"
-                }`}
-                onClick={() => handlePurchase(item.id)}
-              >
-                <div className="item-header">
-                  <h4>{item.name}</h4>
-                  <span className="item-cost">
-                    💰 {getCurrentPrice(item, gameState.purchases)}
-                  </span>
-                </div>
-                <p className="item-description">{item.description}</p>
-              </div>
-            ))}
-        </div>
+        <Mages
+          elements={gameState.elements}
+          currentGold={gameState.gold}
+          purchases={gameState.purchases}
+          onPurchaseMage={(elementType, cost) => {
+            if (gameState.gold >= cost) {
+              const randomY = Math.random() * 400 + 50;
+              setGameState((prev) => ({
+                ...prev,
+                gold: prev.gold - cost,
+                defenders: [
+                  ...prev.defenders,
+                  createDefender(50, randomY, elementType),
+                ],
+                purchases: {
+                  ...prev.purchases,
+                  [elementType]: (prev.purchases[elementType] || 0) + 1,
+                },
+              }));
+            }
+          }}
+          onPurchaseUpgrade={(itemId) => {
+            handlePurchase(itemId);
+          }}
+        />
       </div>
 
       <div className="sidebar-section">

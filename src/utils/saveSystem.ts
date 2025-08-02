@@ -39,6 +39,7 @@ export const loadGame = (): GameState | null => {
       difficultyLevel: parsed.difficultyLevel ?? 1,
       spawnRateLevel: parsed.spawnRateLevel ?? 1,
       predictedDamage: new Map(parsed.predictedDamage ?? []),
+      elements: parsed.elements ?? {},
     };
 
     return validatedState;

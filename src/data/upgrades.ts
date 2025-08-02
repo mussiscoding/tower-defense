@@ -1,31 +1,54 @@
 import type { ShopItem } from "../types/GameState";
+import type { GameState } from "../types/GameState";
 
-export const upgradeShopItems: ShopItem[] = [
+export interface UpgradeEffect {
+  (state: GameState): GameState;
+}
+
+export interface UpgradeShopItem extends ShopItem {
+  effect: UpgradeEffect;
+}
+
+export const upgradeShopItems: UpgradeShopItem[] = [
+  // Fire element ability upgrades
   {
-    id: "click_damage_upgrade",
-    name: "Click Damage +1",
-    description: "Increase your click damage by 1",
-    cost: 25,
+    id: "fire_burn_damage_upgrade",
+    name: "Burn Damage",
+    description: "Increase burn damage +1",
+    cost: 200,
     type: "upgrade",
-    effect: "Increases click damage",
+    scalingFactor: 1.15,
+    effect: (state: GameState) => {
+      const currentUpgrades = state.purchases["fire_burn_damage_upgrade"] || 0;
+      const newUpgrades = currentUpgrades + 1;
+
+      return {
+        ...state,
+        purchases: {
+          ...state.purchases,
+          fire_burn_damage_upgrade: newUpgrades,
+        },
+      };
+    },
+  },
+  {
+    id: "fire_burn_duration_upgrade",
+    name: "Burn Duration",
+    description: "Increase burn duration +1s",
+    cost: 300,
+    type: "upgrade",
     scalingFactor: 1.2,
-  },
-  {
-    id: "archer_damage_upgrade",
-    name: "Archer Damage +1",
-    description: "Increase all archer damage by 1",
-    cost: 500,
-    type: "upgrade",
-    effect: "Increases archer damage",
-    scalingFactor: 1.25,
-  },
-  {
-    id: "archer_speed_upgrade",
-    name: "Archer Speed +0.5",
-    description: "Increase all archer attack speed by 0.5",
-    cost: 1000,
-    type: "upgrade",
-    effect: "Increases archer attack speed",
-    scalingFactor: 1.3,
+    effect: (state: GameState) => {
+      const currentUpgrades =
+        state.purchases["fire_burn_duration_upgrade"] || 0;
+      const newUpgrades = currentUpgrades + 1;
+      return {
+        ...state,
+        purchases: {
+          ...state.purchases,
+          fire_burn_duration_upgrade: newUpgrades,
+        },
+      };
+    },
   },
 ];

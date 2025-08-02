@@ -1,7 +1,10 @@
+import { elements } from "./elements";
+import type { ElementType } from "./elements";
+
 export interface DefenderData {
   id: string;
   name: string;
-  type: "archer" | "mage" | "trebuchet";
+  type: ElementType;
   damage: number;
   attackSpeed: number;
   range: number;
@@ -11,39 +14,49 @@ export interface DefenderData {
 
 export const defenders: DefenderData[] = [
   {
-    id: "archer",
-    name: "Archer",
-    type: "archer",
-    damage: 1,
-    attackSpeed: 1, // attacks per second
-    range: 500,
+    id: "fire",
+    name: "Fire Mage",
+    type: "fire",
+    damage: elements.fire.baseStats.damage,
+    attackSpeed: elements.fire.baseStats.attackSpeed,
+    range: elements.fire.baseStats.range,
     cost: 50,
-    description: "Basic ranged defender. Attacks nearest enemy.",
+    description: "Fire mage with burn abilities.",
   },
   {
-    id: "mage",
-    name: "Mage",
-    type: "mage",
-    damage: 2,
-    attackSpeed: 0.8, // attacks per second
-    range: 400,
+    id: "ice",
+    name: "Ice Mage",
+    type: "ice",
+    damage: elements.ice.baseStats.damage,
+    attackSpeed: elements.ice.baseStats.attackSpeed,
+    range: elements.ice.baseStats.range,
+    cost: 75,
+    description: "Ice mage with slow abilities.",
+  },
+  {
+    id: "earth",
+    name: "Earth Mage",
+    type: "earth",
+    damage: elements.earth.baseStats.damage,
+    attackSpeed: elements.earth.baseStats.attackSpeed,
+    range: elements.earth.baseStats.range,
     cost: 100,
-    description: "Powerful magic user with area damage.",
+    description: "Earth mage with splash damage.",
   },
   {
-    id: "trebuchet",
-    name: "Trebuchet",
-    type: "trebuchet",
-    damage: 5,
-    attackSpeed: 0.3, // attacks per second
-    range: 600,
-    cost: 200,
-    description: "Heavy siege weapon with massive damage.",
+    id: "air",
+    name: "Air Mage",
+    type: "air",
+    damage: elements.air.baseStats.damage,
+    attackSpeed: elements.air.baseStats.attackSpeed,
+    range: elements.air.baseStats.range,
+    cost: 125,
+    description: "Air mage with burst attack speed.",
   },
 ];
 
 export const getDefenderData = (
-  defenderType: string
+  defenderType: ElementType
 ): DefenderData | undefined => {
   return defenders.find((defender) => defender.id === defenderType);
 };

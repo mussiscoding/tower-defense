@@ -1,0 +1,54 @@
+.fire-particles {
+  position: absolute;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.particle {
+  position: absolute;
+  font-size: 0.8em;
+  opacity: 0;
+  animation: particleFade 1s ease-in-out infinite;
+}
+
+.particle-1 {
+  animation-delay: 0s;
+  left: 25px;
+  top: 45px;
+}
+
+.particle-2 {
+  animation-delay: 0.25s;
+  left: 35px;
+  top: 45px;
+}
+
+.particle-3 {
+  animation-delay: 0.5s;
+  left: 45px;
+  top: 40px;
+}
+
+.particle-4 {
+  animation-delay: 0.75s;
+  left: 50px;
+  top: 30px;
+}
+
+@keyframes particleFade {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  40% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}

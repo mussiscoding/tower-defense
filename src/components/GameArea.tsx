@@ -15,6 +15,7 @@ import {
   updateDefenders,
   getArrowProgress,
   processArrowImpacts,
+  processBurnDamage,
   handleEnemyDeath,
 } from "../utils/gameLogic";
 import "./GameArea.css";
@@ -55,13 +56,18 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
   ]);
 
   // Enemy movement and defender attacks
+  // Game loop
   useEffect(() => {
     if (gameState.isPaused) return;
 
     const gameLoop = setInterval(() => {
       setGameState((prev) => {
         const movedEnemies = moveEnemies(prev.enemies);
-        const aliveEnemies = removeDeadEnemies(movedEnemies);
+        const enemiesWithBurnDamage = processBurnDamage(
+          movedEnemies,
+          Date.now()
+        );
+        const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
 
         // Update defenders (attack enemies)
         const {
@@ -83,12 +89,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           goldGained,
           goldPopups: newGoldPopups,
           predictedDamage: finalPredictedDamage,
+          elements: updatedElements,
         } = processArrowImpacts(
           [...prev.arrows, ...newArrows],
           enemiesAfterDefenderAttacks,
-          updatedDefenders,
           Date.now(),
-          updatedPredictedDamage
+          updatedPredictedDamage,
+          prev.elements,
+          prev.purchases
         );
 
         // Handle castle damage
@@ -111,6 +119,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
           castleHealth,
           predictedDamage: finalPredictedDamage,
+          elements: updatedElements,
         };
       });
     }, 50); // Update every 50ms for smooth movement
@@ -173,6 +182,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
               endX={arrow.endX}
               endY={arrow.endY}
               progress={progress}
+              elementType={arrow.elementType}
             />
           );
         })}

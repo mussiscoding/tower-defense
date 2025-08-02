@@ -5,10 +5,15 @@ import GameArea from "./components/GameArea";
 import GameSidebar from "./components/GameSidebar";
 import type { GameState } from "./types/GameState";
 import { saveGame, loadGame, clearSave } from "./utils/saveSystem";
+import {
+  getAvailableElements,
+  createInitialElementData,
+} from "./data/elements";
+import type { ElementData } from "./types/GameState";
 
 function App() {
   const [gameState, setGameState] = useState<GameState>({
-    gold: 50, // dev only
+    gold: 0,
     castleHealth: 100,
     timeSurvived: 0,
     clickDamage: 1,
@@ -23,6 +28,10 @@ function App() {
     difficultyLevel: 1,
     spawnRateLevel: 1,
     predictedDamage: new Map(),
+    elements: getAvailableElements().reduce((acc, elementType) => {
+      acc[elementType] = createInitialElementData(elementType);
+      return acc;
+    }, {} as Record<string, ElementData>),
   });
 
   // Game loop
@@ -75,7 +84,7 @@ function App() {
   const resetGame = () => {
     clearSave();
     setGameState({
-      gold: 50, // dev only
+      gold: 500, // dev only
       castleHealth: 100,
       timeSurvived: 0,
       clickDamage: 1,
@@ -90,6 +99,10 @@ function App() {
       difficultyLevel: 1,
       spawnRateLevel: 1,
       predictedDamage: new Map(),
+      elements: getAvailableElements().reduce((acc, elementType) => {
+        acc[elementType] = createInitialElementData(elementType);
+        return acc;
+      }, {} as Record<string, ElementData>),
     });
   };
 

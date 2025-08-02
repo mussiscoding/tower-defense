@@ -1,4 +1,4 @@
-# Vibe Ideas - Mage Mastery System
+# School Planning - Mage Mastery System
 
 ## Core Concept
 
@@ -8,42 +8,48 @@ A tower defense idle game where all defenders are mages of different elemental s
 
 ### Available Schools
 
-- **Fire School**: Splash damage, burn effects, high damage
-- **Ice School**: Slow effects, freeze chance, crowd control
-- **Lightning School**: Fast attacks, chain lightning, critical hits
-- **Dark School**: High damage, life steal, debuffs
-- **Light School**: Healing, buffs, support abilities
+- **Fire School**: Burn effects
+- **Ice School**: Slow effects
+- **Earth School**: Splash damage
+- **Air School**: Fast attacks
+
+### Later school ideas to build
+
+- **Lightning School**: Chain lightning
+- **Dark School**: Critical hits - eventually, chance of instant death
 
 ### School Progression
 
 - Each school starts at Level 1
 - All mages of the same school contribute XP to their school
 - Schools level up collectively, unlocking new abilities for all mages of that type
-- Higher school levels = more powerful abilities and better stats
+- Higher school levels = Better stats
+- Maximum level: 99 (RuneScape style)
 
 ## Mastery Mechanics
 
 ### Experience System
 
-- Each attack by any mage grants XP to their school
-- XP gain scales with enemy difficulty and mage level
-- Boss enemies grant bonus XP
-- Special events (combo kills, perfect timing) grant bonus XP
+- **Damage = XP gained**: Each point of damage dealt grants 1 XP to the school
+- XP doesn't scale with enemy difficulty - having more mages and attacking faster will scale them
+- This balances fast-attacking towers (Air) vs slow high-damage towers (Earth)
+- Uses RuneScape experience curve for level progression
 
 ### Level Progression
 
-- **Level 1-10**: Basic abilities, gradual damage increase
-- **Level 11-25**: Unlock secondary abilities (Fire gets burn DoT, Ice gets freeze chance)
-- **Level 26-50**: Unlock ultimate abilities (Fire gets meteor storm, Ice gets blizzard)
-- **Level 51+**: Mastery bonuses (increased range, reduced cooldowns, etc.)
+- **Level 1-99**: Gradual base stat improvements only (damage, attack speed, range)
+- **Shop-driven abilities**: All ability upgrades come from the shop system
+- **Linear progression**: Each level improves core combat stats
+- **RuneScape XP curve**: Exponential XP requirements for higher levels
 
 ### School Specialization Rewards
 
-- **Fire Mastery**: Increased burn duration, splash radius, fire damage
-- **Ice Mastery**: Longer freeze duration, area slow effects, ice damage
-- **Lightning Mastery**: Chain lightning, faster attack speed, lightning damage
-- **Dark Mastery**: Life steal, critical hit chance, dark damage
-- **Light Mastery**: Healing allies, damage buffs, light damage
+- **Fire Mastery**: Increased burn damage and duration (shop upgrades)
+- **Ice Mastery**: Longer slow duration and stronger slow effects (shop upgrades)
+- **Earth Mastery**: Larger splash radius and splash damage (shop upgrades)
+- **Air Mastery**: Burst attack speed ability (shop upgrades for cooldown, buff strength, duration)
+- **Lightning Mastery**: More chain targets and chain damage (future shop upgrades)
+- **Dark Mastery**: Higher critical chance and critical damage (future shop upgrades)
 
 ## UI Design - The Academy
 
@@ -58,7 +64,7 @@ A tower defense idle game where all defenders are mages of different elemental s
 
 Each school has its own detailed tab showing:
 
-- **Current Level**: Exact level and XP progress
+- **Current Level**: Exact level and XP progress (1-99)
 - **School Stats**: Damage, attack speed, range, special abilities
 - **Progression Tree**: Visual representation of unlocked abilities
 - **Next Unlocks**: What abilities are coming next
@@ -98,17 +104,16 @@ Each school has its own detailed tab showing:
 
 ### Phase 1: Core System
 
-1. **Basic XP/Leveling** - Simple XP gain per attack
-2. **School Levels** - Track levels for each school
+1. **Basic XP/Leveling** - Damage-based XP gain per attack
+2. **School Levels** - Track levels for each school (1-99)
 3. **Basic UI** - Academy overview with school tabs
-4. **Level Milestones** - Unlock new abilities at certain levels
+4. **RuneScape XP Curve** - Implement exponential XP requirements
 
 ### Phase 2: Advanced Features
 
 1. **Visual Feedback** - XP bars, level displays, level-up effects
-2. **Ability Trees** - Detailed progression for each school
-3. **School Specialization** - Unique bonuses for each element
-4. **Respec System** - Allow redistribution of school focus
+2. **Ability Trees** - Simplified progression for each school
+3. **Specialization** - Unique bonuses for each element
 
 ### Phase 3: Polish
 
@@ -116,19 +121,6 @@ Each school has its own detailed tab showing:
 2. **Mastery Points** - Permanent progression system
 3. **Advanced UI** - Detailed statistics and comparisons
 4. **Balance Tuning** - Fine-tune progression speeds
-
-## Example Progression Path
-
-### Fire School Journey
-
-- **Level 1**: Basic fireball, 10 damage
-- **Level 5**: Fireball gets splash damage
-- **Level 10**: Unlock "Burn" DoT effect
-- **Level 15**: Burn duration increases
-- **Level 20**: Unlock "Meteor Strike" ultimate
-- **Level 25**: Meteor Strike cooldown reduced
-- **Level 30**: Fire mastery bonus: +50% burn damage
-- **Level 50**: Master Fire School: All fire abilities enhanced
 
 ## Why This Works for Idle Games
 
@@ -148,8 +140,8 @@ Each school has its own detailed tab showing:
 
 ## Next Steps
 
-1. Design the XP/leveling curve for schools
-2. Create ability trees for each school
+1. Design the RuneScape XP curve for schools (1-99)
+2. Create simplified ability trees for each school
 3. Plan the Academy UI layout
 4. Balance the progression speed
 5. Design the respec system

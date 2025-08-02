@@ -1,3 +1,5 @@
+import type { ElementType } from "../data/elements";
+
 export interface Enemy {
   id: string;
   x: number;
@@ -7,11 +9,15 @@ export interface Enemy {
   speed: number;
   goldValue: number;
   type: "goblin" | "orc" | "troll";
+  burnDamage?: number;
+  burnEndTime?: number;
+  slowEffect?: number;
+  slowEndTime?: number;
 }
 
 export interface Defender {
   id: string;
-  type: "archer" | "mage" | "trebuchet";
+  type: ElementType;
   x: number;
   y: number;
   damage: number;
@@ -20,6 +26,31 @@ export interface Defender {
   lastAttack: number;
   level: number;
   cost: number;
+}
+
+export interface ElementBaseStats {
+  damage: number;
+  attackSpeed: number;
+  range: number;
+}
+
+export interface ElementAbilities {
+  burnDamage?: number;
+  burnDuration?: number;
+  slowEffect?: number;
+  slowDuration?: number;
+  splashDamage?: number;
+  splashRadius?: number;
+  burstAttackSpeed?: number;
+  burstDuration?: number;
+}
+
+export interface ElementData {
+  level: number;
+  xp: number;
+  totalDamage: number;
+  baseStats: ElementBaseStats;
+  abilities: ElementAbilities;
 }
 
 export interface GameState {
@@ -34,10 +65,11 @@ export interface GameState {
   spawnRate: number;
   lastSave: number;
   isPaused: boolean;
-  purchases: Record<string, number>; // Track number of each item purchased
-  difficultyLevel: number; // 1-3: 1=goblins only, 2=goblins+orcs, 3=all types
-  spawnRateLevel: number; // 1-5: Controls enemy spawn frequency
-  predictedDamage: Map<string, number>; // Track predicted damage to enemies from arrows in flight
+  purchases: Record<string, number>;
+  difficultyLevel: number;
+  spawnRateLevel: number;
+  predictedDamage: Map<string, number>;
+  elements: Record<ElementType, ElementData>;
 }
 
 export interface Arrow {
@@ -49,6 +81,7 @@ export interface Arrow {
   startTime: number;
   duration: number; // milliseconds
   targetEnemyId?: string; // Optional target enemy ID for precise targeting
+  elementType: ElementType; // Element type of the defender that fired this arrow
 }
 
 export interface GoldPopup {
@@ -65,6 +98,5 @@ export interface ShopItem {
   description: string;
   cost: number;
   type: "defender" | "upgrade" | "castle";
-  effect: string;
   scalingFactor: number;
 }

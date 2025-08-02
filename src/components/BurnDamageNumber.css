@@ -1,0 +1,21 @@
+.burn-damage-number {
+  position: absolute;
+  color: #ff6600;
+  font-weight: bold;
+  font-size: 0.9em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  pointer-events: none;
+  animation: burnDamageFloat 1.2s ease-out forwards;
+}
+
+@keyframes burnDamageFloat {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
