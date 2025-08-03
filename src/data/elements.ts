@@ -28,18 +28,18 @@ export const elements: Record<ElementType, ElementDefinition> = {
   },
   earth: {
     name: "Earth",
-    baseStats: { damage: 15, attackSpeed: 0.8, range: 700 },
-    abilities: { splashDamage: 0, splashRadius: 0 },
+    baseStats: { damage: 15, attackSpeed: 0.4, range: 700 },
+    abilities: { splashDamage: 20, splashRadius: 50 },
     upgradeFactors: { splashDamage: 1.4, splashRadius: 1.2 },
   },
   air: {
     name: "Air",
     baseStats: { damage: 5, attackSpeed: 1.5, range: 700 },
     abilities: {
-      burstAttackSpeed: 0,
-      burstDuration: 0,
+      burstShots: 2,
+      burstCooldown: 8,
     },
-    upgradeFactors: { burstAttackSpeed: 1.3, burstDuration: 1.2 },
+    upgradeFactors: { burstShots: 1, burstCooldown: 1 },
   },
 } as const;
 
@@ -140,16 +140,34 @@ export const calculateElementAbilities = (
         ),
       };
     }
-    case "earth":
+    case "earth": {
+      const splashDamageUpgrades =
+        purchases["earth_splash_damage_upgrade"] || 0;
+      const splashRadiusUpgrades =
+        purchases["earth_splash_radius_upgrade"] || 0;
+
       return {
-        splashDamage: baseAbilities.splashDamage,
-        splashRadius: baseAbilities.splashRadius,
+        splashDamage: Math.min(
+          100, // Cap at 100%
+          (baseAbilities.splashDamage || 0) + splashDamageUpgrades
+        ),
+        splashRadius:
+          (baseAbilities.splashRadius || 0) + splashRadiusUpgrades * 10,
       };
-    case "air":
+    }
+    case "air": {
+      const burstShotsUpgrades = purchases["air_burst_shots_upgrade"] || 0;
+      const burstCooldownUpgrades =
+        purchases["air_burst_cooldown_upgrade"] || 0;
+
       return {
-        burstAttackSpeed: baseAbilities.burstAttackSpeed,
-        burstDuration: baseAbilities.burstDuration,
+        burstShots: (baseAbilities.burstShots || 0) + burstShotsUpgrades,
+        burstCooldown: Math.max(
+          1,
+          (baseAbilities.burstCooldown || 0) - burstCooldownUpgrades
+        ),
       };
+    }
     default:
       return {};
   }

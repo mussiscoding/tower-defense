@@ -5,22 +5,11 @@
 Major bug.
 Fire gets most of its damage from burn, but only exp from the initial hit.
 
-## All towers are stopping targeting enemies too soon
-
-## Symptons
-
-- No enemies are dying. Mageas are attacking until the enemey is low health, then stopping to find a new target
-
-## Cause
-
-- I assume this is the predicted health map that's wrong, but am unsure
-- Initially thought this was burn related, but its ahppeneing even with just an ice mage
-
-## XP Duplication Bug
+## Multiple Arrows bug
 
 ### Description
 
-Fire defenders are granting 20 XP per shot instead of 10 XP. The same arrow is being processed multiple times, causing duplicate XP grants.
+The same arrow is being processed multiple times, causing duplicate XP grants.
 
 ### Symptoms
 
@@ -28,6 +17,7 @@ Fire defenders are granting 20 XP per shot instead of 10 XP. The same arrow is b
 - Console logs show different arrow IDs being created
 - Two arrows are created per attack cycle instead of one
 - Arrow creation logs show duplicate defender attacks
+- Air towers clearly show two arrows being fired one after another because of their higher AS
 
 ### Root Cause
 
@@ -103,6 +93,46 @@ Likely an enemy movement prediction issue. The arrow targeting system may not be
 - **Priority**: Low
 - **Impact**: Visual polish (doesn't affect gameplay mechanics)
 - **Workaround**: None currently implemented
+
+---
+
+## Earth Splash Effect Visual Scaling Issue
+
+### Description
+
+The Earth splash effect visual radius appears much larger than the actual splash damage radius. The visual effect shows arrows shooting to the full 50px radius, but this creates an overly large visual indicator that doesn't match player expectations.
+
+### Symptoms
+
+- Splash effect arrows shoot much further than expected
+- Visual effect appears to indicate a much larger splash area than actual damage
+- Players may expect splash damage to reach the visual arrows' endpoints
+- Visual feedback doesn't match actual gameplay mechanics
+
+### Root Cause
+
+The visual splash effect uses the same radius as the actual splash damage calculation (50px), but 50 pixels is quite large on screen and creates an unrealistic visual expectation.
+
+### Technical Details
+
+- Actual splash radius: 50px (correct for gameplay)
+- Visual effect radius: 50px (too large for visual feedback)
+- Current workaround: Visual radius scaled to 1/3 (17px) for better appearance
+- Splash damage calculation unaffected by visual scaling
+
+### Potential Solutions
+
+1. **Investigate game scale** - Determine if 50px is actually the correct visual scale
+2. **Adjust base splash radius** - Reduce the actual splash radius if 50px is too large
+3. **Improve visual scaling** - Better algorithm for visual radius scaling
+4. **Add visual indicators** - Show actual splash damage area more clearly
+
+### Status
+
+- **Status**: Known issue, workaround implemented
+- **Priority**: Low
+- **Impact**: Visual polish and player expectations
+- **Workaround**: Visual radius scaled to 1/3 of actual radius
 
 ---
 

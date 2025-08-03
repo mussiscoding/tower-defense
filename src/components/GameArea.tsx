@@ -5,6 +5,7 @@ import Castle from "./Castle";
 import Defender from "./Defender";
 import Arrow from "./Arrow";
 import GoldPopup from "./GoldPopup";
+import SplashEffectComponent from "./SplashEffect";
 import {
   createEnemy,
   moveEnemies,
@@ -81,7 +82,8 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           aliveEnemies,
           Date.now(),
           prev.predictedArrowDamage,
-          prev.predictedBurnDamage
+          prev.predictedBurnDamage,
+          prev.purchases
         );
 
         // Process arrow impacts and update arrows
@@ -90,6 +92,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           enemies: enemiesAfterArrowImpacts,
           goldGained,
           goldPopups: newGoldPopups,
+          splashEffects: newSplashEffects,
           predictedArrowDamage: finalPredictedArrowDamage,
           predictedBurnDamage: finalPredictedBurnDamage,
           elements: updatedElements,
@@ -121,6 +124,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           arrows: activeArrows,
           gold: prev.gold + goldGained,
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
+          splashEffects: [...prev.splashEffects, ...newSplashEffects],
           castleHealth,
           predictedArrowDamage: finalPredictedArrowDamage,
           predictedBurnDamage: finalPredictedBurnDamage,
@@ -131,6 +135,21 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
 
     return () => clearInterval(gameLoop);
   }, [gameState.isPaused, setGameState]);
+
+  // Clean up expired splash effects
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const currentTime = Date.now();
+      setGameState((prev) => ({
+        ...prev,
+        splashEffects: prev.splashEffects.filter(
+          (effect) => currentTime - effect.startTime < effect.duration
+        ),
+      }));
+    }, 100); // Check every 100ms
+
+    return () => clearInterval(cleanupInterval);
+  }, [setGameState]);
 
   const handleEnemyClick = (enemy: EnemyType) => {
     if (gameState.isPaused) return; // Prevent clicking when paused
@@ -209,6 +228,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
                 goldPopups: prev.goldPopups.filter((p) => p.id !== popup.id),
               }));
             }}
+          />
+        ))}
+
+        {gameState.splashEffects.map((effect) => (
+          <SplashEffectComponent
+            key={effect.id}
+            effect={effect}
+            currentTime={Date.now()}
           />
         ))}
       </div>

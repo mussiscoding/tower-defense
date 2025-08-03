@@ -15,12 +15,14 @@ This file tracks additional features and improvements that come up during develo
 ## UI/UX Improvements
 
 - [ ] **Move save data to settings**: Create a dedicated settings panel for save management
+- [] **Show all element details in elements tab**
 - [ ] **Even defender distribution**: Defenders are currently random on y, but should be in gaps instead
 - [ ] **New player intro**: Show them upgrades & the difficulty slider
 
 ## Content Expansions
 
 - [ ] **Add more enemy types**: Expand enemy variety with unique behaviors
+- [ ] **Difficulty**: I think difficulty should be a 1-99+ scale (numbers with up down arrows) only, not two different sliding scales
 - [ ] **Add sound effects and background music**: Audio enhancements
 - [ ] **Implement achievements system**: Player progression tracking
 
@@ -35,14 +37,31 @@ This file tracks additional features and improvements that come up during develo
 - [ ] **Fire mages only attack non-burning enemies**: Shop upgrade that makes fire defenders prioritize enemies without burn effects
 
   - Cost: 500 gold
+  - Requires fire level 20
   - Effect: Fire defenders skip enemies that already have burn damage applied
   - Benefit: Prevents wasted attacks on already-burning enemies, improves efficiency
   - Implementation: Modify `findNearestEnemy` to filter out burning enemies for fire defenders
 
 - [ ] **Ice effect - permafrost**: After x attacks, freeze enemy in place for 1s
 
-  - Requires ice level 10
+  - Requires ice level 20
   - Expensive
   - Cool frozen effect (thinking translucent ice block over the enemy)
 
 - [ ] **Ability numbers in element stats tabs**
+
+- [ ] **Earth targeting**: Shop upgrade that makes earth towers target the highest density of enemies in range
+
+  - Requires earth level 20
+  - Expensive
+
+- [ ] **Air multimultishot**: Air burst attacks two enemmies
+  - Straight up double damage
+- [ ] **Air multitargetmultishot**: INitially air burst only targets one enemy with all shots. This would allow it to take in predicted damage and stop hitting one enemy when it would have died already.
+
+## Shopping
+
+- [ ] **Upgrades based on level**: Some upgrades should require certain levels as well as gold
+
+  - This should be for both basic and special abilities
+  - This allows for certain timing gatekeeping, the player must have x time to get to y exp before they can scale too far

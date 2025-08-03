@@ -26,6 +26,7 @@ export interface Defender {
   lastAttack: number;
   level: number;
   cost: number;
+  burstCooldownEnd?: number; // When burst cooldown ends
 }
 
 export interface ElementBaseStats {
@@ -41,8 +42,8 @@ export interface ElementAbilities {
   slowDuration?: number;
   splashDamage?: number;
   splashRadius?: number;
-  burstAttackSpeed?: number;
-  burstDuration?: number;
+  burstShots?: number;
+  burstCooldown?: number;
 }
 
 export interface ElementData {
@@ -62,6 +63,7 @@ export interface GameState {
   enemies: Enemy[];
   arrows: Arrow[];
   goldPopups: GoldPopup[];
+  splashEffects: SplashEffect[];
   spawnRate: number;
   lastSave: number;
   isPaused: boolean;
@@ -93,11 +95,20 @@ export interface GoldPopup {
   startTime: number;
 }
 
+export interface SplashEffect {
+  id: string;
+  centerX: number;
+  centerY: number;
+  radius: number;
+  startTime: number;
+  duration: number; // milliseconds
+}
+
 export interface ShopItem {
   id: string;
   name: string;
   description: string;
   cost: number;
   type: "defender" | "upgrade" | "castle";
-  scalingFactor: number;
+  costScalingFactor: number;
 }

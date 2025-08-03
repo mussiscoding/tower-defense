@@ -35,6 +35,7 @@ export const loadGame = (): GameState | null => {
       enemies: parsed.enemies ?? [],
       arrows: parsed.arrows ?? [],
       goldPopups: parsed.goldPopups ?? [],
+      splashEffects: parsed.splashEffects ?? [],
       spawnRate: parsed.spawnRate ?? 1,
       lastSave: parsed.lastSave ?? Date.now(),
       isPaused: parsed.isPaused ?? false,

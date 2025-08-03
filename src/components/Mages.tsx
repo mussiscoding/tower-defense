@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Mages.css";
 import type { ElementData } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { getXPForLevel } from "../data/elements";
+import { getXPForLevel, calculateElementAbilities } from "../data/elements";
 import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
@@ -76,7 +76,7 @@ const Mages: React.FC<MagesProps> = ({
           description: defenderData.description,
           cost: defenderData.cost,
           type: "defender",
-          scalingFactor: 1.25,
+          costScalingFactor: 1.25,
         };
         const cost = getCurrentPrice(shopItem, purchases);
         onPurchaseMage(elementType, cost);
@@ -86,6 +86,10 @@ const Mages: React.FC<MagesProps> = ({
 
   if (selectedElement) {
     const elementData = elements[selectedElement];
+    const currentAbilities = calculateElementAbilities(
+      selectedElement,
+      purchases
+    );
     return (
       <div className="mages-container">
         <div className="element-detail-header">
@@ -156,6 +160,70 @@ const Mages: React.FC<MagesProps> = ({
                         {elementData.baseStats.range}
                       </span>
                     </div>
+                    {selectedElement === "fire" && (
+                      <>
+                        <div className="stat-item">
+                          <span className="stat-label">Burn Damage:</span>
+                          <span className="stat-value">
+                            {currentAbilities.burnDamage || 0}
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Burn Duration:</span>
+                          <span className="stat-value">
+                            {currentAbilities.burnDuration || 0}s
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {selectedElement === "ice" && (
+                      <>
+                        <div className="stat-item">
+                          <span className="stat-label">Slow Effect:</span>
+                          <span className="stat-value">
+                            {currentAbilities.slowEffect || 0}%
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Slow Duration:</span>
+                          <span className="stat-value">
+                            {currentAbilities.slowDuration || 0}s
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {selectedElement === "earth" && (
+                      <>
+                        <div className="stat-item">
+                          <span className="stat-label">Splash Damage:</span>
+                          <span className="stat-value">
+                            {currentAbilities.splashDamage || 0}%
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Splash Radius:</span>
+                          <span className="stat-value">
+                            {currentAbilities.splashRadius || 0}px
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {selectedElement === "air" && (
+                      <>
+                        <div className="stat-item">
+                          <span className="stat-label">Burst Shots:</span>
+                          <span className="stat-value">
+                            {currentAbilities.burstShots || 0}
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Burst Cooldown:</span>
+                          <span className="stat-value">
+                            {currentAbilities.burstCooldown || 0}s
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -194,7 +262,7 @@ const Mages: React.FC<MagesProps> = ({
                       description: defenderData.description,
                       cost: defenderData.cost,
                       type: "defender",
-                      scalingFactor: 1.25,
+                      costScalingFactor: 1.25,
                     };
                     const cost = getCurrentPrice(shopItem, purchases);
                     const canAfford = currentGold >= cost;

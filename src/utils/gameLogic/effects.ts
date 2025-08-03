@@ -11,9 +11,6 @@ export const processBurnDamage = (
       currentTime > enemy.burnEndTime
     ) {
       // No burn effect or burn has expired
-      if (enemy.burnDamage || enemy.burnEndTime) {
-        console.log(`🔥 Burn expired for enemy ${enemy.id} (${enemy.type})`);
-      }
       return {
         ...enemy,
         burnDamage: undefined,
@@ -30,9 +27,6 @@ export const processBurnDamage = (
     // Only apply damage if we're on a new tick
     if (currentTick > 0 && timeSinceBurnStart % burnTickInterval < 50) {
       const newHealth = Math.max(0, enemy.health - enemy.burnDamage);
-      console.log(
-        `🔥 Burn tick ${currentTick}: Enemy ${enemy.id} (${enemy.type}) took ${enemy.burnDamage} burn damage. Health: ${enemy.health} → ${newHealth}`
-      );
       return {
         ...enemy,
         health: newHealth,

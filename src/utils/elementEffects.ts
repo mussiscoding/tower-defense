@@ -13,7 +13,6 @@ export const addElementEffects = (
   currentTime: number
 ): ElementEffectResult => {
   let updatedEnemy = enemy;
-  let logMessage: string | undefined;
 
   // Apply fire element burn effect
   if (
@@ -21,7 +20,6 @@ export const addElementEffects = (
     elementAbilities.burnDamage &&
     elementAbilities.burnDuration
   ) {
-    logMessage = `🔥 Fire arrow applied burn to enemy ${enemy.id} (${enemy.type}): ${elementAbilities.burnDamage} damage for ${elementAbilities.burnDuration}s`;
     updatedEnemy = {
       ...updatedEnemy,
       burnDamage: elementAbilities.burnDamage,
@@ -35,7 +33,6 @@ export const addElementEffects = (
     elementAbilities.slowEffect &&
     elementAbilities.slowDuration
   ) {
-    logMessage = `❄️ Ice arrow applied slow to enemy ${enemy.id} (${enemy.type}): ${elementAbilities.slowEffect}% slow for ${elementAbilities.slowDuration}s`;
     updatedEnemy = {
       ...updatedEnemy,
       slowEffect: elementAbilities.slowEffect,
@@ -45,6 +42,5 @@ export const addElementEffects = (
 
   return {
     enemy: updatedEnemy,
-    logMessage,
   };
 };

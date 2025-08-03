@@ -10,7 +10,7 @@ const defenderShopItems: ShopItem[] = defenders.map((defender) => ({
   cost: defender.cost,
   type: "defender" as const,
   effect: `Adds a ${defender.name.toLowerCase()} defender`,
-  scalingFactor: 1.25,
+  costScalingFactor: 1.25,
 }));
 
 export const shopItems: ShopItem[] = [
@@ -23,5 +23,7 @@ export const getCurrentPrice = (
   purchases: Record<string, number>
 ): number => {
   const purchasedCount = purchases[item.id] || 0;
-  return Math.floor(item.cost * Math.pow(item.scalingFactor, purchasedCount));
+  return Math.floor(
+    item.cost * Math.pow(item.costScalingFactor, purchasedCount)
+  );
 };

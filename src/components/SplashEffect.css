@@ -1,0 +1,25 @@
+.splash-arrow {
+  position: absolute;
+  font-size: 12px; /* Slightly smaller than regular arrows */
+  color: #8b4513; /* Brown color for earth */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  z-index: 15;
+  pointer-events: none;
+  transform-origin: center;
+  animation: splashArrowGlow 0.3s ease-out;
+}
+
+@keyframes splashArrowGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(var(--arrow-rotation, 0deg));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(var(--arrow-rotation, 0deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(var(--arrow-rotation, 0deg));
+  }
+}

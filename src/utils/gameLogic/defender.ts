@@ -2,6 +2,7 @@ import type { Defender, Enemy, Arrow } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
+import { calculateElementAbilities } from "../../data/elements";
 
 export const createDefender = (
   x: number,
@@ -33,19 +34,12 @@ export const findNearestEnemy = (
   predictedArrowDamage: Map<string, number>,
   predictedBurnDamage: Map<string, number>
 ): Enemy | null => {
-  console.log(
-    `🔍 ${defender.type} tower looking for targets. Total enemies: ${enemies.length}`
-  );
-
   // Range is based on distance from castle (left edge), not 2D distance
   const enemiesInRange = enemies.filter((enemy) => {
     const distanceFromCastle = enemy.x - 50; // Castle is at x=50
 
     // Log range check
     if (distanceFromCastle > defender.range) {
-      console.log(
-        `📏 ${defender.type} tower: Enemy ${enemy.id} (${enemy.type}) out of range - Distance: ${distanceFromCastle}, Range: ${defender.range}`
-      );
       return false;
     }
 
@@ -53,31 +47,13 @@ export const findNearestEnemy = (
     const arrowPredictedDamage = predictedArrowDamage.get(enemy.id) || 0;
     const burnPredictedDamage = predictedBurnDamage.get(enemy.id) || 0;
     const totalPredictedDamage = arrowPredictedDamage + burnPredictedDamage;
-    console.log(
-      `🎯 ${defender.type} tower checking enemy ${enemy.id} (${enemy.type}) - Health: ${enemy.health}, Arrow Predicted: ${arrowPredictedDamage}, Burn Predicted: ${burnPredictedDamage}, Total: ${totalPredictedDamage}`
-    );
 
     const finalPredictedHealth = enemy.health - totalPredictedDamage;
-    console.log(
-      `📊 ${defender.type} tower: Enemy ${enemy.id} final predicted health: ${finalPredictedHealth}`
-    );
-
-    // Debug: Log when towers skip enemies
-    if (finalPredictedHealth <= 0 && enemy.health > 0) {
-      console.log(
-        `🎯 ${defender.type} tower skipping enemy ${enemy.id} - Health: ${enemy.health}, Predicted: ${totalPredictedDamage}, Final: ${finalPredictedHealth}`
-      );
-    }
 
     return finalPredictedHealth > 0;
   });
 
-  console.log(
-    `🎯 ${defender.type} tower: Found ${enemiesInRange.length} enemies in range`
-  );
-
   if (enemiesInRange.length === 0) {
-    console.log(`❌ ${defender.type} tower: No valid targets found`);
     return null;
   }
 
@@ -88,9 +64,6 @@ export const findNearestEnemy = (
     return enemyDistance < nearestDistance ? enemy : nearest;
   });
 
-  console.log(
-    `✅ ${defender.type} tower: Selected target ${target.id} (${target.type}) at x=${target.x}`
-  );
   return target;
 };
 
@@ -106,7 +79,8 @@ export const updateDefenders = (
   enemies: Enemy[],
   currentTime: number,
   predictedArrowDamage: Map<string, number>,
-  predictedBurnDamage: Map<string, number>
+  predictedBurnDamage: Map<string, number>,
+  purchases: Record<string, number> = {}
 ): {
   defenders: Defender[];
   enemies: Enemy[];
@@ -131,21 +105,25 @@ export const updateDefenders = (
       updatedPredictedBurnDamage
     );
     if (!target) {
-      console.log(
-        `⏸️ ${defender.type} tower: No target found, skipping attack`
-      );
       return defender;
     }
 
-    // Update predicted damage for this target
+    // Check if burst is available for Air defenders
+    const elementAbilities = calculateElementAbilities(
+      defender.type,
+      purchases
+    );
+    const canBurst =
+      defender.type === "air" &&
+      elementAbilities.burstShots &&
+      elementAbilities.burstShots > 0 &&
+      (!defender.burstCooldownEnd || currentTime >= defender.burstCooldownEnd);
+
+    // Update predicted damage for this target (only the first arrow initially)
     const currentPredictedDamage =
       updatedPredictedArrowDamage.get(target.id) || 0;
     const newPredictedDamage = currentPredictedDamage + defender.damage;
     updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
-
-    console.log(
-      `⚔️ ${defender.type} tower attacking ${target.id} (${target.type}) - Adding ${defender.damage} predicted damage (${currentPredictedDamage} → ${newPredictedDamage})`
-    );
 
     // Calculate where the enemy will be when the arrow arrives
     const arrowSpeed = 300; // pixels per second
@@ -171,9 +149,44 @@ export const updateDefenders = (
     );
     newArrows.push(arrow);
 
+    // If burst is available, create additional burst arrows
+    if (canBurst && elementAbilities.burstShots) {
+      const burstShots = elementAbilities.burstShots;
+      console.log(`💨 Air burst: Firing ${burstShots} arrows at once!`);
+
+      // Add burst arrow damage to predicted damage
+      const burstDamage = defender.damage * (burstShots - 1); // -1 because first arrow already counted
+      const currentBurstPredictedDamage =
+        updatedPredictedArrowDamage.get(target.id) || 0;
+      updatedPredictedArrowDamage.set(
+        target.id,
+        currentBurstPredictedDamage + burstDamage
+      );
+
+      for (let i = 1; i < burstShots; i++) {
+        const burstArrow = createArrow(
+          defender.x + 20,
+          defender.y + 20,
+          predictedX + 20,
+          predictedY + 20,
+          currentTime + i * 50, // Add 50ms delay between burst arrows
+          defender.type,
+          target.id
+        );
+        newArrows.push(burstArrow);
+      }
+    }
+
+    // Set burst cooldown if burst was used
+    const burstCooldownEnd =
+      canBurst && elementAbilities.burstCooldown
+        ? currentTime + elementAbilities.burstCooldown * 1000
+        : defender.burstCooldownEnd;
+
     return {
       ...defender,
       lastAttack: currentTime,
+      burstCooldownEnd,
     };
   });
 
