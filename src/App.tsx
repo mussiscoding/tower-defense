@@ -27,7 +27,8 @@ function App() {
     purchases: {},
     difficultyLevel: 1,
     spawnRateLevel: 1,
-    predictedDamage: new Map(),
+    predictedArrowDamage: new Map(),
+    predictedBurnDamage: new Map(),
     elements: getAvailableElements().reduce((acc, elementType) => {
       acc[elementType] = createInitialElementData(elementType);
       return acc;
@@ -98,7 +99,8 @@ function App() {
       purchases: {},
       difficultyLevel: 1,
       spawnRateLevel: 1,
-      predictedDamage: new Map(),
+      predictedArrowDamage: new Map(),
+      predictedBurnDamage: new Map(),
       elements: getAvailableElements().reduce((acc, elementType) => {
         acc[elementType] = createInitialElementData(elementType);
         return acc;

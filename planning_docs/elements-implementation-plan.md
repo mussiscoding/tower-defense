@@ -89,7 +89,7 @@
   - Visual burn effects
     - Burn damage numbers: Floating orange/red damage numbers every 500ms when burn ticks
     - Particle effects: Small fire particles/sparks floating up from burning enemies (consistent effect)
-- [ ] Implement Ice element abilities
+- [x] Implement Ice element abilities
   - Enemy state: Add slowEffect (percentage) and slowEndTime to Enemy interface
   - Movement calculation: Modify moveEnemies to apply slow multiplier: speed \* (1 - slowEffect/100)
   - Visual feedback: Blue border around enemy sprite when slowEffect > 0

@@ -30,44 +30,68 @@ export const createDefender = (
 export const findNearestEnemy = (
   defender: Defender,
   enemies: Enemy[],
-  predictedDamage: Map<string, number>
+  predictedArrowDamage: Map<string, number>,
+  predictedBurnDamage: Map<string, number>
 ): Enemy | null => {
+  console.log(
+    `🔍 ${defender.type} tower looking for targets. Total enemies: ${enemies.length}`
+  );
+
   // Range is based on distance from castle (left edge), not 2D distance
   const enemiesInRange = enemies.filter((enemy) => {
     const distanceFromCastle = enemy.x - 50; // Castle is at x=50
-    if (distanceFromCastle > defender.range) return false;
 
-    // Check if enemy will be dead from predicted damage
-    let totalPredictedDamage = predictedDamage.get(enemy.id) || 0;
-
-    // For fire defenders, also account for burn damage
-    if (defender.type === "fire" && enemy.burnDamage && enemy.burnEndTime) {
-      const currentTime = Date.now();
-      if (currentTime < enemy.burnEndTime) {
-        // Calculate remaining burn ticks
-        const burnTickInterval = 500;
-        const burnStartTime = enemy.burnEndTime - 2000; // 2 second duration
-        const timeSinceBurnStart = currentTime - burnStartTime;
-        const currentTick = Math.floor(timeSinceBurnStart / burnTickInterval);
-        const totalTicks = 4; // 2 seconds / 500ms
-        const remainingTicks = Math.max(0, totalTicks - currentTick);
-        const remainingBurnDamage = enemy.burnDamage * remainingTicks;
-        totalPredictedDamage += remainingBurnDamage;
-      }
+    // Log range check
+    if (distanceFromCastle > defender.range) {
+      console.log(
+        `📏 ${defender.type} tower: Enemy ${enemy.id} (${enemy.type}) out of range - Distance: ${distanceFromCastle}, Range: ${defender.range}`
+      );
+      return false;
     }
 
+    // Check if enemy will be dead from predicted damage
+    const arrowPredictedDamage = predictedArrowDamage.get(enemy.id) || 0;
+    const burnPredictedDamage = predictedBurnDamage.get(enemy.id) || 0;
+    const totalPredictedDamage = arrowPredictedDamage + burnPredictedDamage;
+    console.log(
+      `🎯 ${defender.type} tower checking enemy ${enemy.id} (${enemy.type}) - Health: ${enemy.health}, Arrow Predicted: ${arrowPredictedDamage}, Burn Predicted: ${burnPredictedDamage}, Total: ${totalPredictedDamage}`
+    );
+
     const finalPredictedHealth = enemy.health - totalPredictedDamage;
+    console.log(
+      `📊 ${defender.type} tower: Enemy ${enemy.id} final predicted health: ${finalPredictedHealth}`
+    );
+
+    // Debug: Log when towers skip enemies
+    if (finalPredictedHealth <= 0 && enemy.health > 0) {
+      console.log(
+        `🎯 ${defender.type} tower skipping enemy ${enemy.id} - Health: ${enemy.health}, Predicted: ${totalPredictedDamage}, Final: ${finalPredictedHealth}`
+      );
+    }
+
     return finalPredictedHealth > 0;
   });
 
-  if (enemiesInRange.length === 0) return null;
+  console.log(
+    `🎯 ${defender.type} tower: Found ${enemiesInRange.length} enemies in range`
+  );
+
+  if (enemiesInRange.length === 0) {
+    console.log(`❌ ${defender.type} tower: No valid targets found`);
+    return null;
+  }
 
   // Find the nearest enemy (closest to castle)
-  return enemiesInRange.reduce((nearest, enemy) => {
+  const target = enemiesInRange.reduce((nearest, enemy) => {
     const nearestDistance = nearest.x - 50;
     const enemyDistance = enemy.x - 50;
     return enemyDistance < nearestDistance ? enemy : nearest;
   });
+
+  console.log(
+    `✅ ${defender.type} tower: Selected target ${target.id} (${target.type}) at x=${target.x}`
+  );
+  return target;
 };
 
 export const canDefenderAttack = (
@@ -81,16 +105,19 @@ export const updateDefenders = (
   defenders: Defender[],
   enemies: Enemy[],
   currentTime: number,
-  predictedDamage: Map<string, number>
+  predictedArrowDamage: Map<string, number>,
+  predictedBurnDamage: Map<string, number>
 ): {
   defenders: Defender[];
   enemies: Enemy[];
   arrows: Arrow[];
-  predictedDamage: Map<string, number>;
+  predictedArrowDamage: Map<string, number>;
+  predictedBurnDamage: Map<string, number>;
 } => {
   const currentEnemies = [...enemies];
   const newArrows: Arrow[] = [];
-  const updatedPredictedDamage = new Map(predictedDamage);
+  const updatedPredictedArrowDamage = new Map(predictedArrowDamage);
+  const updatedPredictedBurnDamage = new Map(predictedBurnDamage);
 
   const updatedDefenders = defenders.map((defender) => {
     if (!canDefenderAttack(defender, currentTime)) {
@@ -100,17 +127,24 @@ export const updateDefenders = (
     const target = findNearestEnemy(
       defender,
       currentEnemies,
-      updatedPredictedDamage
+      updatedPredictedArrowDamage,
+      updatedPredictedBurnDamage
     );
     if (!target) {
+      console.log(
+        `⏸️ ${defender.type} tower: No target found, skipping attack`
+      );
       return defender;
     }
 
     // Update predicted damage for this target
-    const currentPredictedDamage = updatedPredictedDamage.get(target.id) || 0;
-    updatedPredictedDamage.set(
-      target.id,
-      currentPredictedDamage + defender.damage
+    const currentPredictedDamage =
+      updatedPredictedArrowDamage.get(target.id) || 0;
+    const newPredictedDamage = currentPredictedDamage + defender.damage;
+    updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
+
+    console.log(
+      `⚔️ ${defender.type} tower attacking ${target.id} (${target.type}) - Adding ${defender.damage} predicted damage (${currentPredictedDamage} → ${newPredictedDamage})`
     );
 
     // Calculate where the enemy will be when the arrow arrives
@@ -147,6 +181,7 @@ export const updateDefenders = (
     defenders: updatedDefenders,
     enemies: currentEnemies,
     arrows: newArrows,
-    predictedDamage: updatedPredictedDamage,
+    predictedArrowDamage: updatedPredictedArrowDamage,
+    predictedBurnDamage: updatedPredictedBurnDamage,
   };
 };

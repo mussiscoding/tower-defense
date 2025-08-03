@@ -16,7 +16,7 @@ export interface ElementDefinition {
 export const elements: Record<ElementType, ElementDefinition> = {
   fire: {
     name: "Fire",
-    baseStats: { damage: 1, attackSpeed: 1.0, range: 700 },
+    baseStats: { damage: 2, attackSpeed: 1.0, range: 700 },
     abilities: { burnDamage: 4, burnDuration: 2 },
     upgradeFactors: { burnDamage: 1.2, burnDuration: 1.3 },
   },

@@ -7,7 +7,10 @@ export const saveGame = (gameState: GameState): void => {
     // Convert Map to array for JSON serialization
     const saveData = JSON.stringify({
       ...gameState,
-      predictedDamage: Array.from(gameState.predictedDamage.entries()),
+      predictedArrowDamage: Array.from(
+        gameState.predictedArrowDamage.entries()
+      ),
+      predictedBurnDamage: Array.from(gameState.predictedBurnDamage.entries()),
     });
     localStorage.setItem(SAVE_KEY, saveData);
   } catch (error) {
@@ -38,7 +41,8 @@ export const loadGame = (): GameState | null => {
       purchases: parsed.purchases ?? {},
       difficultyLevel: parsed.difficultyLevel ?? 1,
       spawnRateLevel: parsed.spawnRateLevel ?? 1,
-      predictedDamage: new Map(parsed.predictedDamage ?? []),
+      predictedArrowDamage: new Map(parsed.predictedArrowDamage ?? []),
+      predictedBurnDamage: new Map(parsed.predictedBurnDamage ?? []),
       elements: parsed.elements ?? {},
     };
 

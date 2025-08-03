@@ -60,7 +60,8 @@ export const processArrowImpacts = (
   arrows: Arrow[],
   enemies: Enemy[],
   currentTime: number,
-  predictedDamage: Map<string, number>,
+  predictedArrowDamage: Map<string, number>,
+  predictedBurnDamage: Map<string, number>,
   elements: Record<ElementType, ElementData>,
   purchases: Record<string, number>
 ): {
@@ -68,14 +69,16 @@ export const processArrowImpacts = (
   enemies: Enemy[];
   goldGained: number;
   goldPopups: GoldPopup[];
-  predictedDamage: Map<string, number>;
+  predictedArrowDamage: Map<string, number>;
+  predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;
 } => {
   const activeArrows: Arrow[] = [];
   let updatedEnemies = [...enemies];
   let totalGoldGained = 0;
   const newGoldPopups: GoldPopup[] = [];
-  const updatedPredictedDamage = new Map(predictedDamage);
+  const updatedPredictedArrowDamage = new Map(predictedArrowDamage);
+  const updatedPredictedBurnDamage = new Map(predictedBurnDamage);
   const updatedElements = { ...elements };
   const processedArrowIds = new Set<string>();
 
@@ -136,28 +139,38 @@ export const processArrowImpacts = (
 
         // Reduce predicted damage since this arrow has hit
         const currentPredictedDamage =
-          updatedPredictedDamage.get(targetEnemy.id) || 0;
+          updatedPredictedArrowDamage.get(targetEnemy.id) || 0;
         const newPredictedDamage = Math.max(0, currentPredictedDamage - damage);
 
-        // For fire arrows, also add burn damage to predicted damage
-        if (
-          arrow.elementType === "fire" &&
-          targetEnemy.burnDamage &&
-          targetEnemy.burnEndTime
-        ) {
-          const burnDamagePerTick = targetEnemy.burnDamage;
-          const burnDuration = (targetEnemy.burnEndTime - currentTime) / 1000; // Duration in seconds
-          const totalBurnTicks = Math.floor(burnDuration * 2); // 2 ticks per second
-          const totalBurnDamage = burnDamagePerTick * totalBurnTicks;
-
-          // Add burn damage to predicted damage
-          const totalPredictedDamage = newPredictedDamage + totalBurnDamage;
-          updatedPredictedDamage.set(targetEnemy.id, totalPredictedDamage);
+        // Update predicted damage
+        if (newPredictedDamage === 0) {
+          updatedPredictedArrowDamage.delete(targetEnemy.id);
         } else {
-          if (newPredictedDamage === 0) {
-            updatedPredictedDamage.delete(targetEnemy.id);
-          } else {
-            updatedPredictedDamage.set(targetEnemy.id, newPredictedDamage);
+          updatedPredictedArrowDamage.set(targetEnemy.id, newPredictedDamage);
+        }
+
+        // Handle burn damage for fire arrows
+        if (arrow.elementType === "fire") {
+          const elementAbilities = calculateElementAbilities(
+            arrow.elementType,
+            purchases
+          );
+          const burnDamage = elementAbilities.burnDamage || 0;
+          const burnDuration = elementAbilities.burnDuration || 0;
+
+          if (burnDamage > 0 && burnDuration > 0) {
+            // Calculate total burn damage (damage per tick * number of ticks)
+            const burnTickInterval = 500; // 500ms per tick
+            const totalBurnTicks = Math.floor(
+              (burnDuration * 1000) / burnTickInterval
+            );
+            const totalBurnDamage = burnDamage * totalBurnTicks;
+
+            // Replace existing burn damage prediction with new one
+            updatedPredictedBurnDamage.set(targetEnemy.id, totalBurnDamage);
+            console.log(
+              `🔥 Fire arrow: Set ${totalBurnDamage} burn damage prediction for enemy ${targetEnemy.id}`
+            );
           }
         }
 
@@ -186,7 +199,8 @@ export const processArrowImpacts = (
             (enemy) => enemy.id !== targetEnemy.id
           );
           // Remove predicted damage for dead enemies
-          updatedPredictedDamage.delete(targetEnemy.id);
+          updatedPredictedArrowDamage.delete(targetEnemy.id);
+          updatedPredictedBurnDamage.delete(targetEnemy.id);
           const { goldGained, goldPopups: deathPopups } = handleEnemyDeath(
             targetEnemy,
             currentTime
@@ -198,7 +212,7 @@ export const processArrowImpacts = (
         // Arrow missed - reduce predicted damage for the target if we have one
         if (arrow.targetEnemyId) {
           const currentPredictedDamage =
-            updatedPredictedDamage.get(arrow.targetEnemyId) || 0;
+            updatedPredictedArrowDamage.get(arrow.targetEnemyId) || 0;
           // Get damage from the element's current stats
           const element = updatedElements[arrow.elementType];
           const damage = element?.baseStats.damage || 1;
@@ -207,9 +221,12 @@ export const processArrowImpacts = (
             currentPredictedDamage - damage
           );
           if (newPredictedDamage === 0) {
-            updatedPredictedDamage.delete(arrow.targetEnemyId);
+            updatedPredictedArrowDamage.delete(arrow.targetEnemyId);
           } else {
-            updatedPredictedDamage.set(arrow.targetEnemyId, newPredictedDamage);
+            updatedPredictedArrowDamage.set(
+              arrow.targetEnemyId,
+              newPredictedDamage
+            );
           }
         }
       }
@@ -225,7 +242,8 @@ export const processArrowImpacts = (
     enemies: updatedEnemies,
     goldGained: totalGoldGained,
     goldPopups: newGoldPopups,
-    predictedDamage: updatedPredictedDamage,
+    predictedArrowDamage: updatedPredictedArrowDamage,
+    predictedBurnDamage: updatedPredictedBurnDamage,
     elements: updatedElements,
   };
 };

@@ -18,7 +18,7 @@ export const enemies: EnemyData[] = [
     speed: 1,
     goldValue: 5,
     minDifficulty: 1,
-    maxDifficulty: 2, // Stop spawning at difficulty 3+
+    maxDifficulty: 1, // Stop spawning at difficulty 3+
   },
   {
     id: "orc",
@@ -28,7 +28,7 @@ export const enemies: EnemyData[] = [
     speed: 0.7,
     goldValue: 12,
     minDifficulty: 2,
-    maxDifficulty: 3, // Available at difficulty 2-3
+    maxDifficulty: 2, // Available at difficulty 2-3
   },
   {
     id: "troll",

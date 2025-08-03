@@ -74,12 +74,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           defenders: updatedDefenders,
           enemies: enemiesAfterDefenderAttacks,
           arrows: newArrows,
-          predictedDamage: updatedPredictedDamage,
+          predictedArrowDamage: updatedPredictedArrowDamage,
+          predictedBurnDamage: updatedPredictedBurnDamage,
         } = updateDefenders(
           prev.defenders,
           aliveEnemies,
           Date.now(),
-          prev.predictedDamage
+          prev.predictedArrowDamage,
+          prev.predictedBurnDamage
         );
 
         // Process arrow impacts and update arrows
@@ -88,13 +90,15 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           enemies: enemiesAfterArrowImpacts,
           goldGained,
           goldPopups: newGoldPopups,
-          predictedDamage: finalPredictedDamage,
+          predictedArrowDamage: finalPredictedArrowDamage,
+          predictedBurnDamage: finalPredictedBurnDamage,
           elements: updatedElements,
         } = processArrowImpacts(
           [...prev.arrows, ...newArrows],
           enemiesAfterDefenderAttacks,
           Date.now(),
-          updatedPredictedDamage,
+          updatedPredictedArrowDamage,
+          updatedPredictedBurnDamage,
           prev.elements,
           prev.purchases
         );
@@ -118,7 +122,8 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           gold: prev.gold + goldGained,
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
           castleHealth,
-          predictedDamage: finalPredictedDamage,
+          predictedArrowDamage: finalPredictedArrowDamage,
+          predictedBurnDamage: finalPredictedBurnDamage,
           elements: updatedElements,
         };
       });

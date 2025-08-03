@@ -68,7 +68,8 @@ export interface GameState {
   purchases: Record<string, number>;
   difficultyLevel: number;
   spawnRateLevel: number;
-  predictedDamage: Map<string, number>;
+  predictedArrowDamage: Map<string, number>;
+  predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;
 }
 

@@ -5,6 +5,17 @@
 Major bug.
 Fire gets most of its damage from burn, but only exp from the initial hit.
 
+## All towers are stopping targeting enemies too soon
+
+## Symptons
+
+- No enemies are dying. Mageas are attacking until the enemey is low health, then stopping to find a new target
+
+## Cause
+
+- I assume this is the predicted health map that's wrong, but am unsure
+- Initially thought this was burn related, but its ahppeneing even with just an ice mage
+
 ## XP Duplication Bug
 
 ### Description
