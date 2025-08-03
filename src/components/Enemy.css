@@ -36,7 +36,7 @@
 }
 
 .enemy-health-bar {
-  width: 60px;
+  width: 20px;
   height: 6px;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid #333;

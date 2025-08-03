@@ -165,6 +165,19 @@ export const processArrowImpacts = (
           updatedPredictedArrowDamage.get(targetEnemy.id) || 0;
         const newPredictedDamage = Math.max(0, currentPredictedDamage - damage);
 
+        // Log arrow impact and predicted damage reduction
+        console.log(
+          `💥 Arrow hit enemy ${targetEnemy.id} (${targetEnemy.type}):`,
+          {
+            damageDealt: damage,
+            currentPredicted: currentPredictedDamage,
+            newPredicted: newPredictedDamage,
+            enemyHealthBefore: targetEnemy.health,
+            enemyHealthAfter: damagedEnemy.health,
+            isDead: isDead,
+          }
+        );
+
         // Update predicted damage
         if (newPredictedDamage === 0) {
           updatedPredictedArrowDamage.delete(targetEnemy.id);
@@ -191,99 +204,6 @@ export const processArrowImpacts = (
 
             // Replace existing burn damage prediction with new one
             updatedPredictedBurnDamage.set(targetEnemy.id, totalBurnDamage);
-          }
-        }
-
-        // Handle splash damage for earth arrows
-        if (arrow.elementType === "earth") {
-          const elementAbilities = calculateElementAbilities(
-            arrow.elementType,
-            purchases
-          );
-          const splashDamagePercent = elementAbilities.splashDamage || 0; // 20 = 20%
-          const splashRadius = elementAbilities.splashRadius || 0;
-
-          // Calculate actual splash damage based on arrow damage
-          const element = updatedElements[arrow.elementType];
-          const arrowDamage = element?.baseStats.damage || 15;
-          const splashDamage = Math.floor(
-            (arrowDamage * splashDamagePercent) / 100
-          );
-
-          if (splashDamage > 0 && splashRadius > 0) {
-            // Find enemies within splash radius
-            const splashTargets = updatedEnemies.filter((enemy) => {
-              const distance = Math.sqrt(
-                Math.pow(enemy.x - targetEnemy.x, 2) +
-                  Math.pow(enemy.y - targetEnemy.y, 2)
-              );
-              return distance <= splashRadius && enemy.id !== targetEnemy.id;
-            });
-
-            // Apply splash damage immediately (no predicted damage reduction)
-            let totalSplashDamage = 0;
-            splashTargets.forEach((enemy) => {
-              // Apply actual splash damage
-              const { enemy: damagedEnemy, isDead } = damageEnemy(
-                enemy,
-                splashDamage
-              );
-
-              // Track total splash damage for XP
-              totalSplashDamage += splashDamage;
-
-              // Update enemy state
-              updatedEnemies = updatedEnemies.map((e) =>
-                e.id === enemy.id ? damagedEnemy : e
-              );
-
-              // Handle enemy death from splash damage
-              if (isDead) {
-                updatedEnemies = updatedEnemies.filter(
-                  (e) => e.id !== enemy.id
-                );
-                // Remove predicted damage for dead enemies
-                updatedPredictedArrowDamage.delete(enemy.id);
-                updatedPredictedBurnDamage.delete(enemy.id);
-
-                const { goldGained, goldPopups: deathPopups } =
-                  handleEnemyDeath(enemy, currentTime);
-                totalGoldGained += goldGained;
-                newGoldPopups.push(...deathPopups);
-              }
-            });
-
-            // Create splash effect for visual feedback
-            const splashEffect = createSplashEffect(
-              targetEnemy.x + 20, // Center of enemy
-              targetEnemy.y + 20,
-              splashRadius,
-              currentTime
-            );
-
-            // Add splash effect to new splash effects
-            newSplashEffects.push(splashEffect);
-
-            // Grant XP for splash damage
-            if (totalSplashDamage > 0 && element) {
-              element.xp += totalSplashDamage;
-              element.totalDamage += totalSplashDamage;
-
-              // Check for level up from splash damage
-              const newLevel = getLevelFromXP(element.xp);
-              if (newLevel > element.level) {
-                element.level = newLevel;
-                // Update stats based on new level
-                element.baseStats = calculateElementStats(
-                  arrow.elementType,
-                  newLevel
-                );
-              }
-            }
-
-            console.log(
-              `🌍 Earth arrow: Applied ${splashDamage} splash damage to ${splashTargets.length} enemies (${totalSplashDamage} total splash damage) with radius ${splashRadius}`
-            );
           }
         }
 
@@ -316,6 +236,106 @@ export const processArrowImpacts = (
           );
           totalGoldGained += goldGained;
           newGoldPopups.push(...deathPopups);
+        }
+      }
+
+      // Handle splash damage for earth arrows (regardless of target status)
+      if (arrow.elementType === "earth") {
+        const elementAbilities = calculateElementAbilities(
+          arrow.elementType,
+          purchases
+        );
+        const splashDamagePercent = elementAbilities.splashDamage || 0; // 20 = 20%
+        const splashRadius = elementAbilities.splashRadius || 0;
+
+        // Calculate actual splash damage based on arrow damage
+        const element = updatedElements[arrow.elementType];
+        const arrowDamage = element?.baseStats.damage || 15;
+        const splashDamage = Math.floor(
+          (arrowDamage * splashDamagePercent) / 100
+        );
+
+        if (splashDamage > 0 && splashRadius > 0) {
+          // Use target position for splash center (even if target is dead)
+          const splashCenterX = targetEnemy ? targetEnemy.x : arrow.endX - 20;
+          const splashCenterY = targetEnemy ? targetEnemy.y : arrow.endY - 20;
+
+          // Find enemies within splash radius
+          const splashTargets = updatedEnemies.filter((enemy) => {
+            const distance = Math.sqrt(
+              Math.pow(enemy.x - splashCenterX, 2) +
+                Math.pow(enemy.y - splashCenterY, 2)
+            );
+            return (
+              distance <= splashRadius &&
+              (!targetEnemy || enemy.id !== targetEnemy.id)
+            );
+          });
+
+          // Apply splash damage immediately (no predicted damage reduction)
+          let totalSplashDamage = 0;
+          splashTargets.forEach((enemy) => {
+            // Apply actual splash damage
+            const { enemy: damagedEnemy, isDead } = damageEnemy(
+              enemy,
+              splashDamage
+            );
+
+            // Track total splash damage for XP
+            totalSplashDamage += splashDamage;
+
+            // Update enemy state
+            updatedEnemies = updatedEnemies.map((e) =>
+              e.id === enemy.id ? damagedEnemy : e
+            );
+
+            // Handle enemy death from splash damage
+            if (isDead) {
+              updatedEnemies = updatedEnemies.filter((e) => e.id !== enemy.id);
+              // Remove predicted damage for dead enemies
+              updatedPredictedArrowDamage.delete(enemy.id);
+              updatedPredictedBurnDamage.delete(enemy.id);
+
+              const { goldGained, goldPopups: deathPopups } = handleEnemyDeath(
+                enemy,
+                currentTime
+              );
+              totalGoldGained += goldGained;
+              newGoldPopups.push(...deathPopups);
+            }
+          });
+
+          // Create splash effect for visual feedback
+          const splashEffect = createSplashEffect(
+            splashCenterX + 20, // Center of splash
+            splashCenterY + 20,
+            splashRadius,
+            currentTime
+          );
+
+          // Add splash effect to new splash effects
+          newSplashEffects.push(splashEffect);
+
+          // Grant XP for splash damage
+          if (totalSplashDamage > 0 && element) {
+            element.xp += totalSplashDamage;
+            element.totalDamage += totalSplashDamage;
+
+            // Check for level up from splash damage
+            const newLevel = getLevelFromXP(element.xp);
+            if (newLevel > element.level) {
+              element.level = newLevel;
+              // Update stats based on new level
+              element.baseStats = calculateElementStats(
+                arrow.elementType,
+                newLevel
+              );
+            }
+          }
+
+          console.log(
+            `🌍 Earth arrow: Applied ${splashDamage} splash damage to ${splashTargets.length} enemies (${totalSplashDamage} total splash damage) with radius ${splashRadius}`
+          );
         }
       } else {
         // Arrow missed - reduce predicted damage for the target if we have one

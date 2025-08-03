@@ -1,67 +1,112 @@
 # Extension Build - Additional Features
 
-This file tracks additional features and improvements that come up during development.
+This file tracks additional features and improvements for future development phases.
 
-## Better code
+## 🎨 Visual & Graphics Improvements
 
-- [ ] **Firing defender**: Currently for each arrow, firing defender is worked out on proximity, I think we should just pass it as an input on an arrow
+### High Priority
 
-## Visual & Animation Improvements
+- [ ] **Mage sprites**: Create proper sprite designs for all 4 element mages
+- [x] **Enemy SVG sprites**: Replace current enemy sprites with proper SVG designs
+- [ ] **Castle death animation**: When the castle is destroyed, add visual animation (cracked/broken castle appearance, explosion effect, etc.)
+- [x] **Enemy walking animations**: Add walking/movement animations for enemies instead of static sprites
 
-- [ ] **Castle death animation**: When the castle is destroyed, add a visual animation (cracked/broken castle appearance, explosion effect, etc.)
-- [ ] **Enemy walking animations**: Add walking/movement animations for enemies instead of static sprites
-- [ ] **Sprite-based element effects**: Replace square borders with sprite-shaped borders that follow the actual enemy sprite shape for better visual integration
+### Medium Priority
 
-## UI/UX Improvements
+- [ ] **Sprite-based element effects**: Replace square borders with sprite-shaped borders that follow actual enemy sprite shape
 
-- [ ] **Move save data to settings**: Create a dedicated settings panel for save management
-- [] **Show all element details in elements tab**
-- [ ] **Even defender distribution**: Defenders are currently random on y, but should be in gaps instead
-- [ ] **New player intro**: Show them upgrades & the difficulty slider
+## 🎮 Gameplay Enhancements
 
-## Content Expansions
+### Core Mechanics
 
-- [ ] **Add more enemy types**: Expand enemy variety with unique behaviors
-- [ ] **Difficulty**: I think difficulty should be a 1-99+ scale (numbers with up down arrows) only, not two different sliding scales
-- [ ] **Add sound effects and background music**: Audio enhancements
-- [ ] **Implement achievements system**: Player progression tracking
+- [x] **Even defender distribution**: Defenders are currently random on y, but should be in gaps instead
+- [ ] **Firing defender tracking**: Pass defender ID as input on arrows instead of calculating proximity
+- [ ] **Difficulty system**: Change to 1-99+ scale (numbers with up/down arrows) instead of two sliding scales
 
-## Element Ability Enhancements
+### Content Expansions
 
-- [ ] **Fire burn stacking upgrade**: Shop upgrade that allows fire arrows to stack burn damage instead of just refreshing duration
+- [ ] **Add more enemy types**: Expand enemy variety with unique behaviors and abilities
+- [ ] **Sound effects and background music**: Audio enhancements for better immersion
+- [ ] **Achievements system**: Player progression tracking and milestones
+
+## 🔥 Element Ability Enhancements
+
+### Fire Upgrades
+
+- [ ] **Fire burn stacking**: Shop upgrade that allows fire arrows to stack burn damage instead of just refreshing duration
 
   - Cost: 1000 gold
   - Effect: Multiple fire arrows on same enemy add burn damage together
   - Visual: Show multiple burn damage numbers when stacking occurs
 
-- [ ] **Fire mages only attack non-burning enemies**: Shop upgrade that makes fire defenders prioritize enemies without burn effects
-
-  - Cost: 500 gold
-  - Requires fire level 20
+- [ ] **Fire smart targeting**: Shop upgrade that makes fire defenders prioritize enemies without burn effects
+  - Cost: 500 gold, Requires fire level 20
   - Effect: Fire defenders skip enemies that already have burn damage applied
-  - Benefit: Prevents wasted attacks on already-burning enemies, improves efficiency
   - Implementation: Modify `findNearestEnemy` to filter out burning enemies for fire defenders
 
-- [ ] **Ice effect - permafrost**: After x attacks, freeze enemy in place for 1s
+### Ice Upgrades
 
-  - Requires ice level 20
-  - Expensive
-  - Cool frozen effect (thinking translucent ice block over the enemy)
+- [ ] **Ice permafrost**: After x attacks, freeze enemy in place for 1s
+  - Requires ice level 20, Expensive
+  - Visual: Cool frozen effect (translucent ice block over the enemy)
 
-- [ ] **Ability numbers in element stats tabs**
+### Earth Upgrades
 
-- [ ] **Earth targeting**: Shop upgrade that makes earth towers target the highest density of enemies in range
+- [ ] **Earth smart targeting**: Shop upgrade that makes earth towers target the highest density of enemies in range
+  - Requires earth level 20, Expensive
 
-  - Requires earth level 20
-  - Expensive
+### Air Upgrades
 
-- [ ] **Air multimultishot**: Air burst attacks two enemmies
-  - Straight up double damage
-- [ ] **Air multitargetmultishot**: INitially air burst only targets one enemy with all shots. This would allow it to take in predicted damage and stop hitting one enemy when it would have died already.
+- [ ] **Air multi-target burst**: Air burst attacks multiple enemies instead of just one
+  - Straight up double damage potential
+- [ ] **Air smart burst targeting**: Burst arrows can target different enemies based on predicted damage
+  - Allows burst to stop hitting one enemy when it would have died already
 
-## Shopping
+## 🛒 Shop & Progression Improvements
 
-- [ ] **Upgrades based on level**: Some upgrades should require certain levels as well as gold
+### UI Enhancements
 
-  - This should be for both basic and special abilities
-  - This allows for certain timing gatekeeping, the player must have x time to get to y exp before they can scale too far
+- [ ] **Show all element details in elements tab**: Display comprehensive stats for each element
+- [ ] **Ability numbers in element stats tabs**: Show exact numerical values for all abilities
+- [ ] **New player intro**: Show them upgrades & the difficulty slider
+
+### Progression Systems
+
+- [ ] **Level-gated upgrades**: Some upgrades should require certain levels as well as gold
+  - This allows for timing gatekeeping, player must have x time to get to y exp before scaling too far
+  - Should apply to both basic and special abilities
+
+### Settings & Management
+
+- [ ] **Move save data to settings**: Create a dedicated settings panel for save management
+
+## 🧹 Code Quality & Performance
+
+### Technical Improvements
+
+- [ ] **Performance optimization**: Optimize for larger numbers of enemies and defenders
+- [ ] **Memory management**: Ensure smooth performance during long sessions
+- [ ] **Code refactoring**: Clean up and optimize existing systems
+
+## 📊 Analytics & Monitoring
+
+### Player Insights
+
+- [ ] **Detailed statistics**: Track player behavior and game balance metrics
+- [ ] **Performance monitoring**: Monitor game performance and identify bottlenecks
+- [ ] **Balance analytics**: Analyze element usage and effectiveness
+
+## 🎯 Future Considerations
+
+### Advanced Features
+
+- [ ] **Prestige system**: Long-term progression mechanics
+- [ ] **Element combinations**: Special effects when multiple elements work together
+- [ ] **Dynamic difficulty**: Adaptive difficulty based on player performance
+- [ ] **Seasonal content**: Limited-time events and special enemies
+
+### Accessibility
+
+- [ ] **Accessibility features**: Colorblind support, screen reader compatibility
+- [ ] **Mobile optimization**: Touch controls and responsive design
+- [ ] **Localization**: Multi-language support

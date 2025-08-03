@@ -3,6 +3,64 @@ import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
 import { calculateElementAbilities } from "../../data/elements";
+import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
+
+export const getBisectingDefenderPosition = (
+  existingDefenders: Defender[]
+): number => {
+  const gameAreaHeight: number = GAME_DIMENSIONS.DEFENDER_SPAWN_Y_MAX;
+  const gameAreaTop: number = GAME_DIMENSIONS.DEFENDER_SPAWN_Y_MIN;
+  if (existingDefenders.length === 0) {
+    // First defender: place randomly in the middle third
+    const middleThirdStart = gameAreaTop + gameAreaHeight / 3;
+    const middleThirdEnd = gameAreaTop + (2 * gameAreaHeight) / 3;
+    return (
+      Math.random() * (middleThirdEnd - middleThirdStart) + middleThirdStart
+    );
+  }
+
+  // Get existing Y positions and sort them
+  const existingYPositions = existingDefenders
+    .map((d) => d.y)
+    .sort((a, b) => a - b);
+
+  // Find the largest gap between defenders
+  let largestGap = 0;
+  let gapStart = gameAreaTop;
+  let gapEnd = gameAreaTop + gameAreaHeight;
+
+  // Check gap before first defender
+  const gapBeforeFirst = existingYPositions[0] - gameAreaTop;
+  if (gapBeforeFirst > largestGap) {
+    largestGap = gapBeforeFirst;
+    gapStart = gameAreaTop;
+    gapEnd = existingYPositions[0];
+  }
+
+  // Check gaps between defenders
+  for (let i = 0; i < existingYPositions.length - 1; i++) {
+    const gap = existingYPositions[i + 1] - existingYPositions[i];
+    if (gap > largestGap) {
+      largestGap = gap;
+      gapStart = existingYPositions[i];
+      gapEnd = existingYPositions[i + 1];
+    }
+  }
+
+  // Check gap after last defender
+  const gapAfterLast =
+    gameAreaTop +
+    gameAreaHeight -
+    existingYPositions[existingYPositions.length - 1];
+  if (gapAfterLast > largestGap) {
+    largestGap = gapAfterLast;
+    gapStart = existingYPositions[existingYPositions.length - 1];
+    gapEnd = gameAreaTop + gameAreaHeight;
+  }
+
+  // Place new defender in the middle of the largest gap
+  return gapStart + (gapEnd - gapStart) / 2;
+};
 
 export const createDefender = (
   x: number,
@@ -49,6 +107,16 @@ export const findNearestEnemy = (
     const totalPredictedDamage = arrowPredictedDamage + burnPredictedDamage;
 
     const finalPredictedHealth = enemy.health - totalPredictedDamage;
+
+    // Log predicted vs actual health
+    console.log(`🎯 Enemy ${enemy.id} (${enemy.type}):`, {
+      actualHealth: enemy.health,
+      arrowPredicted: arrowPredictedDamage,
+      burnPredicted: burnPredictedDamage,
+      totalPredicted: totalPredictedDamage,
+      finalPredictedHealth: finalPredictedHealth,
+      willSurvive: finalPredictedHealth > 0,
+    });
 
     return finalPredictedHealth > 0;
   });
@@ -125,11 +193,24 @@ export const updateDefenders = (
     const newPredictedDamage = currentPredictedDamage + defender.damage;
     updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
 
+    // Log predicted damage update
+    console.log(
+      `🏹 Defender ${defender.id} (${defender.type}) adding predicted damage:`,
+      {
+        targetId: target.id,
+        targetType: target.type,
+        currentPredicted: currentPredictedDamage,
+        damageAdded: defender.damage,
+        newPredicted: newPredictedDamage,
+        targetActualHealth: target.health,
+      }
+    );
+
     // Calculate where the enemy will be when the arrow arrives
     const arrowSpeed = 300; // pixels per second
     const distance = Math.sqrt(
-      Math.pow(target.x + 20 - (defender.x + 20), 2) +
-        Math.pow(target.y + 20 - (defender.y + 20), 2)
+      Math.pow(target.x + 10 - (defender.x + 20), 2) +
+        Math.pow(target.y + 15 - (defender.y + 20), 2)
     );
     const flightTime = (distance / arrowSpeed) * 1000; // milliseconds
 
@@ -139,10 +220,10 @@ export const updateDefenders = (
 
     // Create arrow projectile with predicted target position
     const arrow = createArrow(
-      defender.x + 20, // Center of defender
+      defender.x + 20, // Center of defender (defenders are still 40x40)
       defender.y + 20,
-      predictedX + 20, // Center of predicted enemy position
-      predictedY + 20,
+      predictedX + 10, // Center of predicted enemy position (enemies are now 20x30)
+      predictedY + 15,
       currentTime,
       defender.type, // Element type of the defender
       target.id // Store the target enemy ID for precise targeting
@@ -167,8 +248,8 @@ export const updateDefenders = (
         const burstArrow = createArrow(
           defender.x + 20,
           defender.y + 20,
-          predictedX + 20,
-          predictedY + 20,
+          predictedX + 10, // Center of predicted enemy position (enemies are now 20x30)
+          predictedY + 15,
           currentTime + i * 50, // Add 50ms delay between burst arrows
           defender.type,
           target.id

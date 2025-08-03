@@ -1,7 +1,9 @@
 import type { GameState } from "../types/GameState";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
+import { getBisectingDefenderPosition } from "../utils/gameLogic/defender";
 import { createDefender } from "../utils/gameLogic";
+import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 
 import "./GameSidebar.css";
 import Mages from "./Mages";
@@ -63,13 +65,17 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           purchases={gameState.purchases}
           onPurchaseMage={(elementType, cost) => {
             if (gameState.gold >= cost) {
-              const randomY = Math.random() * 400 + 50;
+              const smartY = getBisectingDefenderPosition(gameState.defenders);
               setGameState((prev) => ({
                 ...prev,
                 gold: prev.gold - cost,
                 defenders: [
                   ...prev.defenders,
-                  createDefender(50, randomY, elementType),
+                  createDefender(
+                    GAME_DIMENSIONS.DEFENDER_SPAWN_X,
+                    smartY,
+                    elementType
+                  ),
                 ],
                 purchases: {
                   ...prev.purchases,

@@ -106,9 +106,12 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           prev.purchases
         );
 
+        // Remove dead enemies after all processing
+        const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
+
         // Handle castle damage
         const { castleHealth, enemies, castleDestroyed } = damageCastle(
-          enemiesAfterArrowImpacts,
+          finalEnemies,
           prev.castleHealth
         );
 

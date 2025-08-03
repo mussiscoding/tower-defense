@@ -1,0 +1,61 @@
+.enemy-sprite {
+  display: inline-block;
+  width: 20px;
+  height: 30px;
+  position: relative;
+}
+
+.enemy-sprite svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Enemy-specific styles */
+.enemy-goblin {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.enemy-orc {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.enemy-skeleton {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.enemy-demon {
+  filter: drop-shadow(0 2px 4px rgba(255, 69, 0, 0.3));
+}
+
+/* Simple walking animation - just a subtle bounce */
+.enemy-sprite {
+  animation: walkBounce 0.6s ease-in-out infinite;
+}
+
+@keyframes walkBounce {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Animation for demon fire aura */
+.enemy-demon svg ellipse:last-child {
+  animation: demonAura 2s ease-in-out infinite;
+}
+
+@keyframes demonAura {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}

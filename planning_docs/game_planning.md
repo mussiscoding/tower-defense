@@ -173,20 +173,20 @@ A browser-based idle/tower defense hybrid where players defend a castle from wav
 
 ### Phase 1: Core Mechanics (MVP)
 
-- [ ] Basic combat system (clickable enemies)
-- [ ] Castle health and enemy movement
-- [ ] Simple archer defender
-- [ ] Basic shop system
-- [ ] Save system
-- [ ] Simple cartoonish art style
+- [x] Basic combat system (clickable enemies)
+- [x] Castle health and enemy movement
+- [x] Simple archer defender
+- [x] Basic shop system
+- [x] Save system
+- [x] Simple cartoonish art style
 
 ### Phase 2: Expansion
 
-- [ ] Multiple defender types (mages, trebuchets)
-- [ ] Continuous spawning system
-- [ ] Difficulty controls
-- [ ] Enhanced UI/UX
-- [ ] Statistics tracking
+- [x] Multiple defender types (mages, trebuchets)
+- [x] Continuous spawning system
+- [x] Difficulty controls
+- [x] Enhanced UI/UX
+- [x] Statistics tracking
 
 ### Phase 3: Polish
 

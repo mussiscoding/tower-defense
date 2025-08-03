@@ -96,11 +96,11 @@
   - Shop upgrades:
     - "Slow Effect +1%" (cost: 200 gold)
     - "Slow Duration +1s" (cost: 300 gold)
-- [ ] Implement Earth element abilities
+- [x] Implement Earth element abilities
   - Splash damage system (shop-driven)
   - Splash radius system (shop-driven)
   - Visual splash effects
-- [ ] Implement Air element abilities
+- [x] Implement Air element abilities
   - Burst attack speed system (shop-driven)
   - Cooldown, buff strength, and duration upgrades
   - Visual burst effects
@@ -109,16 +109,16 @@
 
 **Priority: High**
 
-- [ ] Create ability upgrade shop items
+- [x] Create ability upgrade shop items
   - Fire: "Burn Damage +1", "Burn Duration +1"
-  - Ice: "Slow Effect +0.2", "Slow Duration +1"
-  - Earth: "Splash Damage +2", "Splash Radius +5"
-  - Air: "Burst Attack Speed +0.5", "Burst Duration +0.5", "Burst Cooldown -1"
-- [ ] Implement shop purchase system
+  - Ice: "Slow Effect +1%", "Slow Duration +1"
+  - Earth: "Splash Damage +1%", "Splash Radius +10"
+  - Air: "Burst Shots +1", "Burst Cooldown -1"
+- [x] Implement shop purchase system
   - Track ability upgrades per element
   - Apply upgrades to element abilities
   - Update shop prices based on purchases
-- [ ] Create shop UI for ability upgrades
+- [x] Create shop UI for ability upgrades
   - Element-specific shop tabs
   - Current ability levels display
   - Upgrade cost and effect preview
@@ -327,12 +327,12 @@ const ELEMENTS = {
 
 ## Success Metrics
 
-- [ ] All 4 core elements functional
-- [ ] XP system working correctly
-- [ ] Mages UI intuitive and informative
-- [ ] Element progression feels satisfying
-- [ ] Game balance maintains engagement
-- [ ] Performance remains smooth
+- [x] All 4 core elements functional
+- [x] XP system working correctly
+- [x] Mages UI intuitive and informative
+- [x] Element progression feels satisfying
+- [x] Game balance maintains engagement
+- [x] Performance remains smooth
 
 ## Risk Mitigation
 

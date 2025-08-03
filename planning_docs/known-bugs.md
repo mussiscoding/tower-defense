@@ -5,6 +5,21 @@
 Major bug.
 Fire gets most of its damage from burn, but only exp from the initial hit.
 
+## Earth does not explode if enemy dies first
+
+### Status: ✅ FIXED
+
+**Major bug.**
+Earth arrows don't explode if the enemy they were targeting dies before impact
+This means that earth loses not just impact damage but also splash damage.
+
+### Fix Applied
+
+- Moved Earth splash damage logic outside the `if (targetEnemy)` block
+- Earth arrows now create splash effects even when their target is already dead
+- Uses target position if available, otherwise uses arrow end position for splash center
+- Splash damage and visual effects work regardless of target status
+
 ## Multiple Arrows bug
 
 ### Description

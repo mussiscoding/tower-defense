@@ -168,10 +168,10 @@ const updateDefenderBurst = (
 
 ## Success Criteria
 
-- [ ] Air towers can enter burst mode
-- [ ] Burst mode increases attack speed significantly
-- [ ] Burst has proper duration and cooldown
-- [ ] Burst upgrades work correctly
-- [ ] Burst visual feedback is clear
-- [ ] Burst is balanced and fun to use
-- [ ] Burst integrates well with other elements
+- [x] Air towers can enter burst mode
+- [x] Burst mode increases attack speed significantly
+- [x] Burst has proper duration and cooldown
+- [x] Burst upgrades work correctly
+- [x] Burst visual feedback is clear
+- [x] Burst is balanced and fun to use
+- [x] Burst integrates well with other elements

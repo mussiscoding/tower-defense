@@ -1,4 +1,5 @@
 import type { ElementType } from "../data/elements";
+import type { EnemyType } from "../assets/enemy-sprites";
 
 export interface Enemy {
   id: string;
@@ -8,7 +9,7 @@ export interface Enemy {
   maxHealth: number;
   speed: number;
   goldValue: number;
-  type: "goblin" | "orc" | "troll";
+  type: EnemyType;
   burnDamage?: number;
   burnEndTime?: number;
   slowEffect?: number;

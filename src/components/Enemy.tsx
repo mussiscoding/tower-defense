@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { Enemy as EnemyType } from "../types/GameState";
 import BurnDamageNumber from "./BurnDamageNumber";
 import FireParticles from "./FireParticles";
+import EnemySprite from "./EnemySprite";
 import "./Enemy.css";
 
 interface EnemyProps {
@@ -20,16 +21,20 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick }) => {
     }>
   >([]);
 
-  const getEnemyEmoji = (type: string) => {
+  const getEnemyType = (
+    type: string
+  ): "goblin" | "orc" | "skeleton" | "demon" => {
     switch (type) {
       case "goblin":
-        return "👹";
+        return "goblin";
       case "orc":
-        return "👺";
-      case "troll":
-        return "🧌";
+        return "orc";
+      case "skeleton":
+        return "skeleton";
+      case "demon":
+        return "demon";
       default:
-        return "👹";
+        return "goblin";
     }
   };
 
@@ -82,7 +87,9 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick }) => {
             style={{ width: `${healthPercentage}%` }}
           ></div>
         </div>
-        <div className="enemy-sprite">{getEnemyEmoji(enemy.type)}</div>
+        <div className="enemy-sprite">
+          <EnemySprite type={getEnemyType(enemy.type)} />
+        </div>
         <div className="enemy-health-text">
           {enemy.health}/{enemy.maxHealth}
         </div>
