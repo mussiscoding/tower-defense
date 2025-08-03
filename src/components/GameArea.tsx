@@ -83,7 +83,8 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           Date.now(),
           prev.predictedArrowDamage,
           prev.predictedBurnDamage,
-          prev.purchases
+          prev.purchases,
+          prev.elements
         );
 
         // Process arrow impacts and update arrows

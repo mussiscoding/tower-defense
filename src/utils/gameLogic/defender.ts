@@ -4,6 +4,7 @@ import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
 import { calculateElementAbilities } from "../../data/elements";
 import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
+import type { ElementData } from "../../types/GameState";
 
 export const getBisectingDefenderPosition = (
   existingDefenders: Defender[]
@@ -148,7 +149,8 @@ export const updateDefenders = (
   currentTime: number,
   predictedArrowDamage: Map<string, number>,
   predictedBurnDamage: Map<string, number>,
-  purchases: Record<string, number> = {}
+  purchases: Record<string, number> = {},
+  elements: Record<string, ElementData> = {}
 ): {
   defenders: Defender[];
   enemies: Enemy[];
@@ -187,24 +189,15 @@ export const updateDefenders = (
       elementAbilities.burstShots > 0 &&
       (!defender.burstCooldownEnd || currentTime >= defender.burstCooldownEnd);
 
+    // Calculate current damage based on element level
+    const element = elements[defender.type];
+    const currentDamage = element?.baseStats.damage || defender.damage;
+
     // Update predicted damage for this target (only the first arrow initially)
     const currentPredictedDamage =
       updatedPredictedArrowDamage.get(target.id) || 0;
-    const newPredictedDamage = currentPredictedDamage + defender.damage;
+    const newPredictedDamage = currentPredictedDamage + currentDamage;
     updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
-
-    // Log predicted damage update
-    console.log(
-      `🏹 Defender ${defender.id} (${defender.type}) adding predicted damage:`,
-      {
-        targetId: target.id,
-        targetType: target.type,
-        currentPredicted: currentPredictedDamage,
-        damageAdded: defender.damage,
-        newPredicted: newPredictedDamage,
-        targetActualHealth: target.health,
-      }
-    );
 
     // Calculate where the enemy will be when the arrow arrives
     const arrowSpeed = 300; // pixels per second
@@ -236,7 +229,7 @@ export const updateDefenders = (
       console.log(`💨 Air burst: Firing ${burstShots} arrows at once!`);
 
       // Add burst arrow damage to predicted damage
-      const burstDamage = defender.damage * (burstShots - 1); // -1 because first arrow already counted
+      const burstDamage = currentDamage * (burstShots - 1); // -1 because first arrow already counted
       const currentBurstPredictedDamage =
         updatedPredictedArrowDamage.get(target.id) || 0;
       updatedPredictedArrowDamage.set(
