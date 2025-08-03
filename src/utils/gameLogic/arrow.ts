@@ -13,6 +13,7 @@ import {
 } from "../../data/elements";
 import { addElementEffects } from "../elementEffects";
 import { damageEnemy, handleEnemyDeath } from "./enemy";
+import { GAME_MECHANICS } from "../../constants/gameDimensions";
 
 export const generateArrowId = (): string => {
   return `arrow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -34,7 +35,7 @@ export const createArrow = (
   const distance = Math.sqrt(
     Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
   );
-  const duration = (distance / 300) * 1000; // 300 pixels per second
+  const duration = (distance / GAME_MECHANICS.ARROW_SPEED) * 1000;
 
   return {
     id: generateArrowId(),

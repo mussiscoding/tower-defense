@@ -3,7 +3,10 @@ import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
 import { calculateElementAbilities } from "../../data/elements";
-import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
+import {
+  GAME_DIMENSIONS,
+  GAME_MECHANICS,
+} from "../../constants/gameDimensions";
 import type { ElementData } from "../../types/GameState";
 
 export const getBisectingDefenderPosition = (
@@ -200,12 +203,12 @@ export const updateDefenders = (
     updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
 
     // Calculate where the enemy will be when the arrow arrives
-    const arrowSpeed = 300; // pixels per second
+    const arrowSpeed = GAME_MECHANICS.ARROW_SPEED;
     const distance = Math.sqrt(
       Math.pow(target.x + 10 - (defender.x + 20), 2) +
         Math.pow(target.y + 15 - (defender.y + 20), 2)
     );
-    const flightTime = (distance / arrowSpeed) * 1000; // milliseconds
+    const flightTime = (distance / arrowSpeed) * 1000;
 
     // Predict enemy position at arrow impact time
     const predictedX = target.x + (target.speed * flightTime) / 1000;
@@ -215,7 +218,7 @@ export const updateDefenders = (
     const arrow = createArrow(
       defender.x + 20, // Center of defender (defenders are still 40x40)
       defender.y + 20,
-      predictedX + 10, // Center of predicted enemy position (enemies are now 20x30)
+      predictedX - 15, // Center of predicted enemy position (enemies are now 20x30)
       predictedY + 15,
       currentTime,
       defender.type, // Element type of the defender

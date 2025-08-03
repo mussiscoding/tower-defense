@@ -20,6 +20,46 @@ This means that earth loses not just impact damage but also splash damage.
 - Uses target position if available, otherwise uses arrow end position for splash center
 - Splash damage and visual effects work regardless of target status
 
+## Defender Over-Targeting Bug
+
+### Description
+
+Defenders sometimes fire extra arrows at enemies that are already predicted to die from arrows in flight. This creates inefficient targeting where defenders waste attacks on enemies that will already be killed.
+
+### Symptoms
+
+- Defenders fire third arrows at enemies that will die from two arrows
+- Single arrow kills work correctly (defender switches to new target)
+- Two arrow kills cause defender to fire unnecessary third arrow
+- Inefficient use of defender attacks
+- Wasted damage potential
+
+### Root Cause
+
+The defender targeting logic correctly predicts enemy death in single-arrow scenarios but fails to properly account for cumulative predicted damage in multi-arrow scenarios. The `findNearestEnemy` function should exclude enemies that are predicted to die, but there may be a timing or calculation issue specific to multi-arrow scenarios.
+
+### Technical Details
+
+- Single arrow kill: Enemy predicted to die → defender correctly switches to new target
+- Two arrow kill: Enemy predicted to die → defender incorrectly fires third arrow
+- `findNearestEnemy` logic appears correct for single-arrow scenarios
+- Issue may be related to predicted damage calculation timing or accuracy
+- Could be related to multiple defenders or arrow creation timing
+
+### Potential Solutions
+
+1. **Investigate predicted damage timing** - Ensure predicted damage is updated before targeting decisions
+2. **Debug multi-defender scenarios** - Check if issue occurs with single vs multiple defenders
+3. **Improve targeting logic** - Better handling of cumulative predicted damage
+4. **Add targeting validation** - Double-check that enemies predicted to die are excluded
+
+### Status
+
+- **Status**: Known issue, investigation needed
+- **Priority**: Medium
+- **Impact**: Game efficiency (wasted defender attacks)
+- **Workaround**: None currently implemented
+
 ## Multiple Arrows bug
 
 ### Description
