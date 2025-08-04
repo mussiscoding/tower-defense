@@ -8,9 +8,10 @@ import "./Enemy.css";
 interface EnemyProps {
   enemy: EnemyType;
   onClick: (enemy: EnemyType) => void;
+  isPaused?: boolean;
 }
 
-const Enemy: React.FC<EnemyProps> = ({ enemy, onClick }) => {
+const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused = false }) => {
   const healthPercentage = (enemy.health / enemy.maxHealth) * 100;
   const [burnDamageNumbers, setBurnDamageNumbers] = useState<
     Array<{
@@ -88,7 +89,7 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick }) => {
           ></div>
         </div>
         <div className="enemy-sprite">
-          <EnemySprite type={getEnemyType(enemy.type)} />
+          <EnemySprite type={getEnemyType(enemy.type)} isPaused={isPaused} />
         </div>
         <div className="enemy-health-text">
           {enemy.health}/{enemy.maxHealth}

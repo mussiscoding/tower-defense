@@ -216,7 +216,12 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
         })}
 
         {gameState.enemies.map((enemy) => (
-          <Enemy key={enemy.id} enemy={enemy} onClick={handleEnemyClick} />
+          <Enemy
+            key={enemy.id}
+            enemy={enemy}
+            onClick={handleEnemyClick}
+            isPaused={gameState.isPaused}
+          />
         ))}
 
         {gameState.goldPopups.map((popup) => (
