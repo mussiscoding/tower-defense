@@ -55,7 +55,8 @@
   display: none;
 }
 
-.enemy-slow {
-  box-shadow: 0 0 8px 2px #4fc3f7, 0 0 12px 4px #29b6f6;
-  border-radius: 8px;
+/* Ice effect with sprite-shaped glow */
+.enemy-slow .enemy-sprite {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 4px #4fc3f7);
 }

@@ -8,10 +8,10 @@ import "./Enemy.css";
 interface EnemyProps {
   enemy: EnemyType;
   onClick: (enemy: EnemyType) => void;
-  isPaused?: boolean;
+  isPaused: boolean;
 }
 
-const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused = false }) => {
+const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
   const healthPercentage = (enemy.health / enemy.maxHealth) * 100;
   const [burnDamageNumbers, setBurnDamageNumbers] = useState<
     Array<{
