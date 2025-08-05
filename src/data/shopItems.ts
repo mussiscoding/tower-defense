@@ -10,7 +10,7 @@ const defenderShopItems: ShopItem[] = defenders.map((defender) => ({
   cost: defender.cost,
   type: "defender" as const,
   effect: `Adds a ${defender.name.toLowerCase()} defender`,
-  costScalingFactor: 2.0,
+  costScalingFactor: defender.costScalingFactor,
 }));
 
 export const shopItems: ShopItem[] = [

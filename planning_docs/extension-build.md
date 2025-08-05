@@ -22,7 +22,7 @@ This file tracks additional features and improvements for future development pha
 - [x] **Even defender distribution**: Defenders are currently random on y, but should be in gaps instead
 - [ ] **Firing defender tracking**: Pass defender ID as input on arrows instead of calculating proximity
 - [x] **Difficulty system**: Change to 1-99+ scale (numbers with up/down arrows) instead of two sliding scales
-- [ ] **Difficulty increase**: I just got to difficulty 50 with 3 level 30 elements in 5 minutes gametime. I want that to take at least an hour. What options do we have for scaling this
+- [x] **Difficulty increase**: I just got to difficulty 50 with 3 level 30 elements in 5 minutes gametime. I want that to take at least an hour. What options do we have for scaling this
 
 ### Content Expansions
 

@@ -76,7 +76,7 @@ const Mages: React.FC<MagesProps> = ({
           description: defenderData.description,
           cost: defenderData.cost,
           type: "defender",
-          costScalingFactor: 1.25,
+          costScalingFactor: defenderData.costScalingFactor,
         };
         const cost = getCurrentPrice(shopItem, purchases);
         onPurchaseMage(elementType, cost);
@@ -262,7 +262,7 @@ const Mages: React.FC<MagesProps> = ({
                       description: defenderData.description,
                       cost: defenderData.cost,
                       type: "defender",
-                      costScalingFactor: 1.25,
+                      costScalingFactor: defenderData.costScalingFactor,
                     };
                     const cost = getCurrentPrice(shopItem, purchases);
                     const canAfford = currentGold >= cost;
