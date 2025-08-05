@@ -13,26 +13,26 @@
 
 .particle-1 {
   animation-delay: 0s;
-  left: 25px;
-  top: 45px;
+  left: 5px;
+  top: 35px;
 }
 
 .particle-2 {
   animation-delay: 0.25s;
-  left: 35px;
-  top: 45px;
+  left: 10px;
+  top: 35px;
 }
 
 .particle-3 {
   animation-delay: 0.5s;
-  left: 45px;
-  top: 40px;
+  left: 13px;
+  top: 32px;
 }
 
 .particle-4 {
   animation-delay: 0.75s;
-  left: 50px;
-  top: 30px;
+  left: 18px;
+  top: 26px;
 }
 
 @keyframes particleFade {
