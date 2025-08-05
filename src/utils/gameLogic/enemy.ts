@@ -1,5 +1,5 @@
 import type { Enemy, GoldPopup } from "../../types/GameState";
-import { getAvailableEnemies, fallbackEnemy } from "../../data/enemies";
+import { getEnemyById } from "../../data/enemies";
 
 export const generateEnemyId = (): string => {
   return `enemy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -8,28 +8,20 @@ export const generateEnemyId = (): string => {
 export const createEnemy = (
   x: number,
   y: number,
-  difficultyLevel: number
+  enemyId: string // Now takes enemy ID (e.g., "enemy_1", "enemy_2") instead of enemy type
 ): Enemy => {
-  // Get available enemies based on difficulty level
-  const availableEnemies = getAvailableEnemies(difficultyLevel);
-
-  if (availableEnemies.length === 0) {
-    availableEnemies.push(fallbackEnemy);
-  }
-
-  // Randomly select an available enemy
-  const selectedEnemy =
-    availableEnemies[Math.floor(Math.random() * availableEnemies.length)];
+  // Get enemy data by ID
+  const enemyData = getEnemyById(enemyId);
 
   return {
-    id: generateEnemyId(),
+    id: generateEnemyId(), // This is the instance ID (UUID)
     x,
     y,
-    health: selectedEnemy.health,
-    maxHealth: selectedEnemy.health,
-    speed: selectedEnemy.speed,
-    goldValue: selectedEnemy.goldValue,
-    type: selectedEnemy.type,
+    health: enemyData.health,
+    maxHealth: enemyData.health,
+    speed: enemyData.speed,
+    goldValue: enemyData.goldValue,
+    colorIndex: enemyData.colorIndex,
   };
 };
 

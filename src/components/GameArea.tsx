@@ -19,6 +19,8 @@ import {
   processBurnDamage,
   handleEnemyDeath,
 } from "../utils/gameLogic";
+import { generateWave } from "../utils/gameLogic/waveGenerator";
+import { enemies } from "../data/enemies";
 import "./GameArea.css";
 
 interface GameAreaProps {
@@ -29,32 +31,45 @@ interface GameAreaProps {
 const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
   const gameAreaRef = useRef<HTMLDivElement>(null);
 
-  // Enemy spawning
+  // Wave-based enemy spawning with random distribution over 3s
   useEffect(() => {
     if (gameState.isPaused) return;
 
-    const spawnInterval = setInterval(() => {
-      if (gameAreaRef.current) {
-        const rect = gameAreaRef.current.getBoundingClientRect();
-        const spawnX = Math.max(rect.width - 100, 700); // Spawn from right edge, minimum 700px from left
-        const spawnY = Math.random() * (rect.height - 100) + 50; // Random Y position
+    const timeouts: number[] = [];
 
-        const newEnemy = createEnemy(spawnX, spawnY, gameState.difficultyLevel);
+    const spawnWave = () => {
+      if (!gameAreaRef.current) return;
+      const wave = generateWave(gameState.difficultyLevel, enemies);
+      // Flatten the wave into a list of enemyIds
+      const enemyIds: string[] = wave.waveEnemies.flatMap((waveEnemy) =>
+        Array(waveEnemy.count).fill(waveEnemy.enemyId)
+      );
+      const rect = gameAreaRef.current.getBoundingClientRect();
+      // For each enemy, schedule a spawn at a random time in [0, 3000) ms
+      enemyIds.forEach((enemyId) => {
+        const delay = Math.random() * 3000;
+        const timeout = setTimeout(() => {
+          const spawnX = Math.max(rect.width - 100, 700);
+          const spawnY = Math.random() * (rect.height - 100) + 50;
+          const newEnemy = createEnemy(spawnX, spawnY, enemyId);
+          setGameState((prev) => ({
+            ...prev,
+            enemies: [...prev.enemies, newEnemy],
+          }));
+        }, delay);
+        timeouts.push(timeout);
+      });
+    };
 
-        setGameState((prev) => ({
-          ...prev,
-          enemies: [...prev.enemies, newEnemy],
-        }));
-      }
-    }, 2000 / gameState.spawnRateLevel); // Spawn rate level affects interval
+    // Spawn a wave every 3 seconds
+    spawnWave();
+    const waveInterval = setInterval(spawnWave, 3000);
 
-    return () => clearInterval(spawnInterval);
-  }, [
-    gameState.spawnRate,
-    gameState.difficultyLevel,
-    gameState.isPaused,
-    setGameState,
-  ]);
+    return () => {
+      clearInterval(waveInterval);
+      timeouts.forEach(clearTimeout);
+    };
+  }, [gameState.difficultyLevel, gameState.isPaused, setGameState]);
 
   // Enemy movement and defender attacks
   // Game loop

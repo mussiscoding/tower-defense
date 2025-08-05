@@ -94,49 +94,61 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
         <h3>⚙️ Difficulty Controls</h3>
         <div className="difficulty-controls">
           <div className="control-group">
-            <label htmlFor="spawn-rate">
-              Enemy Spawn Rate: {gameState.spawnRateLevel}
-            </label>
-            <input
-              id="spawn-rate"
-              type="range"
-              min="1"
-              max="5"
-              value={gameState.spawnRateLevel}
-              onChange={(e) =>
-                setGameState((prev) => ({
-                  ...prev,
-                  spawnRateLevel: parseInt(e.target.value),
-                }))
-              }
-            />
-            <div className="range-labels">
-              <span>Slow</span>
-              <span>Fast</span>
-            </div>
-          </div>
-
-          <div className="control-group">
-            <label htmlFor="difficulty">
-              Enemy Difficulty: {gameState.difficultyLevel}
-            </label>
-            <input
-              id="difficulty"
-              type="range"
-              min="1"
-              max="3"
-              value={gameState.difficultyLevel}
-              onChange={(e) => {
-                const newDifficulty = parseInt(e.target.value);
-                setGameState((prev) => ({
-                  ...prev,
-                  difficultyLevel: newDifficulty,
-                }));
-              }}
-            />
-            <div className="range-labels">
-              <span>Easy (Goblins)</span>
-              <span>Hard (All Types)</span>
+            <label htmlFor="difficulty">Difficulty Level</label>
+            <div className="difficulty-input">
+              <button
+                onClick={() =>
+                  setGameState((prev) => ({
+                    ...prev,
+                    difficultyLevel: Math.max(1, prev.difficultyLevel - 10),
+                  }))
+                }
+              >
+                -10
+              </button>
+              <button
+                onClick={() =>
+                  setGameState((prev) => ({
+                    ...prev,
+                    difficultyLevel: Math.max(1, prev.difficultyLevel - 1),
+                  }))
+                }
+              >
+                -1
+              </button>
+              <input
+                type="number"
+                min="1"
+                max="10000"
+                value={gameState.difficultyLevel}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 1;
+                  setGameState((prev) => ({
+                    ...prev,
+                    difficultyLevel: Math.max(1, Math.min(10000, value)),
+                  }));
+                }}
+              />
+              <button
+                onClick={() =>
+                  setGameState((prev) => ({
+                    ...prev,
+                    difficultyLevel: Math.min(10000, prev.difficultyLevel + 1),
+                  }))
+                }
+              >
+                +1
+              </button>
+              <button
+                onClick={() =>
+                  setGameState((prev) => ({
+                    ...prev,
+                    difficultyLevel: Math.min(10000, prev.difficultyLevel + 10),
+                  }))
+                }
+              >
+                +10
+              </button>
             </div>
           </div>
         </div>

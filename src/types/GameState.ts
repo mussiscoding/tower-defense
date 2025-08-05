@@ -1,5 +1,4 @@
 import type { ElementType } from "../data/elements";
-import type { EnemyType } from "../assets/enemy-sprites";
 
 export interface Enemy {
   id: string;
@@ -9,7 +8,7 @@ export interface Enemy {
   maxHealth: number;
   speed: number;
   goldValue: number;
-  type: EnemyType;
+  colorIndex: number; // Add color index for shirt color variations
   burnDamage?: number;
   burnEndTime?: number;
   slowEffect?: number;
@@ -65,12 +64,10 @@ export interface GameState {
   arrows: Arrow[];
   goldPopups: GoldPopup[];
   splashEffects: SplashEffect[];
-  spawnRate: number;
   lastSave: number;
   isPaused: boolean;
   purchases: Record<string, number>;
-  difficultyLevel: number;
-  spawnRateLevel: number;
+  difficultyLevel: number; // Now supports 1-10000 range
   predictedArrowDamage: Map<string, number>;
   predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;

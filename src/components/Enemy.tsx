@@ -22,23 +22,6 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
     }>
   >([]);
 
-  const getEnemyType = (
-    type: string
-  ): "goblin" | "orc" | "skeleton" | "demon" => {
-    switch (type) {
-      case "goblin":
-        return "goblin";
-      case "orc":
-        return "orc";
-      case "skeleton":
-        return "skeleton";
-      case "demon":
-        return "demon";
-      default:
-        return "goblin";
-    }
-  };
-
   // Check for burn damage ticks and show damage numbers
   useEffect(() => {
     if (enemy.burnDamage && enemy.burnEndTime) {
@@ -89,7 +72,7 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
           ></div>
         </div>
         <div className="enemy-sprite">
-          <EnemySprite type={getEnemyType(enemy.type)} isPaused={isPaused} />
+          <EnemySprite colorIndex={enemy.colorIndex} isPaused={isPaused} />
         </div>
         <div className="enemy-health-text">
           {enemy.health}/{enemy.maxHealth}

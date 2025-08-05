@@ -109,6 +109,44 @@ React state batching issue in the game loop. The defender's `lastAttack` is not 
 - **Impact**: Game balance (players progress faster than intended)
 - **Workaround**: None currently implemented
 
+## Upgrade Shop Purchases State Bug
+
+### Description
+
+In the `handlePurchase` function in `GameSidebar.tsx`, when handling upgrade shop items, the code should use `updatedState.purchases` instead of `prev.purchases` to ensure we're working with the updated state from the upgrade effect.
+
+### Symptoms
+
+- Upgrade items may not properly update the purchases state
+- Potential state inconsistency when upgrade effects modify purchases
+
+### Root Cause
+
+The code uses `prev.purchases` instead of `updatedState.purchases` when updating the purchases object for upgrade items.
+
+### Technical Details
+
+```typescript
+// Current (buggy):
+purchases: {
+  ...prev.purchases,
+  [itemId]: (prev.purchases[itemId] || 0) + 1,
+}
+
+// Should be:
+purchases: {
+  ...updatedState.purchases,
+  [itemId]: (prev.purchases[itemId] || 0) + 1,
+}
+```
+
+### Status
+
+- **Status**: Known issue, not blocking
+- **Priority**: Low
+- **Impact**: Potential state inconsistency
+- **Workaround**: None currently implemented
+
 ---
 
 ## Arrow Targeting Bug

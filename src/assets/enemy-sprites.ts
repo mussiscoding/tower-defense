@@ -1,13 +1,9 @@
-// Enemy SVG sprites for tower defense game
-// Each sprite is 40x40 pixels, designed for game use
-
-// Function to generate the goblin sprite with configurable skin and shirt colors
 type GenerateGoblinSpriteProps = {
   skinColor: string;
   shirtColor: string;
   hairColor: string;
 };
-const generateGoblinSprite = ({
+export const generateGoblinSprite = ({
   skinColor,
   shirtColor,
   hairColor,
@@ -54,28 +50,3 @@ const generateGoblinSprite = ({
     </svg>
   `,
 });
-
-export const ENEMY_SPRITES = {
-  goblin: generateGoblinSprite({
-    skinColor: "#2F9D50",
-    shirtColor: "#905A28",
-    hairColor: "#8B4513",
-  }), // Green skin, light brown shirt, brown hair
-  orc: generateGoblinSprite({
-    skinColor: "#696969",
-    shirtColor: "#8B4513",
-    hairColor: "#2F2F2F",
-  }), // Grey skin, brown shirt, dark hair
-  skeleton: generateGoblinSprite({
-    skinColor: "#D2B48C",
-    shirtColor: "#8B4513",
-    hairColor: "#F5F5DC",
-  }), // Tan skin, brown shirt, light hair
-  demon: generateGoblinSprite({
-    skinColor: "#8B0000",
-    shirtColor: "#000000",
-    hairColor: "#2F2F2F",
-  }), // Red skin, black shirt, dark hair
-} as const;
-
-export type EnemyType = keyof typeof ENEMY_SPRITES;

@@ -13,7 +13,7 @@ This file tracks additional features and improvements for future development pha
 
 ### Medium Priority
 
-- [ ] **Sprite-based element effects**: Replace square borders with sprite-shaped borders that follow actual enemy sprite shape
+- [x] **Sprite-based element effects**: Replace square borders with sprite-shaped borders that follow actual enemy sprite shape
 
 ## 🎮 Gameplay Enhancements
 
@@ -21,7 +21,7 @@ This file tracks additional features and improvements for future development pha
 
 - [x] **Even defender distribution**: Defenders are currently random on y, but should be in gaps instead
 - [ ] **Firing defender tracking**: Pass defender ID as input on arrows instead of calculating proximity
-- [ ] **Difficulty system**: Change to 1-99+ scale (numbers with up/down arrows) instead of two sliding scales
+- [x] **Difficulty system**: Change to 1-99+ scale (numbers with up/down arrows) instead of two sliding scales
 
 ### Content Expansions
 
