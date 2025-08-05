@@ -71,7 +71,7 @@ export const getXPForLevel = (level: number): number => {
 };
 
 export const getXPForNextLevel = (level: number): number => {
-  return Math.floor((level - 1 + 300 * Math.pow(2, (level - 1) / 7)) / 4);
+  return Math.floor(200 * Math.pow(1.3, level - 1));
 };
 
 export const getLevelFromXP = (xp: number): number => {

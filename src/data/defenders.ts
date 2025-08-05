@@ -20,7 +20,7 @@ export const defenders: DefenderData[] = [
     damage: elements.fire.baseStats.damage,
     attackSpeed: elements.fire.baseStats.attackSpeed,
     range: elements.fire.baseStats.range,
-    cost: 50,
+    cost: 100,
     description: "Fire mage with burn abilities.",
   },
   {
@@ -30,7 +30,7 @@ export const defenders: DefenderData[] = [
     damage: elements.ice.baseStats.damage,
     attackSpeed: elements.ice.baseStats.attackSpeed,
     range: elements.ice.baseStats.range,
-    cost: 75,
+    cost: 100,
     description: "Ice mage with slow abilities.",
   },
   {
@@ -50,7 +50,7 @@ export const defenders: DefenderData[] = [
     damage: elements.air.baseStats.damage,
     attackSpeed: elements.air.baseStats.attackSpeed,
     range: elements.air.baseStats.range,
-    cost: 125,
+    cost: 100,
     description: "Air mage with burst attack speed.",
   },
 ];
