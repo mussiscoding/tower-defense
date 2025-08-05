@@ -78,7 +78,7 @@ export const upgradeShopItems: UpgradeShopItem[] = [
     id: "earth_splash_radius_upgrade",
     name: "Splash Radius",
     description: "Increase splash radius +10",
-    cost: 1000,
+    cost: 10000,
     type: "upgrade",
     costScalingFactor: 2.0,
     effect: (state: GameState) => {
@@ -120,7 +120,7 @@ export const upgradeShopItems: UpgradeShopItem[] = [
     id: "air_burst_cooldown_upgrade",
     name: "Burst Cooldown",
     description: "Reduce burst cooldown -1s",
-    cost: 1000,
+    cost: 10000,
     type: "upgrade",
     costScalingFactor: 2.0,
     effect: (state: GameState) => {

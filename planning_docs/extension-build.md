@@ -73,7 +73,7 @@ This file tracks additional features and improvements for future development pha
 
 ### UI Enhancements
 
-- [ ] **Show all element details in elements tab**: Display comprehensive stats for each element
+- [x] **Show all element details in elements tab**: Display comprehensive stats for each element
 - [ ] **Ability numbers in element stats tabs**: Show exact numerical values for all abilities
 - [ ] **New player intro**: Show them upgrades & the difficulty slider
 
