@@ -27,6 +27,26 @@
   flex-grow: 0;
 }
 
+.defender-sprite-container {
+  width: 30px; /* Doubled from 30px */
+  height: 30px; /* Doubled from 30px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  flex-grow: 0;
+  overflow: hidden; /* Hide overflow */
+}
+
+.defender-sprite-image {
+  width: 150%;
+  height: 150%;
+  object-fit: cover;
+  object-position: center bottom;
+  object-view-box: 0.25 0.5 0.75 0.5; /* Show bottom half: x y width height */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .defender-level {
   font-size: 10px;
   color: white;

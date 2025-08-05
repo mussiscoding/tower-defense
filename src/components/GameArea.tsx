@@ -304,7 +304,6 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           return (
             <Arrow
               key={arrow.id}
-              id={arrow.id}
               startX={arrow.startX}
               startY={arrow.startY}
               endX={arrow.endX}

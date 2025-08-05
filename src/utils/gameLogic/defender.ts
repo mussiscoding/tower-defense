@@ -8,6 +8,7 @@ import {
   GAME_MECHANICS,
 } from "../../constants/gameDimensions";
 import type { ElementData } from "../../types/GameState";
+import { calculateAnimationFrame } from "./animationUtils";
 
 export const getBisectingDefenderPosition = (
   existingDefenders: Defender[]
@@ -157,8 +158,14 @@ export const updateDefenders = (
   const updatedPredictedBurnDamage = new Map(predictedBurnDamage);
 
   const updatedDefenders = defenders.map((defender) => {
+    // Calculate animation frame for all defenders
+    const frame = calculateAnimationFrame(defender, currentTime);
+
     if (!canDefenderAttack(defender, currentTime)) {
-      return defender;
+      return {
+        ...defender,
+        currentAnimationFrame: frame,
+      };
     }
 
     const target = findNearestEnemy(
@@ -168,7 +175,10 @@ export const updateDefenders = (
       updatedPredictedBurnDamage
     );
     if (!target) {
-      return defender;
+      return {
+        ...defender,
+        currentAnimationFrame: frame,
+      };
     }
 
     // Check if burst is available for Air defenders
@@ -254,6 +264,7 @@ export const updateDefenders = (
       ...defender,
       lastAttack: currentTime,
       burstCooldownEnd,
+      currentAnimationFrame: frame,
     };
   });
 

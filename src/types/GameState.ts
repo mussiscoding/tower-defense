@@ -27,6 +27,7 @@ export interface Defender {
   level: number;
   cost: number;
   burstCooldownEnd?: number; // When burst cooldown ends
+  currentAnimationFrame?: number; // Current animation frame (1-7)
 }
 
 export interface ElementBaseStats {

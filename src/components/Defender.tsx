@@ -1,5 +1,6 @@
 import "./Defender.css";
 import type { ElementType } from "../data/elements";
+import { mageAttackSprites } from "../assets/mage-sprites";
 
 interface DefenderProps {
   id: string;
@@ -11,9 +12,15 @@ interface DefenderProps {
   range: number;
   lastAttack: number;
   level: number;
+  currentAnimationFrame?: number;
 }
 
-const Defender: React.FC<DefenderProps> = ({ type, x, y, level }) => {
+const Defender: React.FC<DefenderProps> = ({
+  type,
+  x,
+  y,
+  currentAnimationFrame = 1,
+}) => {
   const getElementColor = (elementType: ElementType) => {
     switch (elementType) {
       case "fire":
@@ -29,6 +36,34 @@ const Defender: React.FC<DefenderProps> = ({ type, x, y, level }) => {
     }
   };
 
+  // For now, only implement fire mage sprites
+  const shouldUseSprites = type === "fire";
+
+  if (shouldUseSprites) {
+    const spriteKey =
+      `attack${currentAnimationFrame}` as keyof typeof mageAttackSprites;
+    const spriteSrc = mageAttackSprites[spriteKey];
+
+    return (
+      <div
+        className={`defender defender-${type}`}
+        style={{
+          left: `${x}px`,
+          top: `${y}px`,
+        }}
+      >
+        <div className="defender-sprite-container">
+          <img
+            src={spriteSrc}
+            alt={`Fire mage attack frame ${currentAnimationFrame}`}
+            className="defender-sprite-image"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback to original colored circle for other elements
   return (
     <div
       className={`defender defender-${type}`}
