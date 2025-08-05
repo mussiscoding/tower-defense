@@ -41,7 +41,6 @@ const Defender: React.FC<DefenderProps> = ({ type, x, y, level }) => {
         className="defender-sprite"
         style={{ backgroundColor: getElementColor(type) }}
       ></div>
-      <div className="defender-level">Lv.{level}</div>
     </div>
   );
 };

@@ -17,7 +17,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 50px;
+  width: var(--castle-width, 75px);
   height: 100%;
   z-index: 10;
 }
