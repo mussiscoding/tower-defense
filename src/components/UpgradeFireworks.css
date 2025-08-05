@@ -1,0 +1,57 @@
+.upgrade-fireworks {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.firework {
+  position: absolute;
+  animation: firework-animation 1.5s ease-out forwards;
+  transform-origin: center;
+  opacity: 0;
+  font-weight: bold;
+}
+
+@keyframes firework-animation {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.5) rotate(90deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  85% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(720deg);
+  }
+}
+
+/* Element-specific firework variations */
+.firework[data-element="fire"] {
+  animation-duration: 1.6s;
+  text-shadow: 0 0 15px #ff4444, 0 0 25px #ff4444, 0 0 35px #ff4444;
+}
+
+.firework[data-element="ice"] {
+  animation-duration: 1.4s;
+  text-shadow: 0 0 15px #4444ff, 0 0 25px #4444ff, 0 0 35px #4444ff;
+}
+
+.firework[data-element="earth"] {
+  animation-duration: 1.75s;
+  text-shadow: 0 0 15px #8b4513, 0 0 25px #8b4513, 0 0 35px #8b4513;
+}
+
+.firework[data-element="air"] {
+  animation-duration: 1.25s;
+  text-shadow: 0 0 15px #cccccc, 0 0 25px #cccccc, 0 0 35px #cccccc;
+}

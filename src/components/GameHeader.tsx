@@ -5,12 +5,14 @@ interface GameHeaderProps {
   gameState: GameState;
   onPauseToggle: () => void;
   onReset: () => void;
+  onDevGold?: () => void;
 }
 
 const GameHeader: React.FC<GameHeaderProps> = ({
   gameState,
   onPauseToggle,
   onReset,
+  onDevGold,
 }) => {
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -62,6 +64,12 @@ const GameHeader: React.FC<GameHeaderProps> = ({
       <button className="reset-button" onClick={onReset}>
         🔄
       </button>
+
+      {onDevGold && (
+        <button className="dev-gold-button" onClick={onDevGold}>
+          💰+10K
+        </button>
+      )}
     </header>
   );
 };

@@ -1,8 +1,13 @@
 import type { GameState } from "../types/GameState";
+import type { ElementType } from "../data/elements";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
 import { getBisectingDefenderPosition } from "../utils/gameLogic/defender";
 import { createDefender } from "../utils/gameLogic";
+import {
+  createUpgradeAnimation,
+  createFloatingText,
+} from "../utils/gameLogic/uiUtils";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 
 import "./GameSidebar.css";
@@ -42,6 +47,37 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
       );
       if (upgradeItem) {
         const updatedState = upgradeItem.effect(prev);
+
+        // Determine the element type from the upgrade ID
+        const elementType = itemId.split("_")[0] as ElementType; // fire, ice, earth, air
+
+        // Find all mages of this element type to get their positions
+        const magesOfType = prev.defenders.filter(
+          (defender) => defender.type === elementType
+        );
+
+        // Create fireworks animation and floating text for each mage of this element type
+        const newUpgradeAnimations = magesOfType.map((mage) => {
+          return createUpgradeAnimation(
+            upgradeItem.shortName || item.name,
+            elementType,
+            mage.x + 11, // Center of the mage sprite
+            mage.y + 8,
+            Date.now()
+          );
+        });
+
+        // Create floating texts for each mage
+        const newFloatingTexts = magesOfType.map((mage) => {
+          return createFloatingText(
+            upgradeItem.shortName || item.name,
+            mage.x + 12, // Center of the mage sprite + 1px right
+            mage.y - 2, // Position above the mage like level up text
+            elementType,
+            Date.now()
+          );
+        });
+
         return {
           ...updatedState,
           gold: prev.gold - currentPrice,
@@ -49,6 +85,11 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
             ...prev.purchases,
             [itemId]: (prev.purchases[itemId] || 0) + 1,
           },
+          upgradeAnimations: [
+            ...prev.upgradeAnimations,
+            ...newUpgradeAnimations,
+          ],
+          floatingTexts: [...prev.floatingTexts, ...newFloatingTexts],
         };
       }
 

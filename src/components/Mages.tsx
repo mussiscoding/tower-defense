@@ -134,6 +134,15 @@ const Mages: React.FC<MagesProps> = ({
               <div className="element-detail-info">
                 <h3>{getElementName(selectedElement)}</h3>
                 <div className="element-level">Level {elementData.level}</div>
+                <div className="element-xp-bar">
+                  <div
+                    className="xp-progress"
+                    style={{
+                      width: `${getXPProgress(elementData)}%`,
+                      backgroundColor: getElementColor(selectedElement),
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -168,7 +177,7 @@ const Mages: React.FC<MagesProps> = ({
                             {currentAbilities.burnDamagePercent || 0}%
                           </span>
                         </div>
-                        <div className="stat-item">
+                        <div className="stat-item stat-item-last">
                           <span className="stat-label">Burn Duration:</span>
                           <span className="stat-value">
                             {currentAbilities.burnDuration || 0}s
@@ -184,7 +193,7 @@ const Mages: React.FC<MagesProps> = ({
                             {currentAbilities.slowEffect || 0}%
                           </span>
                         </div>
-                        <div className="stat-item">
+                        <div className="stat-item stat-item-last">
                           <span className="stat-label">Slow Duration:</span>
                           <span className="stat-value">
                             {currentAbilities.slowDuration || 0}s
@@ -200,7 +209,7 @@ const Mages: React.FC<MagesProps> = ({
                             {currentAbilities.splashDamage || 0}%
                           </span>
                         </div>
-                        <div className="stat-item">
+                        <div className="stat-item stat-item-last">
                           <span className="stat-label">Splash Radius:</span>
                           <span className="stat-value">
                             {currentAbilities.splashRadius || 0}px
@@ -216,7 +225,7 @@ const Mages: React.FC<MagesProps> = ({
                             {currentAbilities.burstShots || 0}
                           </span>
                         </div>
-                        <div className="stat-item">
+                        <div className="stat-item stat-item-last">
                           <span className="stat-label">Burst Cooldown:</span>
                           <span className="stat-value">
                             {currentAbilities.burstCooldown || 0}s
@@ -224,25 +233,19 @@ const Mages: React.FC<MagesProps> = ({
                         </div>
                       </>
                     )}
-                  </div>
-                </div>
 
-                <div className="element-xp-section">
-                  <h4>Experience</h4>
-                  <div className="xp-info">
-                    <span>Current XP: {elementData.xp}</span>
-                    <span>
-                      Next Level: {getXPForLevel(elementData.level + 1)}
-                    </span>
-                  </div>
-                  <div className="xp-bar">
-                    <div
-                      className="xp-progress"
-                      style={{
-                        width: `${getXPProgress(elementData)}%`,
-                        backgroundColor: getElementColor(selectedElement),
-                      }}
-                    />
+                    <div className="stat-separator"></div>
+
+                    <div className="stat-item">
+                      <span className="stat-label">Total XP:</span>
+                      <span className="stat-value">{elementData.xp}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">XP to Level:</span>
+                      <span className="stat-value">
+                        {getXPForLevel(elementData.level + 1) - elementData.xp}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </>

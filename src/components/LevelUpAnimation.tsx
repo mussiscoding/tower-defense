@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./LevelUpAnimation.css";
 import type { LevelUpAnimation as LevelUpAnimationType } from "../types/GameState";
-import type { ElementType } from "../data/elements";
+import { getElementSparkleColor } from "../constants/elementColors";
 
 interface LevelUpAnimationProps {
   animation: LevelUpAnimationType;
@@ -53,21 +53,6 @@ const LevelUpAnimation: React.FC<LevelUpAnimationProps> = ({
     return () => clearTimeout(timer);
   }, [animation.id, animation.duration, onComplete]);
 
-  const getElementColor = (elementType: ElementType): string => {
-    switch (elementType) {
-      case "fire":
-        return "#ffd700"; // Gold for fire
-      case "ice":
-        return "#87ceeb"; // Light blue for ice
-      case "earth":
-        return "#daa520"; // Goldenrod for earth
-      case "air":
-        return "#f0f8ff"; // Alice blue for air
-      default:
-        return "#ffd700"; // Default gold
-    }
-  };
-
   return (
     <div
       className="level-up-animation"
@@ -87,7 +72,7 @@ const LevelUpAnimation: React.FC<LevelUpAnimationProps> = ({
             left: sparkle.x,
             top: sparkle.y,
             animationDelay: `${sparkle.delay}ms`,
-            color: getElementColor(animation.elementType),
+            color: getElementSparkleColor(animation.elementType),
           }}
         >
           ✨

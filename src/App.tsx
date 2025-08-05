@@ -23,12 +23,12 @@ function App() {
     goldPopups: [],
     splashEffects: [],
     levelUpAnimations: [],
-
+    floatingTexts: [],
+    upgradeAnimations: [],
     lastSave: Date.now(),
     isPaused: false,
     purchases: {},
     difficultyLevel: 1,
-
     predictedArrowDamage: new Map(),
     predictedBurnDamage: new Map(),
     elements: getAvailableElements().reduce((acc, elementType) => {
@@ -97,6 +97,8 @@ function App() {
       goldPopups: [],
       splashEffects: [],
       levelUpAnimations: [],
+      floatingTexts: [],
+      upgradeAnimations: [],
       lastSave: Date.now(),
       isPaused: false,
       purchases: {},
@@ -110,12 +112,20 @@ function App() {
     });
   };
 
+  const addDevGold = () => {
+    setGameState((prev) => ({
+      ...prev,
+      gold: prev.gold + 10000,
+    }));
+  };
+
   return (
     <div className="App">
       <GameHeader
         gameState={gameState}
         onPauseToggle={togglePause}
         onReset={resetGame}
+        onDevGold={addDevGold}
       />
       <div className="game-container">
         <GameArea gameState={gameState} setGameState={setGameState} />

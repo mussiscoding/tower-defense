@@ -4,7 +4,6 @@ import type {
   ElementData,
   GoldPopup,
   SplashEffect,
-  LevelUpAnimation,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 import {
@@ -22,26 +21,6 @@ export const generateArrowId = (): string => {
 
 export const generateSplashEffectId = (): string => {
   return `splash_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
-
-export const generateLevelUpAnimationId = (): string => {
-  return `levelup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
-
-export const createLevelUpAnimation = (
-  elementType: ElementType,
-  x: number,
-  y: number,
-  currentTime: number
-): LevelUpAnimation => {
-  return {
-    id: generateLevelUpAnimationId(),
-    elementType,
-    x,
-    y,
-    startTime: currentTime,
-    duration: 3000, // 3 seconds duration
-  };
 };
 
 export const createArrow = (

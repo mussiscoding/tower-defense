@@ -63,6 +63,27 @@ export interface LevelUpAnimation {
   duration: number;
 }
 
+export interface FloatingText {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  startTime: number;
+  duration: number;
+  color: string;
+  elementType: ElementType;
+}
+
+export interface UpgradeAnimation {
+  id: string;
+  shortName: string;
+  startTime: number;
+  duration: number;
+  elementType: ElementType;
+  mageX: number;
+  mageY: number;
+}
+
 export interface GameState {
   gold: number;
   castleHealth: number;
@@ -74,6 +95,8 @@ export interface GameState {
   goldPopups: GoldPopup[];
   splashEffects: SplashEffect[];
   levelUpAnimations: LevelUpAnimation[];
+  floatingTexts: FloatingText[];
+  upgradeAnimations: UpgradeAnimation[];
   lastSave: number;
   isPaused: boolean;
   purchases: Record<string, number>;

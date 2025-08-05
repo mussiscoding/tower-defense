@@ -2,6 +2,7 @@ import type {
   GameState,
   Enemy as EnemyType,
   LevelUpAnimation,
+  FloatingText as FloatingTextType,
 } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { useEffect, useRef } from "react";
@@ -12,7 +13,9 @@ import Arrow from "./Arrow";
 import GoldPopup from "./GoldPopup";
 import SplashEffectComponent from "./SplashEffect";
 import LevelUpAnimationComponent from "./LevelUpAnimation";
-import { createLevelUpAnimation } from "../utils/gameLogic";
+import FloatingText from "./FloatingText";
+import UpgradeFireworks from "./UpgradeFireworks";
+import { createLevelUpAnimation, createFloatingText } from "../utils/gameLogic";
 import {
   createEnemy,
   moveEnemies,
@@ -140,6 +143,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
 
         // Check for level-ups and create animations for all defenders of that element type
         const newLevelUpAnimations: LevelUpAnimation[] = [];
+        const newFloatingTexts: FloatingTextType[] = [];
         const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
 
         elementTypes.forEach((elementType) => {
@@ -153,7 +157,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
               (defender) => defender.type === elementType
             );
 
-            // Create level-up animation for each defender of this element type
+            // Create level-up animation and floating text for each defender of this element type
             defendersOfType.forEach((defender) => {
               const levelUpAnimation = createLevelUpAnimation(
                 elementType,
@@ -162,6 +166,16 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
                 Date.now()
               );
               newLevelUpAnimations.push(levelUpAnimation);
+
+              // Create floating text showing the stat increase
+              const floatingText = createFloatingText(
+                "Level up!",
+                defender.x + 11,
+                defender.y - 10, // Position above the defender
+                elementType,
+                Date.now()
+              );
+              newFloatingTexts.push(floatingText);
             });
           }
         });
@@ -192,6 +206,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             ...prev.levelUpAnimations,
             ...newLevelUpAnimations,
           ],
+          floatingTexts: [...prev.floatingTexts, ...newFloatingTexts],
           castleHealth,
           predictedArrowDamage: finalPredictedArrowDamage,
           predictedBurnDamage: finalPredictedBurnDamage,
@@ -203,7 +218,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
     return () => clearInterval(gameLoop);
   }, [gameState.isPaused, setGameState]);
 
-  // Clean up expired splash effects
+  // Clean up expired splash effects and floating texts
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
       const currentTime = Date.now();
@@ -212,6 +227,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
         splashEffects: prev.splashEffects.filter(
           (effect) => currentTime - effect.startTime < effect.duration
         ),
+        floatingTexts: prev.floatingTexts.filter(
+          (text) => currentTime - text.startTime < text.duration
+        ),
+        upgradeAnimations:
+          prev.upgradeAnimations?.filter(
+            (animation) =>
+              currentTime - animation.startTime < animation.duration
+          ) || [],
       }));
     }, 100); // Check every 100ms
 
@@ -328,6 +351,35 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
                 levelUpAnimations: prev.levelUpAnimations.filter(
                   (a) => a.id !== id
                 ),
+              }));
+            }}
+          />
+        ))}
+
+        {gameState.floatingTexts.map((text) => (
+          <FloatingText
+            key={text.id}
+            text={text}
+            onComplete={(id: string) => {
+              setGameState((prev) => ({
+                ...prev,
+                floatingTexts: prev.floatingTexts.filter((t) => t.id !== id),
+              }));
+            }}
+          />
+        ))}
+
+        {gameState.upgradeAnimations?.map((animation) => (
+          <UpgradeFireworks
+            key={animation.id}
+            animation={animation}
+            x={animation.mageX}
+            y={animation.mageY}
+            onComplete={(id: string) => {
+              setGameState((prev) => ({
+                ...prev,
+                upgradeAnimations:
+                  prev.upgradeAnimations?.filter((a) => a.id !== id) || [],
               }));
             }}
           />

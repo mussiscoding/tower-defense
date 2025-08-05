@@ -25,9 +25,15 @@ export {
   updateArrows,
   getArrowProgress,
   processArrowImpacts,
+} from "./arrow";
+
+// UI utility functions
+export {
+  generateFloatingTextId,
+  createFloatingText,
   generateLevelUpAnimationId,
   createLevelUpAnimation,
-} from "./arrow";
+} from "./uiUtils";
 
 // Effect functions
 export { processBurnDamage } from "./effects";
