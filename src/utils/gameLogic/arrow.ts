@@ -166,19 +166,6 @@ export const processArrowImpacts = (
           updatedPredictedArrowDamage.get(targetEnemy.id) || 0;
         const newPredictedDamage = Math.max(0, currentPredictedDamage - damage);
 
-        // Log arrow impact and predicted damage reduction
-        console.log(
-          `💥 Arrow hit enemy ${targetEnemy.id} (${targetEnemy.type}):`,
-          {
-            damageDealt: damage,
-            currentPredicted: currentPredictedDamage,
-            newPredicted: newPredictedDamage,
-            enemyHealthBefore: targetEnemy.health,
-            enemyHealthAfter: damagedEnemy.health,
-            isDead: isDead,
-          }
-        );
-
         // Update predicted damage
         if (newPredictedDamage === 0) {
           updatedPredictedArrowDamage.delete(targetEnemy.id);
@@ -192,10 +179,21 @@ export const processArrowImpacts = (
             arrow.elementType,
             purchases
           );
-          const burnDamage = elementAbilities.burnDamage || 0;
+          const burnDamagePercent = elementAbilities.burnDamagePercent || 0;
           const burnDuration = elementAbilities.burnDuration || 0;
 
-          if (burnDamage > 0 && burnDuration > 0) {
+          if (burnDamagePercent > 0 && burnDuration > 0) {
+            // Calculate burn damage as percentage of arrow damage (including level bonuses)
+            const element = elements[arrow.elementType];
+            const elementStats = calculateElementStats(
+              arrow.elementType,
+              element?.level || 1
+            );
+            const arrowDamage = elementStats.damage;
+            const burnDamage = Math.floor(
+              (arrowDamage * burnDamagePercent) / 100
+            );
+
             // Calculate total burn damage (damage per tick * number of ticks)
             const burnTickInterval = 500; // 500ms per tick
             const totalBurnTicks = Math.floor(
@@ -213,11 +211,21 @@ export const processArrowImpacts = (
           arrow.elementType,
           purchases
         );
+
+        // Calculate arrow damage for percentage-based effects (including level bonuses)
+        const elementData = elements[arrow.elementType];
+        const elementStats = calculateElementStats(
+          arrow.elementType,
+          elementData?.level || 1
+        );
+        const arrowDamage = elementStats.damage;
+
         const { enemy: finalEnemy } = addElementEffects(
           damagedEnemy,
           arrow.elementType,
           elementAbilities,
-          currentTime
+          currentTime,
+          arrowDamage
         );
 
         updatedEnemies = updatedEnemies.map((enemy) =>

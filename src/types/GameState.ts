@@ -36,7 +36,7 @@ export interface ElementBaseStats {
 }
 
 export interface ElementAbilities {
-  burnDamage?: number;
+  burnDamagePercent?: number;
   burnDuration?: number;
   slowEffect?: number;
   slowDuration?: number;

@@ -16,15 +16,15 @@ export interface ElementDefinition {
 export const elements: Record<ElementType, ElementDefinition> = {
   fire: {
     name: "Fire",
-    baseStats: { damage: 2, attackSpeed: 1.0, range: 700 },
-    abilities: { burnDamage: 4, burnDuration: 2 },
-    upgradeFactors: { burnDamage: 1.2, burnDuration: 1.3 },
+    baseStats: { damage: 10, attackSpeed: 1.0, range: 700 },
+    abilities: { burnDamagePercent: 20, burnDuration: 2 },
+    upgradeFactors: { burnDamagePercent: 1 },
   },
   ice: {
     name: "Ice",
     baseStats: { damage: 8, attackSpeed: 1.0, range: 700 },
     abilities: { slowEffect: 5, slowDuration: 3 },
-    upgradeFactors: { slowEffect: 1.2, slowDuration: 1.3 },
+    upgradeFactors: { slowEffect: 1.2 },
   },
   earth: {
     name: "Earth",
@@ -107,24 +107,16 @@ export const calculateElementAbilities = (
   purchases: Record<string, number>
 ): ElementAbilities => {
   const baseAbilities = elements[elementType].abilities;
-  const upgradeFactors = elements[elementType].upgradeFactors;
 
   switch (elementType) {
     case "fire": {
       const burnDamageUpgrades = purchases["fire_burn_damage_upgrade"] || 0;
-      const burnDurationUpgrades = purchases["fire_burn_duration_upgrade"] || 0;
-      const burnDamageFactor = upgradeFactors.burnDamage || 1;
-      const burnDurationFactor = upgradeFactors.burnDuration || 1;
 
       return {
-        burnDamage: Math.floor(
-          (baseAbilities.burnDamage || 0) *
-            Math.pow(burnDamageFactor, burnDamageUpgrades)
+        burnDamagePercent: Math.floor(
+          (baseAbilities.burnDamagePercent || 20) + burnDamageUpgrades
         ),
-        burnDuration: Math.floor(
-          (baseAbilities.burnDuration || 0) *
-            Math.pow(burnDurationFactor, burnDurationUpgrades)
-        ),
+        burnDuration: baseAbilities.burnDuration || 2,
       };
     }
     case "ice": {

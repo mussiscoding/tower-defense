@@ -10,19 +10,26 @@ export const addElementEffects = (
   enemy: Enemy,
   elementType: string,
   elementAbilities: ElementAbilities,
-  currentTime: number
+  currentTime: number,
+  arrowDamage?: number
 ): ElementEffectResult => {
   let updatedEnemy = enemy;
 
   // Apply fire element burn effect
   if (
     elementType === "fire" &&
-    elementAbilities.burnDamage &&
+    elementAbilities.burnDamagePercent &&
     elementAbilities.burnDuration
   ) {
+    // Calculate burn damage as percentage of arrow damage
+    const burnDamagePercent = elementAbilities.burnDamagePercent || 0;
+    const burnDamage = arrowDamage
+      ? Math.floor((arrowDamage * burnDamagePercent) / 100)
+      : 0;
+
     updatedEnemy = {
       ...updatedEnemy,
-      burnDamage: elementAbilities.burnDamage,
+      burnDamage: burnDamage,
       burnEndTime: currentTime + elementAbilities.burnDuration * 1000,
     };
   }

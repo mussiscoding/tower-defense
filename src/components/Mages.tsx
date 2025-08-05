@@ -165,7 +165,7 @@ const Mages: React.FC<MagesProps> = ({
                         <div className="stat-item">
                           <span className="stat-label">Burn Damage:</span>
                           <span className="stat-value">
-                            {currentAbilities.burnDamage || 0}
+                            {currentAbilities.burnDamagePercent || 0}%
                           </span>
                         </div>
                         <div className="stat-item">

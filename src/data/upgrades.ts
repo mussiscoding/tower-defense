@@ -14,7 +14,7 @@ export const upgradeShopItems: UpgradeShopItem[] = [
   {
     id: "fire_burn_damage_upgrade",
     name: "Burn Damage",
-    description: "Increase burn damage +1",
+    description: "Increase burn damage +1% of tower damage",
     cost: 1000,
     type: "upgrade",
     costScalingFactor: 2.0,
