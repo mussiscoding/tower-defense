@@ -22,12 +22,13 @@ function App() {
     arrows: [],
     goldPopups: [],
     splashEffects: [],
-    spawnRate: 1,
+    levelUpAnimations: [],
+
     lastSave: Date.now(),
     isPaused: false,
     purchases: {},
     difficultyLevel: 1,
-    spawnRateLevel: 1,
+
     predictedArrowDamage: new Map(),
     predictedBurnDamage: new Map(),
     elements: getAvailableElements().reduce((acc, elementType) => {
@@ -95,12 +96,11 @@ function App() {
       arrows: [],
       goldPopups: [],
       splashEffects: [],
-      spawnRate: 1,
+      levelUpAnimations: [],
       lastSave: Date.now(),
       isPaused: false,
       purchases: {},
       difficultyLevel: 1,
-      spawnRateLevel: 1,
       predictedArrowDamage: new Map(),
       predictedBurnDamage: new Map(),
       elements: getAvailableElements().reduce((acc, elementType) => {

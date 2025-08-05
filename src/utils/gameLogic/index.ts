@@ -25,6 +25,8 @@ export {
   updateArrows,
   getArrowProgress,
   processArrowImpacts,
+  generateLevelUpAnimationId,
+  createLevelUpAnimation,
 } from "./arrow";
 
 // Effect functions

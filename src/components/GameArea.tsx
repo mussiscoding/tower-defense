@@ -1,4 +1,9 @@
-import type { GameState, Enemy as EnemyType } from "../types/GameState";
+import type {
+  GameState,
+  Enemy as EnemyType,
+  LevelUpAnimation,
+} from "../types/GameState";
+import type { ElementType } from "../data/elements";
 import { useEffect, useRef } from "react";
 import Enemy from "./Enemy";
 import Castle from "./Castle";
@@ -6,6 +11,8 @@ import Defender from "./Defender";
 import Arrow from "./Arrow";
 import GoldPopup from "./GoldPopup";
 import SplashEffectComponent from "./SplashEffect";
+import LevelUpAnimationComponent from "./LevelUpAnimation";
+import { createLevelUpAnimation } from "../utils/gameLogic";
 import {
   createEnemy,
   moveEnemies,
@@ -21,6 +28,7 @@ import {
 } from "../utils/gameLogic";
 import { generateWave } from "../utils/gameLogic/waveGenerator";
 import { enemies } from "../data/enemies";
+import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 import "./GameArea.css";
 
 interface GameAreaProps {
@@ -102,6 +110,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           prev.elements
         );
 
+        // Capture previous element levels before arrow processing
+        const previousElementLevels = {
+          fire: prev.elements.fire?.level || 1,
+          ice: prev.elements.ice?.level || 1,
+          earth: prev.elements.earth?.level || 1,
+          air: prev.elements.air?.level || 1,
+        };
+
         // Process arrow impacts and update arrows
         const {
           arrows: activeArrows,
@@ -121,6 +137,34 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           prev.elements,
           prev.purchases
         );
+
+        // Check for level-ups and create animations for all defenders of that element type
+        const newLevelUpAnimations: LevelUpAnimation[] = [];
+        const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+
+        elementTypes.forEach((elementType) => {
+          const prevLevel = previousElementLevels[elementType];
+          const updatedElement = updatedElements[elementType];
+          const newLevel = updatedElement?.level || 1;
+
+          if (newLevel > prevLevel) {
+            // Find all defenders of this element type
+            const defendersOfType = updatedDefenders.filter(
+              (defender) => defender.type === elementType
+            );
+
+            // Create level-up animation for each defender of this element type
+            defendersOfType.forEach((defender) => {
+              const levelUpAnimation = createLevelUpAnimation(
+                elementType,
+                defender.x + 11,
+                defender.y + 8,
+                Date.now()
+              );
+              newLevelUpAnimations.push(levelUpAnimation);
+            });
+          }
+        });
 
         // Remove dead enemies after all processing
         const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
@@ -144,6 +188,10 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           gold: prev.gold + goldGained,
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
           splashEffects: [...prev.splashEffects, ...newSplashEffects],
+          levelUpAnimations: [
+            ...prev.levelUpAnimations,
+            ...newLevelUpAnimations,
+          ],
           castleHealth,
           predictedArrowDamage: finalPredictedArrowDamage,
           predictedBurnDamage: finalPredictedBurnDamage,
@@ -206,7 +254,14 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
   return (
     <div className="game-area" ref={gameAreaRef}>
       <div className="battlefield">
-        <div className="castle-area">
+        <div
+          className="castle-area"
+          style={
+            {
+              "--castle-width": `${GAME_DIMENSIONS.CASTLE_WIDTH}px`,
+            } as React.CSSProperties
+          }
+        >
           <Castle />
         </div>
 
@@ -260,6 +315,21 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             key={effect.id}
             effect={effect}
             currentTime={Date.now()}
+          />
+        ))}
+
+        {gameState.levelUpAnimations.map((animation) => (
+          <LevelUpAnimationComponent
+            key={animation.id}
+            animation={animation}
+            onComplete={(id: string) => {
+              setGameState((prev) => ({
+                ...prev,
+                levelUpAnimations: prev.levelUpAnimations.filter(
+                  (a) => a.id !== id
+                ),
+              }));
+            }}
           />
         ))}
       </div>

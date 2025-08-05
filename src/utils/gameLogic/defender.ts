@@ -98,7 +98,7 @@ export const findNearestEnemy = (
 ): Enemy | null => {
   // Range is based on distance from castle (left edge), not 2D distance
   const enemiesInRange = enemies.filter((enemy) => {
-    const distanceFromCastle = enemy.x - 50; // Castle is at x=50
+    const distanceFromCastle = enemy.x - GAME_DIMENSIONS.CASTLE_WIDTH; // Castle is at x=75
 
     // Log range check
     if (distanceFromCastle > defender.range) {
@@ -112,16 +112,6 @@ export const findNearestEnemy = (
 
     const finalPredictedHealth = enemy.health - totalPredictedDamage;
 
-    // Log predicted vs actual health
-    console.log(`🎯 Enemy ${enemy.id} (${enemy.type}):`, {
-      actualHealth: enemy.health,
-      arrowPredicted: arrowPredictedDamage,
-      burnPredicted: burnPredictedDamage,
-      totalPredicted: totalPredictedDamage,
-      finalPredictedHealth: finalPredictedHealth,
-      willSurvive: finalPredictedHealth > 0,
-    });
-
     return finalPredictedHealth > 0;
   });
 
@@ -131,8 +121,8 @@ export const findNearestEnemy = (
 
   // Find the nearest enemy (closest to castle)
   const target = enemiesInRange.reduce((nearest, enemy) => {
-    const nearestDistance = nearest.x - 50;
-    const enemyDistance = enemy.x - 50;
+    const nearestDistance = nearest.x - GAME_DIMENSIONS.CASTLE_WIDTH;
+    const enemyDistance = enemy.x - GAME_DIMENSIONS.CASTLE_WIDTH;
     return enemyDistance < nearestDistance ? enemy : nearest;
   });
 

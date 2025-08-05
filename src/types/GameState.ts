@@ -54,6 +54,15 @@ export interface ElementData {
   abilities: ElementAbilities;
 }
 
+export interface LevelUpAnimation {
+  id: string;
+  elementType: ElementType;
+  x: number;
+  y: number;
+  startTime: number;
+  duration: number;
+}
+
 export interface GameState {
   gold: number;
   castleHealth: number;
@@ -64,6 +73,7 @@ export interface GameState {
   arrows: Arrow[];
   goldPopups: GoldPopup[];
   splashEffects: SplashEffect[];
+  levelUpAnimations: LevelUpAnimation[];
   lastSave: number;
   isPaused: boolean;
   purchases: Record<string, number>;
@@ -109,4 +119,5 @@ export interface ShopItem {
   cost: number;
   type: "defender" | "upgrade" | "castle";
   costScalingFactor: number;
+  shortName?: string;
 }

@@ -1,5 +1,6 @@
 import type { Enemy, GoldPopup } from "../../types/GameState";
 import { getEnemyById } from "../../data/enemies";
+import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
 
 export const generateEnemyId = (): string => {
   return `enemy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -51,7 +52,7 @@ export const removeDeadEnemies = (enemies: Enemy[]): Enemy[] => {
 };
 
 export const removeEnemiesPastCastle = (enemies: Enemy[]): Enemy[] => {
-  return enemies.filter((enemy) => enemy.x > 50); // Castle is at x=50
+  return enemies.filter((enemy) => enemy.x > GAME_DIMENSIONS.CASTLE_WIDTH); // Castle is at x=75
 };
 
 export const damageEnemy = (
@@ -69,7 +70,9 @@ export const damageCastle = (
   enemies: Enemy[],
   currentCastleHealth: number
 ): { castleHealth: number; enemies: Enemy[]; castleDestroyed: boolean } => {
-  const enemiesAtCastle = enemies.filter((enemy) => enemy.x <= 50);
+  const enemiesAtCastle = enemies.filter(
+    (enemy) => enemy.x <= GAME_DIMENSIONS.CASTLE_WIDTH
+  );
   const damage = enemiesAtCastle.length * 5; // 5 damage per enemy
   const newCastleHealth = Math.max(0, currentCastleHealth - damage);
   const castleDestroyed = newCastleHealth <= 0;
@@ -77,7 +80,7 @@ export const damageCastle = (
   // Remove enemies that reached the castle (unless castle is destroyed, then remove all)
   const remainingEnemies = castleDestroyed
     ? []
-    : enemies.filter((enemy) => enemy.x > 50);
+    : enemies.filter((enemy) => enemy.x > GAME_DIMENSIONS.CASTLE_WIDTH);
 
   return {
     castleHealth: newCastleHealth,

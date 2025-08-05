@@ -1,0 +1,53 @@
+.level-up-animation {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 16px;
+  animation: sparkle-animation 2s ease-out forwards;
+  transform-origin: center;
+  opacity: 0;
+}
+
+@keyframes sparkle-animation {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(720deg);
+  }
+}
+
+/* Element-specific sparkle variations */
+.sparkle[data-element="fire"] {
+  animation-duration: 2.5s;
+  text-shadow: 0 0 10px #ff4444, 0 0 20px #ff4444;
+}
+
+.sparkle[data-element="ice"] {
+  animation-duration: 2.2s;
+  text-shadow: 0 0 10px #4444ff, 0 0 20px #4444ff;
+}
+
+.sparkle[data-element="earth"] {
+  animation-duration: 2.8s;
+  text-shadow: 0 0 10px #8b4513, 0 0 20px #8b4513;
+}
+
+.sparkle[data-element="air"] {
+  animation-duration: 2s;
+  text-shadow: 0 0 10px #cccccc, 0 0 20px #cccccc;
+}
