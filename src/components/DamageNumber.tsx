@@ -1,0 +1,48 @@
+import React, { useState, useEffect } from "react";
+import "./DamageNumber.css";
+import type { ElementType } from "../data/elements";
+import { getElementColor } from "../constants/elementColors";
+
+interface DamageNumberProps {
+  damage: number;
+  x: number;
+  y: number;
+  elementType: ElementType;
+  onComplete: () => void;
+}
+
+const DamageNumber: React.FC<DamageNumberProps> = ({
+  damage,
+  x,
+  y,
+  elementType,
+  onComplete,
+}) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(onComplete, 300); // Wait for fade out animation
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div
+      className="damage-number"
+      style={{
+        left: `${x}px`,
+        top: `${y}px`,
+        color: getElementColor(elementType),
+      }}
+    >
+      {damage}
+    </div>
+  );
+};
+
+export default DamageNumber;

@@ -15,6 +15,7 @@ import SplashEffectComponent from "./SplashEffect";
 import LevelUpAnimationComponent from "./LevelUpAnimation";
 import FloatingText from "./FloatingText";
 import UpgradeFireworks from "./UpgradeFireworks";
+import DamageNumber from "./DamageNumber";
 import { createLevelUpAnimation, createFloatingText } from "../utils/gameLogic";
 import {
   createEnemy,
@@ -128,6 +129,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           goldGained,
           goldPopups: newGoldPopups,
           splashEffects: newSplashEffects,
+          damageNumbers: newDamageNumbers,
           predictedArrowDamage: finalPredictedArrowDamage,
           predictedBurnDamage: finalPredictedBurnDamage,
           elements: updatedElements,
@@ -170,7 +172,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
               // Create floating text showing the stat increase
               const floatingText = createFloatingText(
                 "Level up!",
-                defender.x + 11,
+                defender.x + 20, // Center of the defender
                 defender.y - 10, // Position above the defender
                 elementType,
                 Date.now()
@@ -202,6 +204,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           gold: prev.gold + goldGained,
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
           splashEffects: [...prev.splashEffects, ...newSplashEffects],
+          damageNumbers: [...prev.damageNumbers, ...newDamageNumbers],
           levelUpAnimations: [
             ...prev.levelUpAnimations,
             ...newLevelUpAnimations,
@@ -230,6 +233,10 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
         floatingTexts: prev.floatingTexts.filter(
           (text) => currentTime - text.startTime < text.duration
         ),
+        damageNumbers:
+          prev.damageNumbers?.filter(
+            (damageNumber) => currentTime - damageNumber.startTime < 1500
+          ) || [],
         upgradeAnimations:
           prev.upgradeAnimations?.filter(
             (animation) =>
@@ -380,6 +387,25 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
                 ...prev,
                 upgradeAnimations:
                   prev.upgradeAnimations?.filter((a) => a.id !== id) || [],
+              }));
+            }}
+          />
+        ))}
+
+        {gameState.damageNumbers?.map((damageNumber) => (
+          <DamageNumber
+            key={damageNumber.id}
+            damage={damageNumber.damage}
+            x={damageNumber.x}
+            y={damageNumber.y}
+            elementType={damageNumber.elementType}
+            onComplete={() => {
+              setGameState((prev) => ({
+                ...prev,
+                damageNumbers:
+                  prev.damageNumbers?.filter(
+                    (dn) => dn.id !== damageNumber.id
+                  ) || [],
               }));
             }}
           />

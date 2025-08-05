@@ -39,6 +39,7 @@ export const loadGame = (): GameState | null => {
       levelUpAnimations: parsed.levelUpAnimations ?? [],
       floatingTexts: parsed.floatingTexts ?? [],
       upgradeAnimations: parsed.upgradeAnimations ?? [],
+      damageNumbers: parsed.damageNumbers ?? [],
       lastSave: parsed.lastSave ?? Date.now(),
       isPaused: parsed.isPaused ?? false,
       purchases: parsed.purchases ?? {},

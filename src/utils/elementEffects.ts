@@ -1,5 +1,6 @@
 import type { Enemy } from "../types/GameState";
 import type { ElementAbilities } from "../types/GameState";
+import type { ElementType } from "../data/elements";
 
 export interface ElementEffectResult {
   enemy: Enemy;
@@ -50,4 +51,20 @@ export const addElementEffects = (
   return {
     enemy: updatedEnemy,
   };
+};
+
+// Get element-specific emoji for projectiles, fireworks, and other UI elements
+export const getElementEmoji = (elementType: ElementType) => {
+  switch (elementType) {
+    case "fire":
+      return "🔥";
+    case "ice":
+      return "❄️";
+    case "earth":
+      return "🪨";
+    case "air":
+      return "🌪️";
+    default:
+      return "✨";
+  }
 };

@@ -61,8 +61,8 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           return createUpgradeAnimation(
             upgradeItem.shortName || item.name,
             elementType,
-            mage.x + 11, // Center of the mage sprite
-            mage.y + 8,
+            mage.x - 5, // Center of the mage (40px container)
+            mage.y - 5,
             Date.now()
           );
         });
@@ -71,7 +71,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
         const newFloatingTexts = magesOfType.map((mage) => {
           return createFloatingText(
             upgradeItem.shortName || item.name,
-            mage.x + 12, // Center of the mage sprite + 1px right
+            mage.x + 20, // Center of the mage
             mage.y - 2, // Position above the mage like level up text
             elementType,
             Date.now()

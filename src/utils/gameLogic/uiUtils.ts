@@ -2,6 +2,7 @@ import type {
   FloatingText,
   LevelUpAnimation,
   UpgradeAnimation,
+  DamageNumber,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 
@@ -67,5 +68,26 @@ export const createUpgradeAnimation = (
     mageY,
     startTime: currentTime,
     duration: 1500, // 1.5 seconds duration
+  };
+};
+
+export const generateDamageNumberId = (): string => {
+  return `damage_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+export const createDamageNumber = (
+  damage: number,
+  x: number,
+  y: number,
+  elementType: ElementType,
+  currentTime: number
+): DamageNumber => {
+  return {
+    id: generateDamageNumberId(),
+    damage,
+    x,
+    y,
+    elementType,
+    startTime: currentTime,
   };
 };

@@ -84,6 +84,15 @@ export interface UpgradeAnimation {
   mageY: number;
 }
 
+export interface DamageNumber {
+  id: string;
+  damage: number;
+  x: number;
+  y: number;
+  elementType: ElementType;
+  startTime: number;
+}
+
 export interface GameState {
   gold: number;
   castleHealth: number;
@@ -97,6 +106,7 @@ export interface GameState {
   levelUpAnimations: LevelUpAnimation[];
   floatingTexts: FloatingText[];
   upgradeAnimations: UpgradeAnimation[];
+  damageNumbers: DamageNumber[];
   lastSave: number;
   isPaused: boolean;
   purchases: Record<string, number>;

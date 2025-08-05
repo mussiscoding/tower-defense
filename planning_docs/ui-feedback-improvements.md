@@ -208,6 +208,7 @@ interface UpgradeAnimationProps {
 
 1. **Purchase confirmation highlights**
 2. **Damage number animations**
+3. **Upgrade fireworks should be element specific**
 
 ### Phase 3 (Future)
 

@@ -1,9 +1,10 @@
 import type {
   Arrow,
   Enemy,
-  ElementData,
   GoldPopup,
   SplashEffect,
+  ElementData,
+  DamageNumber,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 import {
@@ -13,6 +14,7 @@ import {
 } from "../../data/elements";
 import { addElementEffects } from "../elementEffects";
 import { damageEnemy, handleEnemyDeath } from "./enemy";
+import { createDamageNumber } from "./uiUtils";
 import { GAME_MECHANICS } from "../../constants/gameDimensions";
 
 export const generateArrowId = (): string => {
@@ -95,6 +97,7 @@ export const processArrowImpacts = (
   predictedArrowDamage: Map<string, number>;
   predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;
+  damageNumbers: DamageNumber[];
 } => {
   const activeArrows: Arrow[] = [];
   let updatedEnemies = [...enemies];
@@ -110,6 +113,7 @@ export const processArrowImpacts = (
     air: { ...elements.air },
   };
   const processedArrowIds = new Set<string>();
+  const newDamageNumbers: DamageNumber[] = [];
 
   arrows.forEach((arrow) => {
     // Skip if this arrow has already been processed
@@ -148,6 +152,18 @@ export const processArrowImpacts = (
           targetEnemy,
           damage
         );
+
+        // Create damage number if damage > 1
+        if (damage > 1) {
+          const damageNumber = createDamageNumber(
+            damage,
+            targetEnemy.x + 20, // Center of enemy
+            targetEnemy.y - 10, // Above enemy
+            arrow.elementType,
+            currentTime
+          );
+          newDamageNumbers.push(damageNumber);
+        }
 
         // Grant XP to elements based on damage dealt (1 damage = 1 XP)
         if (element) {
@@ -389,5 +405,6 @@ export const processArrowImpacts = (
     predictedArrowDamage: updatedPredictedArrowDamage,
     predictedBurnDamage: updatedPredictedBurnDamage,
     elements: updatedElements,
+    damageNumbers: newDamageNumbers,
   };
 };
