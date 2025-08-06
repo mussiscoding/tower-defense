@@ -1,4 +1,4 @@
-import { ANIMATION_CONFIG } from "../../assets/mage-sprites";
+import { ANIMATION_CONFIG } from "../../assets/mages/mage-sprites";
 import type { Defender } from "../../types/GameState";
 
 export const calculateAnimationFrame = (
@@ -14,7 +14,7 @@ export const calculateAnimationFrame = (
     timeUntilNextAttack >
     ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES
   ) {
-    return 1;
+    return 0; // Use idle sprite
   }
 
   // Calculate how many frames into the attack animation we are
@@ -25,7 +25,7 @@ export const calculateAnimationFrame = (
       ANIMATION_CONFIG.FRAME_DURATION
   );
 
-  // Attack animation sequence: frames 1 -> 2 -> 3 -> 4 -> 5 (attack) -> 6 -> 7 -> 1
+  // Attack animation sequence: frames 0 (idle) -> 1 -> 2 -> 3 -> 4 -> 5 (attack) -> 6 -> 7 -> 0 (idle)
   if (
     framesIntoAttack >= 0 &&
     framesIntoAttack < ANIMATION_CONFIG.PRE_ATTACK_FRAMES
@@ -41,13 +41,13 @@ export const calculateAnimationFrame = (
     return framesIntoAttack + 1;
   } else {
     // Back to idle
-    return 1;
+    return 0;
   }
 };
 
 export const getMageSprite = (frame: number): string => {
   const sprites = [
-    "", // frame 0 (not used)
+    "idle", // frame 0 (idle)
     "attack1",
     "attack2",
     "attack3",
@@ -57,7 +57,7 @@ export const getMageSprite = (frame: number): string => {
     "attack7",
   ];
 
-  return sprites[frame] || "attack1";
+  return sprites[frame] || "idle";
 };
 
 // Debug function to test animation timing

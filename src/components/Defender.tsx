@@ -1,6 +1,6 @@
 import "./Defender.css";
 import type { ElementType } from "../data/elements";
-import { mageAttackSprites } from "../assets/mage-sprites";
+import { mageAttackSprites } from "../assets/mages/mage-sprites";
 
 interface DefenderProps {
   id: string;
@@ -19,7 +19,7 @@ const Defender: React.FC<DefenderProps> = ({
   type,
   x,
   y,
-  currentAnimationFrame = 1,
+  currentAnimationFrame = 0,
 }) => {
   const getElementColor = (elementType: ElementType) => {
     switch (elementType) {
@@ -41,8 +41,20 @@ const Defender: React.FC<DefenderProps> = ({
 
   if (shouldUseSprites) {
     const spriteKey =
-      `attack${currentAnimationFrame}` as keyof typeof mageAttackSprites;
+      currentAnimationFrame === 0
+        ? "idle"
+        : (`attack${currentAnimationFrame}` as keyof typeof mageAttackSprites);
     const spriteSrc = mageAttackSprites[spriteKey];
+
+    // Debug logging for fire mages
+    console.log(`🔥 Fire Mage Debug:`, {
+      type,
+      currentAnimationFrame,
+      spriteKey,
+      spriteSrc,
+      hasSprite: !!spriteSrc,
+      allSprites: Object.keys(mageAttackSprites),
+    });
 
     return (
       <div

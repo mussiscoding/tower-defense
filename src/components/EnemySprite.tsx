@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { generateGoblinSprite } from "../assets/enemy-sprites";
+import { generateGoblinSprite } from "../assets/enemies/enemy-sprites";
 import "./EnemySprite.css";
 
 interface EnemySpriteProps {
