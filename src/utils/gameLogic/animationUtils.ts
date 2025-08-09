@@ -25,7 +25,7 @@ export const calculateAnimationFrame = (
       ANIMATION_CONFIG.FRAME_DURATION
   );
 
-  // Attack animation sequence: frames 0 (idle) -> 1 -> 2 -> 3 -> 4 -> 5 (attack) -> 6 -> 7 -> 0 (idle)
+  // Attack animation sequence: frames 0 (idle) -> 1 -> 2 -> 3 -> 4 -> 5 (attack) -> 6 -> 7 -> 8 -> 0 (idle)
   if (
     framesIntoAttack >= 0 &&
     framesIntoAttack < ANIMATION_CONFIG.PRE_ATTACK_FRAMES
@@ -37,7 +37,7 @@ export const calculateAnimationFrame = (
     framesIntoAttack <
       ANIMATION_CONFIG.PRE_ATTACK_FRAMES + ANIMATION_CONFIG.POST_ATTACK_FRAMES
   ) {
-    // Post-attack frames (6-7)
+    // Post-attack frames (6-7-8)
     return framesIntoAttack + 1;
   } else {
     // Back to idle
@@ -55,6 +55,7 @@ export const getMageSprite = (frame: number): string => {
     "attack5",
     "attack6",
     "attack7",
+    "attack8",
   ];
 
   return sprites[frame] || "idle";

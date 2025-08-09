@@ -1,5 +1,10 @@
 # Known Bugs
 
+## Mage sprites attack timing
+
+Attacks come out about 3 frames after the attack is back in idle
+Potential cause: Mages are now on the castle, attacks come from behind the castle, so are live but not showing?
+
 ## Fire gets no exp from burn
 
 Major bug.
