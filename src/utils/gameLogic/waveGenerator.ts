@@ -21,9 +21,14 @@ function generateValidComposition(
   let remainingDifficultyValue = totalDifficultyValue;
 
   while (remainingDifficultyValue > 0) {
-    // Get all enemies that fit within remaining difficulty
+    // Calculate minimum based on remaining difficulty (at least 1/3 of what's left)
+    const minimumEnemyDifficulty = remainingDifficultyValue / 3;
+
+    // Get all enemies that fit within remaining difficulty and meet minimum threshold
     const validEnemies = availableEnemies.filter(
-      (enemy) => enemy.difficultyValue <= remainingDifficultyValue
+      (enemy) =>
+        enemy.difficultyValue <= remainingDifficultyValue &&
+        enemy.difficultyValue >= minimumEnemyDifficulty
     );
 
     if (validEnemies.length === 0) break;

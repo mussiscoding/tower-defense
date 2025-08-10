@@ -6,7 +6,7 @@ This file tracks additional features and improvements for future development pha
 
 ### High Priority
 
-- [ ] **Mage sprites**: Create proper sprite designs for all 4 element mages
+- [-] **Mage sprites**: Create proper sprite designs for all 4 element mages
 - [x] **Enemy SVG sprites**: Replace current enemy sprites with proper SVG designs
 - [ ] **Castle death animation**: When the castle is destroyed, add visual animation (cracked/broken castle appearance, explosion effect, etc.)
 - [x] **Enemy walking animations**: Add walking/movement animations for enemies instead of static sprites
@@ -84,6 +84,8 @@ This file tracks additional features and improvements for future development pha
 - [ ] **Level-gated upgrades**: Some upgrades should require certain levels as well as gold
   - This allows for timing gatekeeping, player must have x time to get to y exp before scaling too far
   - Should apply to both basic and special abilities
+- [ ] **Max level for upgrades**: Some upgrades (eg. splash radius, burst cd) must have a maximum value
+  - Should be displayed to the user eg. 6/10, and maybe MAXED at max level
 
 ### Settings & Management
 

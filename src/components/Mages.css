@@ -154,23 +154,43 @@
 .element-detail-header {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
-.back-button {
+.element-nav-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.element-nav-btn {
   background: #555;
-  border: none;
   color: white;
+  border: none;
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
   transition: background 0.2s ease;
+  font-weight: bold;
+  min-width: 40px;
 }
 
-.back-button:hover {
+.element-nav-btn:hover:not(:disabled) {
   background: #666;
+}
+
+.element-nav-btn.active {
+  background: #ffd700;
+  color: #333;
+  cursor: default;
+}
+
+.element-nav-btn:disabled {
+  background: #ffd700;
+  color: #333;
+  cursor: default;
+  opacity: 1;
 }
 
 .element-detail-content {
@@ -187,10 +207,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.element-detail-info h3 {
-  margin: 0;
-  font-size: 24px;
+.element-detail-info h2 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
   color: #ffd700;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #555;
+  text-align: left;
 }
 
 .element-detail-stats h4,
@@ -294,7 +317,8 @@
 .element-tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 
 .element-tab-button {
@@ -306,6 +330,7 @@
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s ease;
+  flex: 1;
 }
 
 .element-tab-button.active {
