@@ -13,11 +13,13 @@ import {
   canPurchaseMage,
   getNextMageDefenderLevel,
 } from "../utils/gameLogic";
+import SkillsRow from "./SkillsRow";
 
 interface MagesProps {
   elements: Record<ElementType, ElementData>;
   onPurchaseMage?: (elementType: ElementType, cost: number) => void;
   onPurchaseUpgrade?: (itemId: string) => void;
+  onPurchaseSkill?: (skillId: string) => void;
   currentGold?: number;
   purchases?: Record<string, number>;
   defenders?: Defender[];
@@ -27,6 +29,7 @@ const Mages: React.FC<MagesProps> = ({
   elements,
   onPurchaseMage,
   onPurchaseUpgrade,
+  onPurchaseSkill,
   currentGold = 0,
   purchases = {},
   defenders = [],
@@ -299,6 +302,15 @@ const Mages: React.FC<MagesProps> = ({
 
           {elementTab === "shop" && (
             <div className="element-shop-section">
+              {/* Skills Row */}
+              <SkillsRow
+                elementType={selectedElement}
+                elements={elements}
+                currentGold={currentGold}
+                purchases={purchases}
+                onPurchaseSkill={onPurchaseSkill}
+              />
+
               {/* Mage Purchase */}
               {(() => {
                 const defenderData = getDefenderData(selectedElement);

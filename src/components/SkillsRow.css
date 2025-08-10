@@ -1,0 +1,185 @@
+.skills-row {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.skills-header {
+  margin-bottom: 10px;
+}
+
+.skills-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.skills-icons {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.skill-icon {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.skill-icon.empty {
+  background-color: #374151;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.skill-icon.clickable {
+  cursor: pointer;
+}
+
+.skill-icon.clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.skill-icon.purchased {
+  border-color: #9ca3af;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.skill-number {
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  user-select: none;
+}
+
+.skill-icon.empty .skill-number {
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* Skill Popup */
+.skill-popup {
+  position: fixed;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.skill-popup-content {
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 250px;
+  max-width: 300px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.skill-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.skill-popup-icon {
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.skill-popup-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.skill-popup-requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.requirement {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.requirement.met {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+}
+
+.requirement.not-met {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.skill-popup-cost {
+  font-size: 14px;
+  font-weight: bold;
+  color: #fbbf24;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.skill-popup-description {
+  font-size: 13px;
+  color: #d1d5db;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.skill-popup-state {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skills-icons {
+    gap: 6px;
+  }
+
+  .skill-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .skill-number {
+    font-size: 16px;
+  }
+
+  .skill-popup-content {
+    min-width: 200px;
+    max-width: 250px;
+    padding: 10px;
+  }
+}

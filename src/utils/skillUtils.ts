@@ -1,0 +1,198 @@
+import type { GameState, Skill, SkillState } from "../types/GameState";
+import type { ElementType } from "../data/elements";
+import { getSkillsForElement, getSkillById } from "../data/skills";
+
+/**
+ * Check if unlock requirements are met for a skill
+ */
+export const areUnlockRequirementsMet = (
+  skill: Skill,
+  elements: Record<ElementType, { level: number }>
+): boolean => {
+  for (const [elementType, requiredLevel] of Object.entries(
+    skill.unlockRequirements
+  )) {
+    const element = elements[elementType as ElementType];
+    if (!element || element.level < requiredLevel) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Get the current state of a skill for the player
+ */
+export const getSkillState = (
+  skill: Skill,
+  elements: Record<ElementType, { level: number }>,
+  playerGold: number,
+  purchases: Record<string, number>
+): SkillState => {
+  // Check if already purchased
+  if (purchases[skill.id] && purchases[skill.id] > 0) {
+    return "purchased";
+  }
+
+  // Check if unlock requirements are met
+  if (!areUnlockRequirementsMet(skill, elements)) {
+    return "locked";
+  }
+
+  // Check if player has enough gold
+  if (playerGold < skill.cost) {
+    return "insufficient_gold";
+  }
+
+  // All requirements met
+  return "purchaseable";
+};
+
+/**
+ * Check if a skill can be purchased
+ */
+export const canPurchaseSkill = (
+  skill: Skill,
+  elements: Record<ElementType, { level: number }>,
+  playerGold: number,
+  purchases: Record<string, number>
+): boolean => {
+  return (
+    getSkillState(skill, elements, playerGold, purchases) === "purchaseable"
+  );
+};
+
+/**
+ * Get all skills for an element with their current states
+ */
+export const getSkillStatesForElement = (
+  elementType: ElementType,
+  elements: Record<ElementType, { level: number }>,
+  playerGold: number,
+  purchases: Record<string, number>
+): Array<{ skill: Skill; state: SkillState }> => {
+  const skills = getSkillsForElement(elementType);
+  return skills.map((skill) => ({
+    skill,
+    state: getSkillState(skill, elements, playerGold, purchases),
+  }));
+};
+
+/**
+ * Check if a skill is purchased
+ */
+export const isSkillPurchased = (
+  skillId: string,
+  purchases: Record<string, number>
+): boolean => {
+  return !!(purchases[skillId] && purchases[skillId] > 0);
+};
+
+/**
+ * Get all purchased skills for an element
+ */
+export const getPurchasedSkillsForElement = (
+  elementType: ElementType,
+  purchases: Record<string, number>
+): Skill[] => {
+  const skills = getSkillsForElement(elementType);
+  return skills.filter((skill) => isSkillPurchased(skill.id, purchases));
+};
+
+/**
+ * Get all purchased skills across all elements
+ */
+export const getAllPurchasedSkills = (
+  purchases: Record<string, number>
+): Skill[] => {
+  const allSkills: Skill[] = [];
+  const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+
+  for (const elementType of elementTypes) {
+    const purchasedSkills = getPurchasedSkillsForElement(
+      elementType,
+      purchases
+    );
+    allSkills.push(...purchasedSkills);
+  }
+
+  return allSkills;
+};
+
+/**
+ * Purchase a skill and update game state
+ */
+export const purchaseSkill = (state: GameState, skillId: string): GameState => {
+  const skill = getSkillById(skillId);
+  if (!skill) {
+    console.error(`Skill not found: ${skillId}`);
+    return state;
+  }
+
+  // Validate purchase
+  if (!canPurchaseSkill(skill, state.elements, state.gold, state.purchases)) {
+    console.error(`Cannot purchase skill: ${skillId}`);
+    return state;
+  }
+
+  // Apply skill effect and update state
+  // Note: We pass the first element type for compatibility, but the effect can access all elements
+  const firstElementType = Object.keys(
+    skill.unlockRequirements
+  )[0] as ElementType;
+  const updatedState = skill.effect(state, firstElementType);
+
+  // Update purchases and deduct gold
+  return {
+    ...updatedState,
+    gold: updatedState.gold - skill.cost,
+    purchases: {
+      ...updatedState.purchases,
+      [skillId]: 1, // Skills are one-time purchases
+    },
+  };
+};
+
+/**
+ * Get missing requirements for a skill
+ */
+export const getMissingRequirements = (
+  skill: Skill,
+  elements: Record<ElementType, { level: number }>
+): Partial<Record<ElementType, number>> => {
+  const missing: Partial<Record<ElementType, number>> = {};
+
+  for (const [elementType, requiredLevel] of Object.entries(
+    skill.unlockRequirements
+  )) {
+    const element = elements[elementType as ElementType];
+    const currentLevel = element?.level || 0;
+
+    if (currentLevel < requiredLevel) {
+      missing[elementType as ElementType] = requiredLevel - currentLevel;
+    }
+  }
+
+  return missing;
+};
+
+/**
+ * Get the next skill that can be unlocked for an element
+ */
+export const getNextUnlockableSkill = (
+  elementType: ElementType,
+  purchases: Record<string, number>
+): Skill | null => {
+  const skills = getSkillsForElement(elementType);
+
+  // Filter out purchased skills and sort by requirements
+  const availableSkills = skills
+    .filter((skill) => !isSkillPurchased(skill.id, purchases))
+    .sort((a, b) => {
+      const aLevel = a.unlockRequirements[elementType] || 0;
+      const bLevel = b.unlockRequirements[elementType] || 0;
+      return aLevel - bLevel;
+    });
+
+  return availableSkills[0] || null;
+};

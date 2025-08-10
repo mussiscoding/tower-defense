@@ -155,3 +155,27 @@ export interface ShopItem {
   costScalingFactor: number;
   shortName?: string;
 }
+
+export type SkillState =
+  | "locked"
+  | "purchaseable"
+  | "insufficient_gold"
+  | "purchased";
+
+export interface SkillEffect {
+  (state: GameState, elementType: ElementType): GameState;
+}
+
+export interface SkillUnlockRequirement {
+  [elementType: string]: number; // e.g., { fire: 25, ice: 25 }
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  unlockRequirements: SkillUnlockRequirement;
+  effect: SkillEffect;
+  icon: string; // 1-10 for now, real icons later
+}

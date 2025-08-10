@@ -1,29 +1,59 @@
-# Milestone Upgrades Implementation Plan
+# Skills Implementation Plan
 
 ## 🎯 Overview
 
-Milestone upgrades are permanent, game-changing abilities that unlock at specific element levels. These provide long-term progression goals and dramatically alter gameplay strategies.
+Skills are permanent, game-changing abilities that unlock at specific element levels. These provide long-term progression goals and dramatically alter gameplay strategies.
 
 ## 🚀 Implementation Task List
 
 ### 🏗️ **Foundation & Data Structure**
 
-- [ ] Create milestone upgrade data structure and types
-- [ ] Define upgrade unlock/purchase system
-- [ ] Implement mage count limits (max = element level / 10 + 1)
-- [ ] Add upgrade state tracking to save system
-- [ ] Create upgrade effect application system
+- [x] Create skills data structure and types
+- [x] Define skill unlock/purchase system
+- [x] Implement mage count limits (max = element level / 10 + 1)
+- [x] Add upgrade state tracking to save system
 
 ### 🎨 **Shop & UI Integration**
 
-- [ ] Design milestone upgrade shop layout
-- [ ] Add visual distinction for milestone vs regular upgrades
-- [ ] Implement locked/unlocked state indicators
-- [ ] Add "Requires Level X" unlock requirements display
-- [ ] Create upgrade tooltips and descriptions
-- [ ] Add aspirational display for locked upgrades
+- [x] Implement Skills UI: Row of 10 skill icons with color-coded states
+- [x] Create skill icon states: purchaseable/insufficient gold/level locked/purchased
+- [x] Implement skill hover popup with icon, name, level cost, gold cost, description
+- [x] Integrate skills row above current shop content
+- [x] Add visual distinction for skills vs regular upgrades
+- [x] Create skill tooltips and descriptions
+
+#### 🎯 **Skills UI Specification**
+
+**Layout**: Skills appear in the Shop tab as a horizontal row of 10 skill icons positioned above the current shop content.
+
+**Icon States & Colors**:
+
+- **🟢 Purchaseable**: Skill can be purchased (player has required level AND gold)
+- **🟡 Level Met**: Player has required level but insufficient gold
+- **🔴 Level Locked**: Player hasn't reached the required level yet
+- **⚪ Purchased**: Skill has been acquired (different visual treatment)
+
+**Hover Interaction**:
+
+- **Trigger**: Mouse hover over any skill icon
+- **Content**: Popup showing:
+  - Skill icon (larger version)
+  - Skill name
+  - Required level
+  - Gold cost
+  - Detailed description
+  - Current state (available/locked/purchased)
+
+**Integration**: Skills row sits above existing shop content, maintaining current shop functionality below.
 
 ### ⚔️ **Core Abilities Implementation**
+
+**Basic Abilities**
+
+- [x] Fire: Burn (Level 5) - Free skill implemented
+- [x] Ice: Slow enemies (Level 5) - Free skill implemented
+- [x] Earth: Splash (Level 5) - Free skill implemented
+- [x] Air: Burst (Level 5) - Free skill implemented
 
 **Damage Abilities:**
 
@@ -161,26 +191,26 @@ Milestone upgrades are permanent, game-changing abilities that unlock at specifi
 **Impact**: This fundamentally changes scaling! Instead of infinite mages, each element is limited, making:
 
 - **Individual mage power more important** than quantity
-- **Milestone upgrades CRITICAL** for late-game viability
+- **Skills CRITICAL** for late-game viability
 - **Element choice meaningful** - can't just spam one element
 - **Balanced multi-element strategies** necessary for optimal play
 
 ## 🔑 Key Design Principles
 
-1. **Visible from Start**: All upgrades shown in shop immediately to create aspirational goals
-2. **Meaningful Progression**: Each upgrade significantly changes how that element plays
+1. **Visible from Start**: All skills shown in shop immediately to create aspirational goals
+2. **Meaningful Progression**: Each skill significantly changes how that element plays
 3. **Balanced Costs**: Gold costs scale with power and unlock level
-4. **Visual Impact**: Clear visual feedback when upgrades are active
+4. **Visual Impact**: Clear visual feedback when skills are active
 5. **Strategic Depth**: Create meaningful choices and synergies between elements
-6. **Level 5 Rhythm**: Milestone upgrades only unlock on levels ending in 5 (15, 25, 35, 45, 55, 65, 75, 85, 95)
+6. **Level 5 Rhythm**: Skills only unlock on levels ending in 5 (15, 25, 35, 45, 55, 65, 75, 85, 95)
    - **Level 10s**: New mage slot unlocked
-   - **Level 5s**: New milestone upgrade available
+   - **Level 5s**: New skill available
    - Creates perfect alternating progression rhythm
-   - **9 total upgrades per element**: Base (5) + 7 Core (15-75) + 1 Bonus (85)
+   - **9 total skills per element**: Base (5) + 7 Core (15-75) + 1 Bonus (85)
 
-## 📋 Upgrade Framework
+## 📋 Skills Framework
 
-### 🎯 **Upgrade Categories (Each Element Gets One of Each):**
+### 🎯 **Skill Categories (Each Element Gets One of Each):**
 
 1. **Damage** - Pure damage scaling/enhancement
 2. **Utility** - Special tactical abilities
@@ -188,10 +218,10 @@ Milestone upgrades are permanent, game-changing abilities that unlock at specifi
 4. **Synergy 1** - Dual element ability
 5. **Synergy 2** - Dual element ability
 6. **Synergy 3** - Dual element ability
-7. **Bonus 1** - Additional powerful upgrade
-8. **Bonus 2** - Additional powerful upgrade
+7. **Bonus 1** - Additional powerful skill
+8. **Bonus 2** - Additional powerful skill
 
-This gives each element 8 upgrades (+ base ability at level 5) = 9 total per element
+This gives each element 8 skills (+ base ability at level 5) = 9 total per element
 
 ### 📊 **Reorganized Framework:**
 
@@ -567,28 +597,28 @@ This gives each element 8 upgrades (+ base ability at level 5) = 9 total per ele
 - **Visual**: Swirling wind effects that draw enemies together
 - **Available to**: Earth (Level 65) and Air (Level 75)
 
-## 🏪 Shop Integration - Simple & Clean
+## 🏪 Shop Integration - Skills UI
 
-### Reality Check: Element-Specific Shops
+### New Skills UI Design
 
-**Current**: Each element shop has ~3 items  
-**With Upgrades**: Each element shop will have ~11 items (3 regular + 8 milestone upgrades)
+**Current**: Each element shop has ~3 regular upgrade items  
+**With Skills**: Skills appear as a dedicated row of 10 icons above shop content
 
-This is still manageable with good visual organization and scrolling if needed.
+This provides clear visual separation between skills and regular upgrades.
 
-### Simple Implementation
+### Skills Row Implementation
 
-- **Add upgrades to existing element shops** - they already exist and work well
-- **Visual distinction** - Different styling for milestone upgrades vs regular items
-- **Lock state indicators** - Gray out with level requirement shown
-- **Progress hints** - "Unlock at level X" text
+- **Dedicated skills row** - Horizontal row of 10 skill icons above current shop
+- **Color-coded states** - Visual feedback for unlock/purchase status
+- **Hover tooltips** - Detailed information on demand
+- **Element context** - Skills shown are for the currently selected element
 
 ### Aspirational Display Strategy
 
-- **Show all upgrades immediately** in each element's shop
-- **Clear unlock requirements** - "Requires Fire Level 15"
-- **Compelling descriptions** - Make players excited to reach the level
-- **Visual hierarchy** - Milestone upgrades stand out from regular items
+- **Show all skills immediately** as icons in the skills row
+- **Clear visual hierarchy** - Skills prominent at top, regular upgrades below
+- **Compelling tooltips** - Make players excited to reach required levels
+- **Progress feedback** - Color coding shows current accessibility
 
 ## 📊 Level & Cost Balance Framework
 

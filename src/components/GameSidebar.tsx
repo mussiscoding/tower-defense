@@ -9,6 +9,7 @@ import {
   createFloatingText,
 } from "../utils/gameLogic/uiUtils";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
+import { purchaseSkill } from "../utils/skillUtils";
 
 import "./GameSidebar.css";
 import Mages from "./Mages";
@@ -22,6 +23,10 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
   gameState,
   setGameState,
 }) => {
+  const handleSkillPurchase = (skillId: string) => {
+    setGameState((prev) => purchaseSkill(prev, skillId));
+  };
+
   const handlePurchase = (itemId: string) => {
     const item = shopItems.find((shopItem) => shopItem.id === itemId);
     const currentPrice = getCurrentPrice(item!, gameState.purchases);
@@ -136,6 +141,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           onPurchaseUpgrade={(itemId) => {
             handlePurchase(itemId);
           }}
+          onPurchaseSkill={handleSkillPurchase}
         />
       </div>
 

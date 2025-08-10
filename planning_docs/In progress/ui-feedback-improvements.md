@@ -263,10 +263,8 @@ interface UpgradeAnimationProps {
 
 ### Advanced Features
 
-1. **Combo animations**: Multiple level-ups at once
-2. **Achievement animations**: Special effects for milestones
-3. **Seasonal themes**: Different animation styles
-4. **Customization**: Player-selectable animation styles
+1. **Elemental skills animations**: Level up effects for each skill. Possibly centre of field text with elemental burst effect
+2. **Achievement animations**: Special effects for achievements
 
 ### Accessibility
 
