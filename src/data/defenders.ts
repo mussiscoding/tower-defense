@@ -22,7 +22,7 @@ export const defenders: DefenderData[] = [
     attackSpeed: elements.fire.baseStats.attackSpeed,
     range: elements.fire.baseStats.range,
     cost: 100,
-    costScalingFactor: 2.0,
+    costScalingFactor: 3.0,
     description: "Fire mage with burn abilities.",
   },
   {
@@ -33,7 +33,7 @@ export const defenders: DefenderData[] = [
     attackSpeed: elements.ice.baseStats.attackSpeed,
     range: elements.ice.baseStats.range,
     cost: 100,
-    costScalingFactor: 2.0,
+    costScalingFactor: 3.0,
     description: "Ice mage with slow abilities.",
   },
   {
@@ -44,7 +44,7 @@ export const defenders: DefenderData[] = [
     attackSpeed: elements.earth.baseStats.attackSpeed,
     range: elements.earth.baseStats.range,
     cost: 100,
-    costScalingFactor: 2.0,
+    costScalingFactor: 3.0,
     description: "Earth mage with splash damage.",
   },
   {
@@ -55,7 +55,7 @@ export const defenders: DefenderData[] = [
     attackSpeed: elements.air.baseStats.attackSpeed,
     range: elements.air.baseStats.range,
     cost: 100,
-    costScalingFactor: 2.0,
+    costScalingFactor: 3.0,
     description: "Air mage with burst attack speed.",
   },
 ];

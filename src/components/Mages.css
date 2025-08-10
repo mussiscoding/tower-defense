@@ -395,6 +395,25 @@
   line-height: 1.4;
 }
 
+.mage-count-info {
+  margin: 8px 0;
+}
+
+.mage-count {
+  display: block;
+  font-size: 14px;
+  color: #00ff00;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.unlock-info {
+  display: block;
+  font-size: 12px;
+  color: #ffaa00;
+  font-style: italic;
+}
+
 .shop-item .purchase-button {
   width: 100%;
   padding: 8px 12px;

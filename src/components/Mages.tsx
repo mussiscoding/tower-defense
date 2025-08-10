@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import "./Mages.css";
-import type { ElementData } from "../types/GameState";
+import type { ElementData, Defender } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { getXPForLevel, calculateElementAbilities } from "../data/elements";
 import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
 import type { ShopItem } from "../types/GameState";
+import {
+  getMaxMagesForElement,
+  countMagesOfElement,
+  canPurchaseMage,
+  getNextMageDefenderLevel,
+} from "../utils/gameLogic";
 
 interface MagesProps {
   elements: Record<ElementType, ElementData>;
@@ -14,6 +20,7 @@ interface MagesProps {
   onPurchaseUpgrade?: (itemId: string) => void;
   currentGold?: number;
   purchases?: Record<string, number>;
+  defenders?: Defender[];
 }
 
 const Mages: React.FC<MagesProps> = ({
@@ -22,6 +29,7 @@ const Mages: React.FC<MagesProps> = ({
   onPurchaseUpgrade,
   currentGold = 0,
   purchases = {},
+  defenders = [],
 }) => {
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(
     null
@@ -305,16 +313,40 @@ const Mages: React.FC<MagesProps> = ({
                   };
                   const cost = getCurrentPrice(shopItem, purchases);
                   const canAfford = currentGold >= cost;
+                  const elementLevel = elements[selectedElement]?.level || 1;
+                  const canPurchaseMore = canPurchaseMage(
+                    defenders,
+                    selectedElement,
+                    elementLevel
+                  );
+                  const currentCount = countMagesOfElement(
+                    defenders,
+                    selectedElement
+                  );
+                  const maxCount = getMaxMagesForElement(elementLevel);
+                  const canPurchase = canAfford && canPurchaseMore;
+
                   return (
                     <div
-                      className={`shop-item ${!canAfford ? "disabled" : ""}`}
+                      className={`shop-item ${!canPurchase ? "disabled" : ""}`}
                       onClick={() =>
-                        canAfford && handlePurchaseMage(selectedElement)
+                        canPurchase && handlePurchaseMage(selectedElement)
                       }
                     >
                       <h5 className="shop-item-name">
                         {defenderData.name} - 💰{cost}
                       </h5>
+                      <div className="mage-count-info">
+                        <span className="mage-count">
+                          Mages: {currentCount}/{maxCount}
+                        </span>
+                        {!canPurchaseMore && (
+                          <span className="unlock-info">
+                            Next slot unlocks at level{" "}
+                            {getNextMageDefenderLevel(elementLevel)}
+                          </span>
+                        )}
+                      </div>
                       <p className="shop-item-description">
                         {defenderData.description}
                       </p>

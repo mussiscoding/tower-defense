@@ -3,7 +3,7 @@ import type { ElementType } from "../data/elements";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
 import { getBisectingDefenderPosition } from "../utils/gameLogic/defender";
-import { createDefender } from "../utils/gameLogic";
+import { createDefender, canPurchaseMage } from "../utils/gameLogic";
 import {
   createUpgradeAnimation,
   createFloatingText,
@@ -104,8 +104,16 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           elements={gameState.elements}
           currentGold={gameState.gold}
           purchases={gameState.purchases}
+          defenders={gameState.defenders}
           onPurchaseMage={(elementType, cost) => {
-            if (gameState.gold >= cost) {
+            const elementLevel = gameState.elements[elementType]?.level || 1;
+            const canPurchase = canPurchaseMage(
+              gameState.defenders,
+              elementType,
+              elementLevel
+            );
+
+            if (gameState.gold >= cost && canPurchase) {
               const smartY = getBisectingDefenderPosition(gameState.defenders);
               setGameState((prev) => ({
                 ...prev,
