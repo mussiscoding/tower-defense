@@ -108,8 +108,20 @@ export const calculateElementAbilities = (
 ): ElementAbilities => {
   const baseAbilities = elements[elementType].abilities;
 
+  // Check if basic skill is purchased for this element using the skill ID
+  const basicSkillIds = {
+    fire: "fire_burn",
+    ice: "ice_slow",
+    earth: "earth_splash",
+    air: "air_burst",
+  };
+
+  const hasBasicSkill = purchases[basicSkillIds[elementType]] > 0;
+
   switch (elementType) {
     case "fire": {
+      if (!hasBasicSkill) return {}; // No burn ability without skill
+
       const burnDamageUpgrades = purchases["fire_burn_damage_upgrade"] || 0;
 
       return {
@@ -120,19 +132,23 @@ export const calculateElementAbilities = (
       };
     }
     case "ice": {
+      if (!hasBasicSkill) return {}; // No slow ability without skill
+
       const slowEffectUpgrades = purchases["ice_slow_effect_upgrade"] || 0;
       const slowDurationUpgrades = purchases["ice_slow_duration_upgrade"] || 0;
 
       return {
         slowEffect: Math.floor(
-          (baseAbilities.slowEffect || 0) + slowEffectUpgrades
+          (baseAbilities.slowEffect || 5) + slowEffectUpgrades
         ),
         slowDuration: Math.floor(
-          (baseAbilities.slowDuration || 0) + slowDurationUpgrades
+          (baseAbilities.slowDuration || 3) + slowDurationUpgrades
         ),
       };
     }
     case "earth": {
+      if (!hasBasicSkill) return {}; // No splash ability without skill
+
       const splashDamageUpgrades =
         purchases["earth_splash_damage_upgrade"] || 0;
       const splashRadiusUpgrades =
@@ -141,22 +157,24 @@ export const calculateElementAbilities = (
       return {
         splashDamage: Math.min(
           100, // Cap at 100%
-          (baseAbilities.splashDamage || 0) + splashDamageUpgrades
+          (baseAbilities.splashDamage || 20) + splashDamageUpgrades
         ),
         splashRadius:
-          (baseAbilities.splashRadius || 0) + splashRadiusUpgrades * 10,
+          (baseAbilities.splashRadius || 50) + splashRadiusUpgrades * 10,
       };
     }
     case "air": {
+      if (!hasBasicSkill) return {}; // No burst ability without skill
+
       const burstShotsUpgrades = purchases["air_burst_shots_upgrade"] || 0;
       const burstCooldownUpgrades =
         purchases["air_burst_cooldown_upgrade"] || 0;
 
       return {
-        burstShots: (baseAbilities.burstShots || 0) + burstShotsUpgrades,
+        burstShots: (baseAbilities.burstShots || 2) + burstShotsUpgrades,
         burstCooldown: Math.max(
           1,
-          (baseAbilities.burstCooldown || 0) - burstCooldownUpgrades
+          (baseAbilities.burstCooldown || 8) - burstCooldownUpgrades
         ),
       };
     }

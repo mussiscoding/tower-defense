@@ -1,10 +1,129 @@
-import type { Skill, SkillEffect } from "../types/GameState";
+import type { Skill, Enemy, GameState, Defender } from "../types/GameState";
 import type { ElementType } from "./elements";
+import { createArrow } from "../utils/gameLogic/arrow";
 
-// Placeholder skill effects - to be implemented with each skill
-const placeholderEffect: SkillEffect = (state, elementType) => {
-  console.log(`Placeholder effect for ${elementType} skill`);
-  return state;
+// Fire Burn onHit handler - applies burn effect to enemies
+const fireBurnOnHit = (enemy: Enemy, damage: number, gameState: GameState) => {
+  // Base burn damage percentage + upgrades
+  const baseBurnPercent = 20;
+  const burnUpgrades = gameState.purchases["fire_burn_damage_upgrade"] || 0;
+  const burnDamagePercent = baseBurnPercent + burnUpgrades;
+
+  const burnDuration = 2000; // 2 seconds in milliseconds
+  const currentTime = Date.now();
+
+  // Calculate burn damage as percentage of arrow damage
+  const burnDamage = Math.floor((damage * burnDamagePercent) / 100);
+
+  // Apply burn effect to enemy
+  enemy.burnDamage = burnDamage;
+  enemy.burnEndTime = currentTime + burnDuration;
+
+  console.log(
+    `🔥 Applied burn: ${burnDamage} damage (${burnDamagePercent}%) over ${
+      burnDuration / 1000
+    }s`
+  );
+};
+
+// Ice Slow onHit handler - applies slow effect to enemies
+const iceSlowOnHit = (enemy: Enemy, damage: number, gameState: GameState) => {
+  // Base slow effect percentage + upgrades
+  const baseSlowPercent = 5; // Matches elements.ts base value
+  const slowUpgrades = gameState.purchases["ice_slow_effect_upgrade"] || 0;
+  const slowEffectPercent = baseSlowPercent + slowUpgrades;
+
+  const slowDuration = 3000; // 3 seconds in milliseconds
+  const currentTime = Date.now();
+
+  // Apply slow effect to enemy
+  enemy.slowEffect = slowEffectPercent;
+  enemy.slowEndTime = currentTime + slowDuration;
+
+  console.log(
+    `❄️ Applied slow: ${slowEffectPercent}% for ${slowDuration / 1000}s`
+  );
+};
+
+// Earth Splash onHit handler - applies splash damage to nearby enemies
+const earthSplashOnHit = (
+  enemy: Enemy,
+  damage: number,
+  gameState: GameState
+) => {
+  // Base splash values + upgrades
+  const baseSplashPercent = 20; // Matches elements.ts base value
+  const splashDamageUpgrades =
+    gameState.purchases["earth_splash_damage_upgrade"] || 0;
+  const splashDamagePercent = baseSplashPercent + splashDamageUpgrades;
+
+  const baseRadius = 50;
+  const radiusUpgrades =
+    gameState.purchases["earth_splash_radius_upgrade"] || 0;
+  const splashRadius = baseRadius + radiusUpgrades * 10; // +10 per upgrade
+
+  // Find nearby enemies within splash radius
+  const nearbyEnemies = gameState.enemies.filter((otherEnemy) => {
+    if (otherEnemy.id === enemy.id) return false; // Don't splash the main target
+
+    const distance = Math.sqrt(
+      Math.pow(otherEnemy.x - enemy.x, 2) + Math.pow(otherEnemy.y - enemy.y, 2)
+    );
+    return distance <= splashRadius;
+  });
+
+  // Apply splash damage to nearby enemies
+  const splashDamage = Math.floor((damage * splashDamagePercent) / 100);
+  nearbyEnemies.forEach((nearbyEnemy) => {
+    nearbyEnemy.health = Math.max(0, nearbyEnemy.health - splashDamage);
+  });
+
+  console.log(
+    `🪨 Splash damage: ${splashDamage} (${splashDamagePercent}%) to ${nearbyEnemies.length} nearby enemies (radius: ${splashRadius})`
+  );
+};
+
+// Air Burst onAttack handler - fires multiple arrows at once
+const airBurstOnAttack = (
+  defender: Defender,
+  target: Enemy,
+  gameState: GameState
+) => {
+  // Base burst values + upgrades
+  const baseBurstShots = 2; // Matches elements.ts base value
+  const shotUpgrades = gameState.purchases["air_burst_shots_upgrade"] || 0;
+  const burstShots = baseBurstShots + shotUpgrades;
+
+  const burstDelay = 50; // Milliseconds between burst arrows
+  const currentTime = Date.now();
+
+  console.log(`💨 Air Burst: Firing ${burstShots} arrows at once!`);
+
+  // Calculate predicted enemy position for first arrow
+  const distance = Math.sqrt(
+    Math.pow(target.x - defender.x, 2) + Math.pow(target.y - defender.y, 2)
+  );
+  const arrowSpeed = 800; // GAME_MECHANICS.ARROW_SPEED
+  const flightTime = distance / arrowSpeed;
+  const predictedX = target.x + (target.speed * flightTime) / 1000;
+  const predictedY = target.y;
+
+  // Create multiple arrows with slight delays and spread
+  for (let i = 0; i < burstShots; i++) {
+    const spreadOffset = (i - Math.floor(burstShots / 2)) * 10; // Slight spread
+
+    const arrow = createArrow(
+      defender.x + 20, // Center of defender
+      defender.y + 20,
+      predictedX - 15 + spreadOffset, // Center of predicted enemy + spread
+      predictedY + 15,
+      currentTime + i * burstDelay, // Stagger timing
+      defender.type, // Element type
+      target.id // Target enemy ID
+    );
+
+    gameState.arrows.push(arrow);
+  }
 };
 
 // All skills in a flat array - skills can have multi-element requirements
@@ -16,8 +135,9 @@ export const allSkills: Skill[] = [
     description: "Fire attacks apply burn damage over time to enemies",
     cost: 0,
     unlockRequirements: { fire: 5 },
-    effect: placeholderEffect,
     icon: "1",
+    category: "attack_modifier",
+    onHit: fireBurnOnHit,
   },
   {
     id: "ice_slow",
@@ -25,8 +145,9 @@ export const allSkills: Skill[] = [
     description: "Ice attacks slow enemy movement speed",
     cost: 0,
     unlockRequirements: { ice: 5 },
-    effect: placeholderEffect,
     icon: "1",
+    category: "attack_modifier",
+    onHit: iceSlowOnHit,
   },
   {
     id: "earth_splash",
@@ -34,8 +155,9 @@ export const allSkills: Skill[] = [
     description: "Earth attacks deal splash damage to nearby enemies",
     cost: 0,
     unlockRequirements: { earth: 5 },
-    effect: placeholderEffect,
     icon: "1",
+    category: "attack_modifier",
+    onHit: earthSplashOnHit,
   },
   {
     id: "air_burst",
@@ -43,8 +165,11 @@ export const allSkills: Skill[] = [
     description: "Air defenders periodically fire multiple attacks at once",
     cost: 0,
     unlockRequirements: { air: 5 },
-    effect: placeholderEffect,
     icon: "1",
+    category: "active",
+    priority: 1,
+    cooldown: 8000, // Base 8 second cooldown (matches elements.ts)
+    onAttack: airBurstOnAttack,
   },
 
   // Advanced single-element skills
@@ -54,8 +179,9 @@ export const allSkills: Skill[] = [
     description: "Fire arrows do % enemy health damage on hit",
     cost: 30000,
     unlockRequirements: { fire: 15 },
-    effect: placeholderEffect,
+
     icon: "2",
+    category: "attack_modifier",
   },
   {
     id: "fire_burn_stacking",
@@ -63,8 +189,9 @@ export const allSkills: Skill[] = [
     description: "Fire arrows stack burn damage instead of refreshing duration",
     cost: 75000,
     unlockRequirements: { fire: 35 },
-    effect: placeholderEffect,
+
     icon: "4",
+    category: "attack_modifier",
   },
   {
     id: "fire_lightning_bolt",
@@ -72,8 +199,9 @@ export const allSkills: Skill[] = [
     description: "Lightning bolt kills the highest HP enemy on the map",
     cost: 250000,
     unlockRequirements: { fire: 55 },
-    effect: placeholderEffect,
+
     icon: "6",
+    category: "attack_modifier",
   },
   {
     id: "fire_bonus_1",
@@ -81,8 +209,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Fire Power Upgrade]",
     cost: 1000000,
     unlockRequirements: { fire: 75 },
-    effect: placeholderEffect,
+
     icon: "8",
+    category: "attack_modifier",
   },
   {
     id: "fire_bonus_2",
@@ -90,8 +219,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Ultimate Fire Ability]",
     cost: 2000000,
     unlockRequirements: { fire: 85 },
-    effect: placeholderEffect,
+
     icon: "9",
+    category: "attack_modifier",
   },
 
   {
@@ -100,8 +230,9 @@ export const allSkills: Skill[] = [
     description: "On first hit from ice tower, freeze enemy for 1s",
     cost: 30000,
     unlockRequirements: { ice: 15 },
-    effect: placeholderEffect,
+
     icon: "2",
+    category: "attack_modifier",
   },
   {
     id: "ice_damage_upgrade",
@@ -109,8 +240,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Ice Damage Upgrade]",
     cost: 75000,
     unlockRequirements: { ice: 35 },
-    effect: placeholderEffect,
+
     icon: "4",
+    category: "attack_modifier",
   },
   {
     id: "ice_critical_vulnerability",
@@ -118,8 +250,9 @@ export const allSkills: Skill[] = [
     description: "Any hits on slowed enemies have increased crit chance",
     cost: 250000,
     unlockRequirements: { ice: 55 },
-    effect: placeholderEffect,
+
     icon: "6",
+    category: "attack_modifier",
   },
   {
     id: "ice_bonus_1",
@@ -127,8 +260,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Ice Power Upgrade]",
     cost: 1000000,
     unlockRequirements: { ice: 75 },
-    effect: placeholderEffect,
+
     icon: "8",
+    category: "attack_modifier",
   },
   {
     id: "ice_bonus_2",
@@ -136,8 +270,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Ultimate Ice Ability]",
     cost: 2000000,
     unlockRequirements: { ice: 85 },
-    effect: placeholderEffect,
+
     icon: "9",
+    category: "attack_modifier",
   },
 
   {
@@ -146,8 +281,9 @@ export const allSkills: Skill[] = [
     description: "Target highest enemy density for maximum splash",
     cost: 30000,
     unlockRequirements: { earth: 15 },
-    effect: placeholderEffect,
+
     icon: "2",
+    category: "attack_modifier",
   },
   {
     id: "earth_stone_skin",
@@ -155,8 +291,9 @@ export const allSkills: Skill[] = [
     description: "Reduces all incoming damage to castle",
     cost: 75000,
     unlockRequirements: { earth: 35 },
-    effect: placeholderEffect,
+
     icon: "4",
+    category: "attack_modifier",
   },
   {
     id: "earth_earthquake",
@@ -164,8 +301,9 @@ export const allSkills: Skill[] = [
     description: "Hit all enemies on the map",
     cost: 250000,
     unlockRequirements: { earth: 55 },
-    effect: placeholderEffect,
+
     icon: "6",
+    category: "attack_modifier",
   },
   {
     id: "earth_fissure",
@@ -173,8 +311,9 @@ export const allSkills: Skill[] = [
     description: "Damage all enemies in a horizontal line in front of the mage",
     cost: 1000000,
     unlockRequirements: { earth: 75 },
-    effect: placeholderEffect,
+
     icon: "8",
+    category: "attack_modifier",
   },
   {
     id: "earth_fragment_explosion",
@@ -182,8 +321,9 @@ export const allSkills: Skill[] = [
     description: "Earth fragments explode again",
     cost: 2000000,
     unlockRequirements: { earth: 85 },
-    effect: placeholderEffect,
+
     icon: "9",
+    category: "attack_modifier",
   },
 
   {
@@ -192,8 +332,9 @@ export const allSkills: Skill[] = [
     description: "% Critical hit chance for massive damage",
     cost: 30000,
     unlockRequirements: { air: 15 },
-    effect: placeholderEffect,
+
     icon: "2",
+    category: "attack_modifier",
   },
   {
     id: "air_double_attack_speed",
@@ -201,8 +342,9 @@ export const allSkills: Skill[] = [
     description: "Double the attack speed of neighboring mages",
     cost: 75000,
     unlockRequirements: { air: 35 },
-    effect: placeholderEffect,
+
     icon: "4",
+    category: "attack_modifier",
   },
   {
     id: "air_smart_burst_targeting",
@@ -211,8 +353,9 @@ export const allSkills: Skill[] = [
       "Burst arrows can target different enemies based on predicted damage",
     cost: 250000,
     unlockRequirements: { air: 55 },
-    effect: placeholderEffect,
+
     icon: "6",
+    category: "attack_modifier",
   },
   {
     id: "air_bonus_1",
@@ -220,8 +363,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Air Power Upgrade]",
     cost: 1000000,
     unlockRequirements: { air: 75 },
-    effect: placeholderEffect,
+
     icon: "8",
+    category: "attack_modifier",
   },
   {
     id: "air_bonus_2",
@@ -229,8 +373,9 @@ export const allSkills: Skill[] = [
     description: "[TBD - Ultimate Air Ability]",
     cost: 2000000,
     unlockRequirements: { air: 85 },
-    effect: placeholderEffect,
+
     icon: "9",
+    category: "attack_modifier",
   },
 
   // Multi-element synergy skills (no duplicates!)
@@ -240,8 +385,9 @@ export const allSkills: Skill[] = [
     description: "Frozen enemies take double burn damage",
     cost: 50000,
     unlockRequirements: { fire: 25, ice: 25 },
-    effect: placeholderEffect,
+
     icon: "3",
+    category: "attack_modifier",
   },
   {
     id: "firewave",
@@ -249,8 +395,9 @@ export const allSkills: Skill[] = [
     description: "Sends out a semi-circle of fire arrows",
     cost: 100000,
     unlockRequirements: { fire: 45, air: 45 },
-    effect: placeholderEffect,
+
     icon: "5",
+    category: "attack_modifier",
   },
   {
     id: "disco_inferno",
@@ -258,8 +405,9 @@ export const allSkills: Skill[] = [
     description: "On death, burn spreads to nearby enemies",
     cost: 500000,
     unlockRequirements: { fire: 65, earth: 65 },
-    effect: placeholderEffect,
+
     icon: "7",
+    category: "attack_modifier",
   },
   {
     id: "blizzard",
@@ -267,8 +415,9 @@ export const allSkills: Skill[] = [
     description: "Ice circles appear on map that slow and damage enemies",
     cost: 100000,
     unlockRequirements: { ice: 45, earth: 45 },
-    effect: placeholderEffect,
+
     icon: "5",
+    category: "attack_modifier",
   },
   {
     id: "icy_wind",
@@ -276,8 +425,9 @@ export const allSkills: Skill[] = [
     description: "Creates wind currents that slow all enemies on the map",
     cost: 500000,
     unlockRequirements: { ice: 65, air: 65 },
-    effect: placeholderEffect,
+
     icon: "7",
+    category: "attack_modifier",
   },
   {
     id: "vortex",
@@ -285,8 +435,9 @@ export const allSkills: Skill[] = [
     description: "Pulls enemies into tighter groups",
     cost: 50000,
     unlockRequirements: { earth: 25, air: 25 },
-    effect: placeholderEffect,
+
     icon: "3",
+    category: "attack_modifier",
   },
 ];
 

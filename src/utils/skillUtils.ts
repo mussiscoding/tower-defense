@@ -1,6 +1,12 @@
-import type { GameState, Skill, SkillState } from "../types/GameState";
+import type {
+  GameState,
+  Skill,
+  SkillState,
+  SkillCategory,
+  Defender,
+} from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { getSkillsForElement, getSkillById } from "../data/skills";
+import { getSkillsForElement, getSkillById, allSkills } from "../data/skills";
 
 /**
  * Check if unlock requirements are met for a skill
@@ -135,19 +141,12 @@ export const purchaseSkill = (state: GameState, skillId: string): GameState => {
     return state;
   }
 
-  // Apply skill effect and update state
-  // Note: We pass the first element type for compatibility, but the effect can access all elements
-  const firstElementType = Object.keys(
-    skill.unlockRequirements
-  )[0] as ElementType;
-  const updatedState = skill.effect(state, firstElementType);
-
   // Update purchases and deduct gold
   return {
-    ...updatedState,
-    gold: updatedState.gold - skill.cost,
+    ...state,
+    gold: state.gold - skill.cost,
     purchases: {
-      ...updatedState.purchases,
+      ...state.purchases,
       [skillId]: 1, // Skills are one-time purchases
     },
   };
@@ -195,4 +194,115 @@ export const getNextUnlockableSkill = (
     });
 
   return availableSkills[0] || null;
+};
+
+/**
+ * Get active skills for an element, optionally filtered by category
+ */
+export const getActiveSkillsForElement = (
+  elementType: ElementType,
+  purchases: Record<string, number>,
+  category?: SkillCategory
+): Skill[] => {
+  const elementSkills = getSkillsForElement(elementType);
+
+  return elementSkills.filter((skill) => {
+    // Must be purchased
+    if (!isSkillPurchased(skill.id, purchases)) {
+      return false;
+    }
+
+    // Filter by category if specified
+    if (category && skill.category !== category) {
+      return false;
+    }
+
+    return true;
+  });
+};
+
+/**
+ * Get all active skills across all elements, optionally filtered by category
+ */
+export const getAllActiveSkills = (
+  purchases: Record<string, number>,
+  category?: SkillCategory
+): Skill[] => {
+  return allSkills.filter((skill) => {
+    // Must be purchased
+    if (!isSkillPurchased(skill.id, purchases)) {
+      return false;
+    }
+
+    // Filter by category if specified
+    if (category && skill.category !== category) {
+      return false;
+    }
+
+    return true;
+  });
+};
+
+/**
+ * Check if a skill is off cooldown for a defender
+ */
+export const isSkillOffCooldown = (
+  skillId: string,
+  defender: Defender,
+  currentTime: number
+): boolean => {
+  if (!defender.skillCooldowns) return true;
+  const cooldownEnd = defender.skillCooldowns[skillId];
+  return !cooldownEnd || currentTime >= cooldownEnd;
+};
+
+/**
+ * Set a skill on cooldown for a defender
+ */
+export const setSkillCooldown = (
+  defender: Defender,
+  skillId: string,
+  cooldownMs: number,
+  currentTime: number
+): void => {
+  if (!defender.skillCooldowns) {
+    defender.skillCooldowns = {};
+  }
+  defender.skillCooldowns[skillId] = currentTime + cooldownMs;
+};
+
+/**
+ * Get the best active skill for a defender to cast (highest priority that's available)
+ */
+export const getBestActiveSkill = (
+  defender: Defender,
+  purchases: Record<string, number>,
+  currentTime: number
+): Skill | null => {
+  const activeSkills = getActiveSkillsForElement(
+    defender.type,
+    purchases,
+    "active"
+  );
+
+  const availableSkills = activeSkills
+    .filter((skill) => {
+      // Check if skill is off cooldown
+      if (!isSkillOffCooldown(skill.id, defender, currentTime)) {
+        return false;
+      }
+
+      // Check if skill can be cast (if it has a canCast condition)
+      if (
+        skill.canCast &&
+        !skill.canCast(defender, { purchases } as GameState)
+      ) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => (b.priority || 0) - (a.priority || 0)); // Higher priority first
+
+  return availableSkills[0] || null; // Return the best skill or null if none available
 };

@@ -28,6 +28,7 @@ export interface Defender {
   cost: number;
   burstCooldownEnd?: number; // When burst cooldown ends
   currentAnimationFrame?: number; // Current animation frame (1-7)
+  skillCooldowns?: Record<string, number>; // skill_id -> end_time mapping for active cooldowns
 }
 
 export interface ElementBaseStats {
@@ -127,6 +128,7 @@ export interface Arrow {
   duration: number; // milliseconds
   targetEnemyId?: string; // Optional target enemy ID for precise targeting
   elementType: ElementType; // Element type of the defender that fired this arrow
+  onHitEffects?: Skill[]; // Skills that should trigger when this arrow hits
 }
 
 export interface GoldPopup {
@@ -162,13 +164,11 @@ export type SkillState =
   | "insufficient_gold"
   | "purchased";
 
-export interface SkillEffect {
-  (state: GameState, elementType: ElementType): GameState;
-}
-
 export interface SkillUnlockRequirement {
   [elementType: string]: number; // e.g., { fire: 25, ice: 25 }
 }
+
+export type SkillCategory = "attack_modifier" | "active" | "spell";
 
 export interface Skill {
   id: string;
@@ -176,6 +176,14 @@ export interface Skill {
   description: string;
   cost: number;
   unlockRequirements: SkillUnlockRequirement;
-  effect: SkillEffect;
   icon: string; // 1-10 for now, real icons later
+  category: SkillCategory;
+  priority?: number; // For actives - higher priority casts first
+  cooldown?: number; // For actives and spells - milliseconds
+
+  // Event handlers - optional, only implement what the skill needs
+  onAttack?: (defender: Defender, target: Enemy, gameState: GameState) => void;
+  onHit?: (enemy: Enemy, damage: number, gameState: GameState) => void;
+  onEnemyDeath?: (enemy: Enemy, killer: Arrow, gameState: GameState) => void;
+  canCast?: (defender: Defender, gameState: GameState) => boolean;
 }
