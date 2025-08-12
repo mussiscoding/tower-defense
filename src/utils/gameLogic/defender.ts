@@ -1,14 +1,21 @@
-import type { Defender, Enemy, Arrow } from "../../types/GameState";
+import type {
+  Defender,
+  Enemy,
+  Arrow,
+  SkillContext,
+} from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
-import { calculateElementAbilities } from "../../data/elements";
-import {
-  GAME_DIMENSIONS,
-  GAME_MECHANICS,
-} from "../../constants/gameDimensions";
+import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
 import type { ElementData } from "../../types/GameState";
 import { calculateAnimationFrame } from "./animationUtils";
+import {
+  getBestActiveSkill,
+  setSkillCooldown,
+  getActiveSkillsForElement,
+} from "../skillUtils";
+import { calculatePredictedEnemyPosition } from "./uiUtils";
 
 export const getBisectingDefenderPosition = (
   existingDefenders: Defender[]
@@ -181,89 +188,87 @@ export const updateDefenders = (
       };
     }
 
-    // Check if burst is available for Air defenders
-    const elementAbilities = calculateElementAbilities(
-      defender.type,
-      purchases
-    );
-    const canBurst =
-      defender.type === "air" &&
-      elementAbilities.burstShots &&
-      elementAbilities.burstShots > 0 &&
-      (!defender.burstCooldownEnd || currentTime >= defender.burstCooldownEnd);
-
     // Calculate current damage based on element level
     const element = elements[defender.type];
     const currentDamage = element?.baseStats.damage || defender.damage;
 
-    // Update predicted damage for this target (only the first arrow initially)
-    const currentPredictedDamage =
-      updatedPredictedArrowDamage.get(target.id) || 0;
-    const newPredictedDamage = currentPredictedDamage + currentDamage;
-    updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
+    // Create a minimal context for skills to access
+    const skillContext: SkillContext = {
+      purchases,
+      elements,
+      enemies: currentEnemies,
+      arrows: newArrows,
+      splashEffects: [], // Not used in defender context
+    };
 
-    // Calculate where the enemy will be when the arrow arrives
-    const arrowSpeed = GAME_MECHANICS.ARROW_SPEED;
-    const distance = Math.sqrt(
-      Math.pow(target.x + 10 - (defender.x + 20), 2) +
-        Math.pow(target.y + 15 - (defender.y + 20), 2)
-    );
-    const flightTime = (distance / arrowSpeed) * 1000;
-
-    // Predict enemy position at arrow impact time
-    const predictedX = target.x + (target.speed * flightTime) / 1000;
-    const predictedY = target.y; // Enemies only move horizontally
-
-    // Create arrow projectile with predicted target position
-    const arrow = createArrow(
-      defender.x + 20, // Center of defender (defenders are still 40x40)
-      defender.y + 20,
-      predictedX - 15, // Center of predicted enemy position (enemies are now 20x30)
-      predictedY + 15,
+    // Check for available active skills first (highest priority)
+    const activeSkill = getBestActiveSkill(
+      defender,
+      purchases,
       currentTime,
-      defender.type, // Element type of the defender
-      target.id // Store the target enemy ID for precise targeting
+      skillContext
     );
-    newArrows.push(arrow);
 
-    // If burst is available, create additional burst arrows
-    if (canBurst && elementAbilities.burstShots) {
-      const burstShots = elementAbilities.burstShots;
-      console.log(`💨 Air burst: Firing ${burstShots} arrows at once!`);
-
-      // Add burst arrow damage to predicted damage
-      const burstDamage = currentDamage * (burstShots - 1); // -1 because first arrow already counted
-      const currentBurstPredictedDamage =
-        updatedPredictedArrowDamage.get(target.id) || 0;
-      updatedPredictedArrowDamage.set(
-        target.id,
-        currentBurstPredictedDamage + burstDamage
+    if (activeSkill) {
+      // Use active skill instead of normal attack
+      console.log(
+        `🎯 ${defender.type} using active skill: ${activeSkill.name}`
       );
 
-      for (let i = 1; i < burstShots; i++) {
-        const burstArrow = createArrow(
-          defender.x + 20,
-          defender.y + 20,
-          predictedX + 10, // Center of predicted enemy position (enemies are now 20x30)
-          predictedY + 15,
-          currentTime + i * 50, // Add 50ms delay between burst arrows
-          defender.type,
-          target.id
-        );
-        newArrows.push(burstArrow);
-      }
-    }
+      // Execute the active skill
+      if (activeSkill.onAttack) {
+        activeSkill.onAttack(defender, target, skillContext);
 
-    // Set burst cooldown if burst was used
-    const burstCooldownEnd =
-      canBurst && elementAbilities.burstCooldown
-        ? currentTime + elementAbilities.burstCooldown * 1000
-        : defender.burstCooldownEnd;
+        // Set cooldown for this skill
+        if (activeSkill.cooldown) {
+          setSkillCooldown(
+            defender,
+            activeSkill.id,
+            activeSkill.cooldown,
+            currentTime
+          );
+        }
+      }
+    } else {
+      // Normal attack with attack modifiers
+      // Update predicted damage for this target
+      const currentPredictedDamage =
+        updatedPredictedArrowDamage.get(target.id) || 0;
+      const newPredictedDamage = currentPredictedDamage + currentDamage;
+      updatedPredictedArrowDamage.set(target.id, newPredictedDamage);
+
+      // Calculate where the enemy will be when the arrow arrives
+      const predictedPosition = calculatePredictedEnemyPosition(
+        defender,
+        target
+      );
+
+      // Get attack modifier skills for this defender
+      const hitModifierSkills = getActiveSkillsForElement(
+        defender.type,
+        purchases,
+        "attack_modifier"
+      );
+      const onHitEffects = hitModifierSkills.filter((skill) => skill.onHit);
+
+      // Create arrow projectile with predicted target position and attached effects
+      const arrow = createArrow(
+        defender.x + 20, // Center of defender (defenders are still 40x40)
+        defender.y + 20,
+        predictedPosition.x,
+        predictedPosition.y,
+        currentTime,
+        defender.type, // Element type of the defender
+        target.id, // Store the target enemy ID for precise targeting
+        onHitEffects // Attach skill effects to the arrow
+      );
+
+      newArrows.push(arrow);
+    }
 
     return {
       ...defender,
       lastAttack: currentTime,
-      burstCooldownEnd,
       currentAnimationFrame: frame,
     };
   });

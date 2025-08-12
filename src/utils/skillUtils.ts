@@ -4,6 +4,7 @@ import type {
   SkillState,
   SkillCategory,
   Defender,
+  SkillContext,
 } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { getSkillsForElement, getSkillById, allSkills } from "../data/skills";
@@ -277,7 +278,8 @@ export const setSkillCooldown = (
 export const getBestActiveSkill = (
   defender: Defender,
   purchases: Record<string, number>,
-  currentTime: number
+  currentTime: number,
+  context?: SkillContext
 ): Skill | null => {
   const activeSkills = getActiveSkillsForElement(
     defender.type,
@@ -293,11 +295,10 @@ export const getBestActiveSkill = (
       }
 
       // Check if skill can be cast (if it has a canCast condition)
-      if (
-        skill.canCast &&
-        !skill.canCast(defender, { purchases } as GameState)
-      ) {
-        return false;
+      if (skill.canCast && context) {
+        if (!skill.canCast(defender, context)) {
+          return false;
+        }
       }
 
       return true;

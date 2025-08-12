@@ -66,27 +66,27 @@ arrow.onHitEffects.forEach(skill => skill.onHit(arrow, enemy, damage, gameState)
 - [x] Add `priority` to active skills
 - [x] Remove obsolete `SkillEffect` interface and `effect` field from skills
 
-### **Phase 4: Refactor Defender Logic**
+### **Phase 4: Refactor Defender Logic** ✅
 
-- [ ] Remove hardcoded burst logic from `updateDefenders()`
-- [ ] Add active priority system to `updateDefenders()`
-- [ ] Attach `onHitEffects` to arrows when created
-- [ ] Add cooldown management for active skills
-- [ ] Test active abilities replace normal attacks
+- [x] Remove hardcoded burst logic from `updateDefenders()`
+- [x] Add active priority system to `updateDefenders()`
+- [x] Attach `onHitEffects` to arrows when created
+- [x] Add cooldown management for active skills
+- [x] Test active abilities replace normal attacks
 
-### **Phase 5: Refactor Arrow Logic**
+### **Phase 5: Refactor Arrow Logic** ✅
 
-- [ ] Remove hardcoded element effect checks from `processArrowImpacts()`
-- [ ] Execute `arrow.onHitEffects` on arrow impact
-- [ ] Remove calls to `addElementEffects()` function
-- [ ] Test all attack modifier skills work via event handlers
+- [x] Remove hardcoded element effect checks from `processArrowImpacts()`
+- [x] Execute `arrow.onHitEffects` on arrow impact
+- [x] Remove calls to `addElementEffects()` function
+- [x] Test all attack modifier skills work via event handlers
 
-### **Phase 6: Clean Up Legacy Code**
+### **Phase 6: Clean Up Legacy Code** ✅
 
-- [ ] Remove `calculateElementAbilities()` basic skill checks
-- [ ] Remove `addElementEffects()` function if no longer needed
-- [ ] Remove hardcoded element logic from game files
-- [ ] Update any remaining `purchases["skill_id"]` checks
+- [x] Remove `calculateElementAbilities()` basic skill checks (kept for UI only)
+- [x] Remove `addElementEffects()` function if no longer needed
+- [x] Remove hardcoded element logic from game files
+- [x] Update any remaining `purchases["skill_id"]` checks
 
 ### **Phase 7: Testing & Validation**
 

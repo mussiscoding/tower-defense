@@ -3,8 +3,11 @@ import type {
   LevelUpAnimation,
   UpgradeAnimation,
   DamageNumber,
+  Enemy,
+  Defender,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
+import { GAME_MECHANICS } from "../../constants/gameDimensions";
 
 export const generateFloatingTextId = (): string => {
   return `floating_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -89,5 +92,35 @@ export const createDamageNumber = (
     y,
     elementType,
     startTime: currentTime,
+  };
+};
+
+/**
+ * Calculate where an enemy will be when an arrow reaches it
+ */
+export const calculatePredictedEnemyPosition = (
+  defender: Defender,
+  target: Enemy
+): { x: number; y: number; flightTime: number } => {
+  // Calculate distance from defender to current target position
+  const distance = Math.sqrt(
+    Math.pow(target.x + 10 - (defender.x + 20), 2) +
+      Math.pow(target.y + 15 - (defender.y + 20), 2)
+  );
+
+  // Calculate how long the arrow will take to reach the target
+  const flightTime = (distance / GAME_MECHANICS.ARROW_SPEED) * 1000;
+
+  // Predict where the enemy will be when the arrow arrives
+  const predictedX = target.x + (target.speed * flightTime) / 1000;
+  const predictedY = target.y; // Enemies only move horizontally
+
+  const centreOfPredictedX = predictedX - 15;
+  const centreOfPredictedY = predictedY + 15;
+
+  return {
+    x: centreOfPredictedX,
+    y: centreOfPredictedY,
+    flightTime,
   };
 };

@@ -170,6 +170,15 @@ export interface SkillUnlockRequirement {
 
 export type SkillCategory = "attack_modifier" | "active" | "spell";
 
+// Minimal context object for skill handlers - only what they actually need
+export interface SkillContext {
+  purchases: Record<string, number>;
+  enemies: Enemy[];
+  arrows: Arrow[]; // For skills that create arrows
+  elements: Record<ElementType, ElementData>;
+  splashEffects: SplashEffect[]; // For skills that create splash effects
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -181,9 +190,16 @@ export interface Skill {
   priority?: number; // For actives - higher priority casts first
   cooldown?: number; // For actives and spells - milliseconds
 
+  // UI display properties - for showing skill stats in Mages component
+  statName?: string; // e.g. "Burn Damage", "Slow Effect", "Splash Radius"
+  statValue?:
+    | string
+    | number
+    | ((purchases: Record<string, number>) => string | number); // Static value or function to calculate based on purchases
+
   // Event handlers - optional, only implement what the skill needs
-  onAttack?: (defender: Defender, target: Enemy, gameState: GameState) => void;
-  onHit?: (enemy: Enemy, damage: number, gameState: GameState) => void;
-  onEnemyDeath?: (enemy: Enemy, killer: Arrow, gameState: GameState) => void;
-  canCast?: (defender: Defender, gameState: GameState) => boolean;
+  onAttack?: (defender: Defender, target: Enemy, context: SkillContext) => void;
+  onHit?: (enemy: Enemy, damage: number, context: SkillContext) => void;
+  onEnemyDeath?: (enemy: Enemy, killer: Arrow, context: SkillContext) => void;
+  canCast?: (defender: Defender, context: SkillContext) => boolean;
 }

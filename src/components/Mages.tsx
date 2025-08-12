@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./Mages.css";
 import type { ElementData, Defender } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { getXPForLevel, calculateElementAbilities } from "../data/elements";
+import { getXPForLevel } from "../data/elements";
+import { allSkills } from "../data/skills";
 import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
 import { upgradeShopItems } from "../data/upgrades";
@@ -97,10 +98,29 @@ const Mages: React.FC<MagesProps> = ({
 
   if (selectedElement) {
     const elementData = elements[selectedElement];
-    const currentAbilities = calculateElementAbilities(
-      selectedElement,
-      purchases
-    );
+
+    // Get all purchased skills that unlock with this element
+    const purchasedSkillsForElement = allSkills.filter((skill) => {
+      // Check if skill has unlock requirement for this element AND is purchased
+      const hasElementRequirement =
+        skill.unlockRequirements[selectedElement] !== undefined;
+      const isPurchased = purchases[skill.id] > 0;
+      const hasStats = skill.statName && skill.statValue;
+
+      return hasElementRequirement && isPurchased && hasStats;
+    });
+
+    // Create abilities object dynamically from skills
+    const currentAbilities: Record<string, string | number> = {};
+    purchasedSkillsForElement.forEach((skill) => {
+      if (skill.statName && skill.statValue) {
+        const value =
+          typeof skill.statValue === "function"
+            ? skill.statValue(purchases)
+            : skill.statValue;
+        currentAbilities[skill.statName] = value;
+      }
+    });
     return (
       <div className="mages-container">
         <div className="element-detail-header">
@@ -218,69 +238,21 @@ const Mages: React.FC<MagesProps> = ({
                       {elementData.baseStats.range}
                     </span>
                   </div>
-                  {selectedElement === "fire" && (
-                    <>
-                      <div className="stat-item">
-                        <span className="stat-label">Burn Damage:</span>
-                        <span className="stat-value">
-                          {currentAbilities.burnDamagePercent || 0}%
-                        </span>
+                  {/* Dynamically display purchased skill stats */}
+                  {Object.entries(currentAbilities).map(
+                    ([statName, statValue], index) => (
+                      <div
+                        key={statName}
+                        className={`stat-item ${
+                          index === Object.entries(currentAbilities).length - 1
+                            ? "stat-item-last"
+                            : ""
+                        }`}
+                      >
+                        <span className="stat-label">{statName}:</span>
+                        <span className="stat-value">{statValue}</span>
                       </div>
-                      <div className="stat-item stat-item-last">
-                        <span className="stat-label">Burn Duration:</span>
-                        <span className="stat-value">
-                          {currentAbilities.burnDuration || 0}s
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  {selectedElement === "ice" && (
-                    <>
-                      <div className="stat-item">
-                        <span className="stat-label">Slow Effect:</span>
-                        <span className="stat-value">
-                          {currentAbilities.slowEffect || 0}%
-                        </span>
-                      </div>
-                      <div className="stat-item stat-item-last">
-                        <span className="stat-label">Slow Duration:</span>
-                        <span className="stat-value">
-                          {currentAbilities.slowDuration || 0}s
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  {selectedElement === "earth" && (
-                    <>
-                      <div className="stat-item">
-                        <span className="stat-label">Splash Damage:</span>
-                        <span className="stat-value">
-                          {currentAbilities.splashDamage || 0}%
-                        </span>
-                      </div>
-                      <div className="stat-item stat-item-last">
-                        <span className="stat-label">Splash Radius:</span>
-                        <span className="stat-value">
-                          {currentAbilities.splashRadius || 0}px
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  {selectedElement === "air" && (
-                    <>
-                      <div className="stat-item">
-                        <span className="stat-label">Burst Shots:</span>
-                        <span className="stat-value">
-                          {currentAbilities.burstShots || 0}
-                        </span>
-                      </div>
-                      <div className="stat-item stat-item-last">
-                        <span className="stat-label">Burst Cooldown:</span>
-                        <span className="stat-value">
-                          {currentAbilities.burstCooldown || 0}s
-                        </span>
-                      </div>
-                    </>
+                    )
                   )}
 
                   <div className="stat-separator"></div>
