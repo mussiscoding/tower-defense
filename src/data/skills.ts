@@ -20,12 +20,6 @@ const fireBurnOnHit = (enemy: Enemy, damage: number, context: SkillContext) => {
   // Apply burn effect to enemy
   enemy.burnDamage = burnDamage;
   enemy.burnEndTime = currentTime + burnDuration;
-
-  console.log(
-    `🔥 Applied burn: ${burnDamage} damage (${burnDamagePercent}%) over ${
-      burnDuration / 1000
-    }s`
-  );
 };
 
 // Ice Slow onHit handler - applies slow effect to enemies
@@ -41,10 +35,6 @@ const iceSlowOnHit = (enemy: Enemy, _damage: number, context: SkillContext) => {
   // Apply slow effect to enemy
   enemy.slowEffect = slowEffectPercent;
   enemy.slowEndTime = currentTime + slowDuration;
-
-  console.log(
-    `❄️ Applied slow: ${slowEffectPercent}% for ${slowDuration / 1000}s`
-  );
 };
 
 // Earth Splash onHit handler - applies splash damage to nearby enemies
@@ -88,11 +78,6 @@ const earthSplashOnHit = (
     currentTime
   );
   context.splashEffects.push(splashEffect);
-
-  console.log(
-    `🪨 Splash damage: ${splashDamage} (${splashDamagePercent}%) to ${nearbyEnemies.length} nearby enemies (radius: ${splashRadius})`
-  );
-  // I think this needs to create the fake arrows too.
 };
 
 // Air Burst onAttack handler - fires multiple arrows at once

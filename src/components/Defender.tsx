@@ -46,16 +46,6 @@ const Defender: React.FC<DefenderProps> = ({
         : (`attack${currentAnimationFrame}` as keyof typeof mageAttackSprites);
     const spriteSrc = mageAttackSprites[spriteKey];
 
-    // Debug logging for fire mages
-    console.log(`🔥 Fire Mage Debug:`, {
-      type,
-      currentAnimationFrame,
-      spriteKey,
-      spriteSrc,
-      hasSprite: !!spriteSrc,
-      allSprites: Object.keys(mageAttackSprites),
-    });
-
     return (
       <div
         className={`defender defender-${type}`}
