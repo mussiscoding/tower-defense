@@ -6,7 +6,7 @@ import { getXPForLevel } from "../data/elements";
 import { allSkills } from "../data/skills";
 import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
-import { upgradeShopItems } from "../data/upgrades";
+import { allUpgrades } from "../data/upgrades";
 import type { ShopItem } from "../types/GameState";
 import {
   getMaxMagesForElement,
@@ -341,7 +341,7 @@ const Mages: React.FC<MagesProps> = ({
               })()}
 
               {/* Element-specific upgrades */}
-              {upgradeShopItems
+              {allUpgrades
                 .filter((item) => {
                   const matchesElement = item.id.startsWith(selectedElement);
 

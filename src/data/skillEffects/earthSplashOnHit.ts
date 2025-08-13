@@ -1,5 +1,12 @@
 import type { Enemy, SkillContext } from "../../types/GameState";
 import { createSplashEffect } from "../../utils/gameLogic/arrow";
+import { allUpgrades } from "../upgrades";
+
+// Helper function to get upgrade amount for a specific upgrade
+const getUpgradeAmount = (upgradeId: string): number => {
+  const upgrade = allUpgrades.find((item) => item.id === upgradeId);
+  return upgrade?.upgradeAmount || 1; // fallback to 1 if not found
+};
 
 // Earth Splash onHit handler - applies splash damage to nearby enemies
 export const earthSplashOnHit = (
@@ -11,11 +18,16 @@ export const earthSplashOnHit = (
   const baseSplashPercent = 20;
   const splashDamageUpgrades =
     context.purchases["earth_splash_damage_upgrade"] || 0;
-  const splashDamagePercent = baseSplashPercent + splashDamageUpgrades;
+  const splashDamageUpgradeAmount = getUpgradeAmount(
+    "earth_splash_damage_upgrade"
+  );
+  const splashDamagePercent =
+    baseSplashPercent + splashDamageUpgrades * splashDamageUpgradeAmount;
 
   const baseRadius = 50;
   const radiusUpgrades = context.purchases["earth_splash_radius_upgrade"] || 0;
-  const splashRadius = baseRadius + radiusUpgrades * 10; // +10 per upgrade
+  const radiusUpgradeAmount = getUpgradeAmount("earth_splash_radius_upgrade");
+  const splashRadius = baseRadius + radiusUpgrades * radiusUpgradeAmount; // Dynamic upgrade amount
 
   // Find nearby enemies within splash radius
   const nearbyEnemies = context.enemies.filter((otherEnemy) => {

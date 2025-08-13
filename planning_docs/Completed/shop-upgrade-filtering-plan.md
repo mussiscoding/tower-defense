@@ -137,3 +137,14 @@ air_burst_cooldown_upgrade → air_burst
 2. **Smart Recommendations**: Highlight which skills to buy to unlock desired upgrades
 3. **Upgrade Previews**: Show "locked upgrade" placeholders with prerequisites
 4. **Batch Purchases**: Allow purchasing skill + upgrades together
+
+## **Additional Completed Work**
+
+### **Factory Function Implementation ✅**
+
+- ✅ Implemented `createUpgrade()` factory function for dynamic upgrade creation
+- ✅ Added `upgradeAmount` property to cleanly configure upgrade values
+- ✅ Auto-generates descriptions and shortNames from upgrade amounts
+- ✅ Fixed stats panel display to use actual upgrade amounts
+- ✅ Fixed skill effect calculations to use actual upgrade amounts
+- ✅ All upgrades now have single source of truth for upgrade values

@@ -45,7 +45,7 @@ const createUpgrade = (config: {
   },
 });
 
-export const upgradeShopItems: UpgradeShopItem[] = [
+export const allUpgrades: UpgradeShopItem[] = [
   // Fire element ability upgrades
   createUpgrade({
     id: "fire_burn_damage_upgrade",

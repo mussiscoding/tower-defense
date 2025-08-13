@@ -1,7 +1,7 @@
 import type { GameState } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
-import { upgradeShopItems } from "../data/upgrades";
+import { allUpgrades } from "../data/upgrades";
 import { getBisectingDefenderPosition } from "../utils/gameLogic/defender";
 import { createDefender, canPurchaseMage } from "../utils/gameLogic";
 import {
@@ -47,9 +47,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
       }
 
       // Handle upgrade shop items (they define their own effects)
-      const upgradeItem = upgradeShopItems.find(
-        (upgrade) => upgrade.id === itemId
-      );
+      const upgradeItem = allUpgrades.find((upgrade) => upgrade.id === itemId);
       if (upgradeItem) {
         const updatedState = upgradeItem.effect(prev);
 

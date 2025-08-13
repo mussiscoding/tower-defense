@@ -1,6 +1,6 @@
 import type { ShopItem } from "../types/GameState";
 import { defenders } from "./defenders";
-import { upgradeShopItems } from "./upgrades";
+import { allUpgrades } from "./upgrades";
 
 // Create shop items for defenders
 const defenderShopItems: ShopItem[] = defenders.map((defender) => ({
@@ -13,10 +13,7 @@ const defenderShopItems: ShopItem[] = defenders.map((defender) => ({
   costScalingFactor: defender.costScalingFactor,
 }));
 
-export const shopItems: ShopItem[] = [
-  ...defenderShopItems,
-  ...upgradeShopItems,
-];
+export const shopItems: ShopItem[] = [...defenderShopItems, ...allUpgrades];
 
 export const getCurrentPrice = (
   item: ShopItem,

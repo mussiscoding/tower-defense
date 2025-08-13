@@ -1,5 +1,6 @@
 import type { Skill } from "../types/GameState";
 import type { ElementType } from "./elements";
+import { allUpgrades } from "./upgrades";
 
 import {
   fireBurnOnHit,
@@ -7,6 +8,12 @@ import {
   earthSplashOnHit,
   airBurstOnAttack,
 } from "./skillEffects";
+
+// Helper function to get upgrade amount for a specific upgrade
+const getUpgradeAmount = (upgradeId: string): number => {
+  const upgrade = allUpgrades.find((item) => item.id === upgradeId);
+  return upgrade?.upgradeAmount || 1; // fallback to 1 if not found
+};
 
 export const allSkills: Skill[] = [
   {
@@ -21,7 +28,8 @@ export const allSkills: Skill[] = [
     statValue: (purchases: Record<string, number>) => {
       const basePercent = 20;
       const upgrades = purchases["fire_burn_damage_upgrade"] || 0;
-      return `${basePercent + upgrades}%`;
+      const upgradeAmount = getUpgradeAmount("fire_burn_damage_upgrade");
+      return `${basePercent + upgrades * upgradeAmount}%`;
     },
     onHit: fireBurnOnHit,
   },
@@ -37,7 +45,8 @@ export const allSkills: Skill[] = [
     statValue: (purchases: Record<string, number>) => {
       const basePercent = 5;
       const upgrades = purchases["ice_slow_effect_upgrade"] || 0;
-      return `${basePercent + upgrades}%`;
+      const upgradeAmount = getUpgradeAmount("ice_slow_effect_upgrade");
+      return `${basePercent + upgrades * upgradeAmount}%`;
     },
     onHit: iceSlowOnHit,
   },
@@ -53,7 +62,8 @@ export const allSkills: Skill[] = [
     statValue: (purchases: Record<string, number>) => {
       const basePercent = 20;
       const upgrades = purchases["earth_splash_damage_upgrade"] || 0;
-      return `${Math.min(100, basePercent + upgrades)}%`;
+      const upgradeAmount = getUpgradeAmount("earth_splash_damage_upgrade");
+      return `${Math.min(100, basePercent + upgrades * upgradeAmount)}%`;
     },
     onHit: earthSplashOnHit,
   },
@@ -71,7 +81,8 @@ export const allSkills: Skill[] = [
     statValue: (purchases: Record<string, number>) => {
       const baseShots = 2;
       const upgrades = purchases["air_burst_shots_upgrade"] || 0;
-      return `${baseShots + upgrades}`;
+      const upgradeAmount = getUpgradeAmount("air_burst_shots_upgrade");
+      return `${baseShots + upgrades * upgradeAmount}`;
     },
     onAttack: airBurstOnAttack,
   },
