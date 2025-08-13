@@ -342,7 +342,15 @@ const Mages: React.FC<MagesProps> = ({
 
               {/* Element-specific upgrades */}
               {upgradeShopItems
-                .filter((item) => item.id.startsWith(selectedElement))
+                .filter((item) => {
+                  const matchesElement = item.id.startsWith(selectedElement);
+
+                  const hasPrerequisite =
+                    !item.prerequisiteSkill ||
+                    (purchases[item.prerequisiteSkill] || 0) > 0;
+
+                  return matchesElement && hasPrerequisite;
+                })
                 .map((item) => {
                   const cost = getCurrentPrice(item, purchases);
                   const canAfford = currentGold >= cost;
