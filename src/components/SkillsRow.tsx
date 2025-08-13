@@ -40,13 +40,13 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
   const getSkillStateColor = (state: string) => {
     switch (state) {
       case "purchaseable":
-        return "#4ade80"; // Green
+        return "#22c55e"; // Green
       case "insufficient_gold":
-        return "#fbbf24"; // Yellow
+        return "#d1d5db"; // Light gray
       case "locked":
-        return "#ef4444"; // Red
+        return "#374151"; // Dark gray
       case "purchased":
-        return "#9ca3af"; // Gray
+        return "#eab308"; // Yellow
       default:
         return "#374151"; // Dark gray for empty slots
     }
@@ -160,13 +160,25 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
                       )}
                     </div>
 
-                    <div className="skill-popup-cost">
-                      💰 {skill.cost.toLocaleString()}
-                    </div>
+                    {state !== "purchased" && (
+                      <div className="skill-popup-cost">
+                        💰 {skill.cost.toLocaleString()}
+                      </div>
+                    )}
 
                     <div className="skill-popup-description">
                       {skill.description}
                     </div>
+
+                    {/* Show skill stats if available */}
+                    {skill.statName && skill.statValue && (
+                      <div className="skill-popup-stats">
+                        <strong>{skill.statName}:</strong>{" "}
+                        {typeof skill.statValue === "function"
+                          ? skill.statValue(purchases)
+                          : skill.statValue}
+                      </div>
+                    )}
 
                     <div className="skill-popup-state">
                       {state === "purchaseable" && "Click to purchase!"}

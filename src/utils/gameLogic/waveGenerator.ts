@@ -9,7 +9,7 @@ export function generateWave(
   difficulty: number,
   availableEnemies: EnemyData[] // Now takes enemy data objects directly
 ): WaveComposition {
-  const totalDifficultyValue = difficulty * 10;
+  const totalDifficultyValue = difficulty * 50;
   return generateValidComposition(totalDifficultyValue, availableEnemies);
 }
 

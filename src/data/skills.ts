@@ -1,134 +1,14 @@
-import type { Skill, Enemy, SkillContext, Defender } from "../types/GameState";
+import type { Skill } from "../types/GameState";
 import type { ElementType } from "./elements";
-import { createArrow, createSplashEffect } from "../utils/gameLogic/arrow";
-import { getActiveSkillsForElement } from "../utils/skillUtils";
-import { calculatePredictedEnemyPosition } from "../utils/gameLogic/uiUtils";
 
-// Fire Burn onHit handler - applies burn effect to enemies
-const fireBurnOnHit = (enemy: Enemy, damage: number, context: SkillContext) => {
-  // Base burn damage percentage + upgrades
-  const baseBurnPercent = 20;
-  const burnUpgrades = context.purchases["fire_burn_damage_upgrade"] || 0;
-  const burnDamagePercent = baseBurnPercent + burnUpgrades;
+import {
+  fireBurnOnHit,
+  iceSlowOnHit,
+  earthSplashOnHit,
+  airBurstOnAttack,
+} from "./skillEffects";
 
-  const burnDuration = 2000; // 2 seconds in milliseconds
-  const currentTime = Date.now();
-
-  // Calculate burn damage as percentage of arrow damage
-  const burnDamage = Math.floor((damage * burnDamagePercent) / 100);
-
-  // Apply burn effect to enemy
-  enemy.burnDamage = burnDamage;
-  enemy.burnEndTime = currentTime + burnDuration;
-};
-
-// Ice Slow onHit handler - applies slow effect to enemies
-const iceSlowOnHit = (enemy: Enemy, _damage: number, context: SkillContext) => {
-  // Base slow effect percentage + upgrades
-  const baseSlowPercent = 5; // Matches elements.ts base value
-  const slowUpgrades = context.purchases["ice_slow_effect_upgrade"] || 0;
-  const slowEffectPercent = baseSlowPercent + slowUpgrades;
-
-  const slowDuration = 3000; // 3 seconds in milliseconds
-  const currentTime = Date.now();
-
-  // Apply slow effect to enemy
-  enemy.slowEffect = slowEffectPercent;
-  enemy.slowEndTime = currentTime + slowDuration;
-};
-
-// Earth Splash onHit handler - applies splash damage to nearby enemies
-const earthSplashOnHit = (
-  enemy: Enemy,
-  damage: number,
-  context: SkillContext
-) => {
-  // Base splash values + upgrades
-  const baseSplashPercent = 20;
-  const splashDamageUpgrades =
-    context.purchases["earth_splash_damage_upgrade"] || 0;
-  const splashDamagePercent = baseSplashPercent + splashDamageUpgrades;
-
-  const baseRadius = 50;
-  const radiusUpgrades = context.purchases["earth_splash_radius_upgrade"] || 0;
-  const splashRadius = baseRadius + radiusUpgrades * 10; // +10 per upgrade
-
-  // Find nearby enemies within splash radius
-  const nearbyEnemies = context.enemies.filter((otherEnemy) => {
-    if (otherEnemy.id === enemy.id) return false;
-
-    const distance = Math.sqrt(
-      Math.pow(otherEnemy.x - enemy.x, 2) + Math.pow(otherEnemy.y - enemy.y, 2)
-    );
-    return distance <= splashRadius;
-  });
-
-  // Apply splash damage to nearby enemies
-  const splashDamage = Math.floor((damage * splashDamagePercent) / 100);
-  nearbyEnemies.forEach((nearbyEnemy) => {
-    nearbyEnemy.health = Math.max(0, nearbyEnemy.health - splashDamage);
-  });
-
-  // Create splash effect for visual feedback
-  const currentTime = Date.now();
-  const splashEffect = createSplashEffect(
-    enemy.x + 10, // Center of enemy (enemies are 20x30, so +10 for center)
-    enemy.y + 15, // Center of enemy
-    splashRadius,
-    currentTime
-  );
-  context.splashEffects.push(splashEffect);
-};
-
-// Air Burst onAttack handler - fires multiple arrows at once
-const airBurstOnAttack = (
-  defender: Defender,
-  target: Enemy,
-  context: SkillContext
-) => {
-  // Base burst values + upgrades
-  const baseBurstShots = 2; // Matches elements.ts base value
-  const shotUpgrades = context.purchases["air_burst_shots_upgrade"] || 0;
-  const burstShots = baseBurstShots + shotUpgrades;
-
-  const burstDelay = 50;
-  const currentTime = Date.now();
-
-  console.log(`💨 Air Burst: Firing ${burstShots} arrows at once!`);
-
-  // Calculate predicted enemy position
-  const predictedPosition = calculatePredictedEnemyPosition(defender, target);
-
-  // Get attack modifier skills for burst arrows
-  const hitModifierSkills = getActiveSkillsForElement(
-    defender.type,
-    context.purchases,
-    "attack_modifier"
-  );
-  const onHitEffects = hitModifierSkills.filter((skill) => skill.onHit);
-
-  // Create multiple arrows with slight delays and spread
-  for (let i = 0; i < burstShots; i++) {
-    const spreadOffset = (i - Math.floor(burstShots / 2)) * 10;
-
-    const arrow = createArrow(
-      defender.x + 20,
-      defender.y + 20,
-      predictedPosition.x + spreadOffset, // Center of predicted enemy + spread
-      predictedPosition.y,
-      currentTime + i * burstDelay,
-      defender.type, // Element type
-      target.id,
-      onHitEffects
-    );
-
-    context.arrows.push(arrow);
-  }
-};
-
-// All skills in a flat array - skills can have multi-element requirements
 export const allSkills: Skill[] = [
-  // Basic elemental abilities - Free skills at level 5
   {
     id: "fire_burn",
     name: "Fire Burns",
@@ -186,7 +66,7 @@ export const allSkills: Skill[] = [
     icon: "1",
     category: "active",
     priority: 1,
-    cooldown: 8000, // Base 8 second cooldown (matches elements.ts)
+    cooldown: 8000,
     statName: "Burst Shots",
     statValue: (purchases: Record<string, number>) => {
       const baseShots = 2;
@@ -196,7 +76,6 @@ export const allSkills: Skill[] = [
     onAttack: airBurstOnAttack,
   },
 
-  // Advanced single-element skills
   {
     id: "fire_percentage_damage",
     name: "Percentage Health Damage",
