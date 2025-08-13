@@ -1,22 +1,28 @@
 import type { Skill } from "../types/GameState";
-import type { ElementType } from "./elements";
-import { allUpgrades } from "./upgrades";
-
+import { createSkill } from "../utils/skills";
 import {
   fireBurnOnHit,
   iceSlowOnHit,
   earthSplashOnHit,
   airBurstOnAttack,
+  firePercentageDamageOnHit,
 } from "./skillEffects";
 
-// Helper function to get upgrade amount for a specific upgrade
-const getUpgradeAmount = (upgradeId: string): number => {
-  const upgrade = allUpgrades.find((item) => item.id === upgradeId);
-  return upgrade?.upgradeAmount || 1; // fallback to 1 if not found
-};
+// Centralized skill base values - single source of truth
+export const SKILL_BASE_VALUES = {
+  FIRE_BURN_DAMAGE: 20,
+  FIRE_PERCENTAGE_DAMAGE: 5,
+  ICE_SLOW_EFFECT: 5,
+  EARTH_SPLASH_DAMAGE: 20,
+  EARTH_SPLASH_MAX: 100,
+  EARTH_SPLASH_RADIUS: 50,
+  AIR_BURST_SHOTS: 2,
+  AIR_BURST_COOLDOWN: 8000,
+  AIR_CRITICAL_HIT_CHANCE: 5,
+} as const;
 
 export const allSkills: Skill[] = [
-  {
+  createSkill({
     id: "fire_burn",
     name: "Fire Burns",
     description: "Fire attacks apply burn damage over time to enemies",
@@ -25,15 +31,11 @@ export const allSkills: Skill[] = [
     icon: "1",
     category: "attack_modifier",
     statName: "Burn Damage",
-    statValue: (purchases: Record<string, number>) => {
-      const basePercent = 20;
-      const upgrades = purchases["fire_burn_damage_upgrade"] || 0;
-      const upgradeAmount = getUpgradeAmount("fire_burn_damage_upgrade");
-      return `${basePercent + upgrades * upgradeAmount}%`;
-    },
+    baseValue: SKILL_BASE_VALUES.FIRE_BURN_DAMAGE,
+    upgradeId: "fire_burn_damage_upgrade",
     onHit: fireBurnOnHit,
-  },
-  {
+  }),
+  createSkill({
     id: "ice_slow",
     name: "Ice Freezes",
     description: "Ice attacks slow enemy movement speed",
@@ -42,15 +44,11 @@ export const allSkills: Skill[] = [
     icon: "1",
     category: "attack_modifier",
     statName: "Slow Effect",
-    statValue: (purchases: Record<string, number>) => {
-      const basePercent = 5;
-      const upgrades = purchases["ice_slow_effect_upgrade"] || 0;
-      const upgradeAmount = getUpgradeAmount("ice_slow_effect_upgrade");
-      return `${basePercent + upgrades * upgradeAmount}%`;
-    },
+    baseValue: SKILL_BASE_VALUES.ICE_SLOW_EFFECT,
+    upgradeId: "ice_slow_effect_upgrade",
     onHit: iceSlowOnHit,
-  },
-  {
+  }),
+  createSkill({
     id: "earth_splash",
     name: "Rocks Crash",
     description: "Earth attacks deal splash damage to nearby enemies",
@@ -59,15 +57,12 @@ export const allSkills: Skill[] = [
     icon: "1",
     category: "attack_modifier",
     statName: "Splash Damage",
-    statValue: (purchases: Record<string, number>) => {
-      const basePercent = 20;
-      const upgrades = purchases["earth_splash_damage_upgrade"] || 0;
-      const upgradeAmount = getUpgradeAmount("earth_splash_damage_upgrade");
-      return `${Math.min(100, basePercent + upgrades * upgradeAmount)}%`;
-    },
+    baseValue: SKILL_BASE_VALUES.EARTH_SPLASH_DAMAGE,
+    upgradeId: "earth_splash_damage_upgrade",
+    maxValue: SKILL_BASE_VALUES.EARTH_SPLASH_MAX,
     onHit: earthSplashOnHit,
-  },
-  {
+  }),
+  createSkill({
     id: "air_burst",
     name: "Wind Gusts",
     description: "Air defenders periodically fire multiple attacks at once",
@@ -76,18 +71,15 @@ export const allSkills: Skill[] = [
     icon: "1",
     category: "active",
     priority: 1,
-    cooldown: 8000,
+    cooldown: SKILL_BASE_VALUES.AIR_BURST_COOLDOWN,
     statName: "Burst Shots",
-    statValue: (purchases: Record<string, number>) => {
-      const baseShots = 2;
-      const upgrades = purchases["air_burst_shots_upgrade"] || 0;
-      const upgradeAmount = getUpgradeAmount("air_burst_shots_upgrade");
-      return `${baseShots + upgrades * upgradeAmount}`;
-    },
+    baseValue: SKILL_BASE_VALUES.AIR_BURST_SHOTS,
+    upgradeId: "air_burst_shots_upgrade",
+    unit: "",
     onAttack: airBurstOnAttack,
-  },
+  }),
 
-  {
+  createSkill({
     id: "fire_percentage_damage",
     name: "Percentage Health Damage",
     description: "Fire arrows do % enemy health damage on hit",
@@ -96,19 +88,20 @@ export const allSkills: Skill[] = [
     icon: "2",
     category: "attack_modifier",
     statName: "% Health Damage",
-    statValue: "5%", // Static value example
-  },
-  {
+    baseValue: SKILL_BASE_VALUES.FIRE_PERCENTAGE_DAMAGE,
+    upgradeId: "fire_percentage_damage_upgrade",
+    onHit: firePercentageDamageOnHit,
+  }),
+  createSkill({
     id: "fire_burn_stacking",
     name: "Burn Stacking",
     description: "Fire arrows stack burn damage instead of refreshing duration",
     cost: 75000,
     unlockRequirements: { fire: 35 },
-
     icon: "4",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "fire_lightning_bolt",
     name: "Lightning Bolt",
     description: "Lightning bolt kills the highest HP enemy on the map",
@@ -117,8 +110,8 @@ export const allSkills: Skill[] = [
 
     icon: "6",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "fire_bonus_1",
     name: "Fire Power Upgrade",
     description: "[TBD - Fire Power Upgrade]",
@@ -127,8 +120,8 @@ export const allSkills: Skill[] = [
 
     icon: "8",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "fire_bonus_2",
     name: "Ultimate Fire Ability",
     description: "[TBD - Ultimate Fire Ability]",
@@ -137,9 +130,9 @@ export const allSkills: Skill[] = [
 
     icon: "9",
     category: "attack_modifier",
-  },
+  }),
 
-  {
+  createSkill({
     id: "ice_permafrost",
     name: "Permafrost",
     description: "On first hit from ice tower, freeze enemy for 1s",
@@ -148,8 +141,8 @@ export const allSkills: Skill[] = [
 
     icon: "2",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "ice_damage_upgrade",
     name: "Ice Damage Enhancement",
     description: "[TBD - Ice Damage Upgrade]",
@@ -158,8 +151,8 @@ export const allSkills: Skill[] = [
 
     icon: "4",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "ice_critical_vulnerability",
     name: "Critical Vulnerability",
     description: "Any hits on slowed enemies have increased crit chance",
@@ -168,8 +161,8 @@ export const allSkills: Skill[] = [
 
     icon: "6",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "ice_bonus_1",
     name: "Ice Power Upgrade",
     description: "[TBD - Ice Power Upgrade]",
@@ -178,8 +171,8 @@ export const allSkills: Skill[] = [
 
     icon: "8",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "ice_bonus_2",
     name: "Ultimate Ice Ability",
     description: "[TBD - Ultimate Ice Ability]",
@@ -188,9 +181,9 @@ export const allSkills: Skill[] = [
 
     icon: "9",
     category: "attack_modifier",
-  },
+  }),
 
-  {
+  createSkill({
     id: "earth_smart_targeting",
     name: "Smart Targeting",
     description: "Target highest enemy density for maximum splash",
@@ -199,8 +192,8 @@ export const allSkills: Skill[] = [
 
     icon: "2",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "earth_stone_skin",
     name: "Stone Skin",
     description: "Reduces all incoming damage to castle",
@@ -209,8 +202,8 @@ export const allSkills: Skill[] = [
 
     icon: "4",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "earth_earthquake",
     name: "Earthquake",
     description: "Hit all enemies on the map",
@@ -219,8 +212,8 @@ export const allSkills: Skill[] = [
 
     icon: "6",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "earth_fissure",
     name: "Fissure",
     description: "Damage all enemies in a horizontal line in front of the mage",
@@ -229,8 +222,8 @@ export const allSkills: Skill[] = [
 
     icon: "8",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "earth_fragment_explosion",
     name: "Fragment Explosion",
     description: "Earth fragments explode again",
@@ -239,9 +232,9 @@ export const allSkills: Skill[] = [
 
     icon: "9",
     category: "attack_modifier",
-  },
+  }),
 
-  {
+  createSkill({
     id: "air_critical_hit",
     name: "Critical Hit Chance",
     description: "% Critical hit chance for massive damage",
@@ -250,13 +243,10 @@ export const allSkills: Skill[] = [
     icon: "2",
     category: "attack_modifier",
     statName: "Crit Chance",
-    statValue: (purchases: Record<string, number>) => {
-      const baseCrit = 10;
-      const upgrades = purchases["air_critical_hit_upgrade"] || 0;
-      return `${baseCrit + upgrades}%`;
-    },
-  },
-  {
+    baseValue: SKILL_BASE_VALUES.AIR_CRITICAL_HIT_CHANCE,
+    upgradeId: "air_critical_hit_chance_upgrade",
+  }),
+  createSkill({
     id: "air_double_attack_speed",
     name: "Double Attack Speed",
     description: "Double the attack speed of neighboring mages",
@@ -265,8 +255,8 @@ export const allSkills: Skill[] = [
 
     icon: "4",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "air_smart_burst_targeting",
     name: "Smart Burst Targeting",
     description:
@@ -276,8 +266,8 @@ export const allSkills: Skill[] = [
 
     icon: "6",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "air_bonus_1",
     name: "Air Power Upgrade",
     description: "[TBD - Air Power Upgrade]",
@@ -286,8 +276,8 @@ export const allSkills: Skill[] = [
 
     icon: "8",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "air_bonus_2",
     name: "Ultimate Air Ability",
     description: "[TBD - Ultimate Air Ability]",
@@ -296,10 +286,10 @@ export const allSkills: Skill[] = [
 
     icon: "9",
     category: "attack_modifier",
-  },
+  }),
 
   // Multi-element synergy skills (no duplicates!)
-  {
+  createSkill({
     id: "freezeburn",
     name: "Freezeburn",
     description: "Frozen enemies take double burn damage",
@@ -308,8 +298,8 @@ export const allSkills: Skill[] = [
 
     icon: "3",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "firewave",
     name: "Firewave",
     description: "Sends out a semi-circle of fire arrows",
@@ -318,8 +308,8 @@ export const allSkills: Skill[] = [
 
     icon: "5",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "disco_inferno",
     name: "Disco Inferno",
     description: "On death, burn spreads to nearby enemies",
@@ -328,9 +318,10 @@ export const allSkills: Skill[] = [
     icon: "7",
     category: "attack_modifier",
     statName: "Spread Radius",
-    statValue: "100px", // Multi-element skill example
-  },
-  {
+    baseValue: 100,
+    upgradeId: "disco_inferno_spread_radius_upgrade",
+  }),
+  createSkill({
     id: "blizzard",
     name: "Blizzard",
     description: "Ice circles appear on map that slow and damage enemies",
@@ -339,8 +330,8 @@ export const allSkills: Skill[] = [
 
     icon: "5",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "icy_wind",
     name: "Icy Wind",
     description: "Creates wind currents that slow all enemies on the map",
@@ -349,8 +340,8 @@ export const allSkills: Skill[] = [
 
     icon: "7",
     category: "attack_modifier",
-  },
-  {
+  }),
+  createSkill({
     id: "vortex",
     name: "Vortex",
     description: "Pulls enemies into tighter groups",
@@ -359,32 +350,15 @@ export const allSkills: Skill[] = [
 
     icon: "3",
     category: "attack_modifier",
-  },
+  }),
+  createSkill({
+    id: "vortex",
+    name: "Vortex",
+    description: "Pulls enemies into tighter groups",
+    cost: 50000,
+    unlockRequirements: { earth: 25, air: 25 },
+
+    icon: "3",
+    category: "attack_modifier",
+  }),
 ];
-
-// Helper functions for working with skills
-export const getSkillsForElement = (elementType: ElementType): Skill[] => {
-  return allSkills.filter(
-    (skill) => skill.unlockRequirements[elementType] !== undefined
-  );
-};
-
-export const getSkillById = (skillId: string): Skill | undefined => {
-  return allSkills.find((skill) => skill.id === skillId);
-};
-
-export const getAllSkills = (): Skill[] => {
-  return allSkills;
-};
-
-export const getSynergySkills = (): Skill[] => {
-  return allSkills.filter(
-    (skill) => Object.keys(skill.unlockRequirements).length > 1
-  );
-};
-
-export const getSingleElementSkills = (): Skill[] => {
-  return allSkills.filter(
-    (skill) => Object.keys(skill.unlockRequirements).length === 1
-  );
-};

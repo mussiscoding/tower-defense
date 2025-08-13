@@ -7,7 +7,8 @@ import type {
   SkillContext,
 } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { getSkillsForElement, getSkillById, allSkills } from "../data/skills";
+import { getSkillsForElement, getSkillById } from "./skills";
+import { allSkills } from "../data/allSkills";
 
 /**
  * Check if unlock requirements are met for a skill

@@ -3,7 +3,7 @@ import "./Mages.css";
 import type { ElementData, Defender } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { getXPForLevel } from "../data/elements";
-import { allSkills } from "../data/skills";
+import { allSkills } from "../data/allSkills";
 import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
 import { allUpgrades } from "../data/upgrades";

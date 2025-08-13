@@ -2,13 +2,8 @@ import type { Defender, Enemy, SkillContext } from "../../types/GameState";
 import { calculatePredictedEnemyPosition } from "../../utils/gameLogic/uiUtils";
 import { getActiveSkillsForElement } from "../../utils/skillUtils";
 import { createArrow } from "../../utils/gameLogic/arrow";
-import { allUpgrades } from "../upgrades";
-
-// Helper function to get upgrade amount for a specific upgrade
-const getUpgradeAmount = (upgradeId: string): number => {
-  const upgrade = allUpgrades.find((item) => item.id === upgradeId);
-  return upgrade?.upgradeAmount || 1; // fallback to 1 if not found
-};
+import { SKILL_BASE_VALUES } from "../allSkills";
+import { calculateSkillValue } from "../../utils/skills";
 
 // Air Burst onAttack handler - fires multiple arrows at once
 export const airBurstOnAttack = (
@@ -16,11 +11,12 @@ export const airBurstOnAttack = (
   target: Enemy,
   context: SkillContext
 ) => {
-  // Base burst values + upgrades
-  const baseBurstShots = 2; // Matches elements.ts base value
-  const shotUpgrades = context.purchases["air_burst_shots_upgrade"] || 0;
-  const shotUpgradeAmount = getUpgradeAmount("air_burst_shots_upgrade");
-  const burstShots = baseBurstShots + shotUpgrades * shotUpgradeAmount;
+  // Calculate burst shots using centralized skill value calculator
+  const burstShots = calculateSkillValue(
+    SKILL_BASE_VALUES.AIR_BURST_SHOTS,
+    "air_burst_shots_upgrade",
+    context.purchases
+  );
 
   const burstDelay = 50;
   const currentTime = Date.now();

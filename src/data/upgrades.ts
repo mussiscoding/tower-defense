@@ -55,6 +55,13 @@ export const allUpgrades: UpgradeShopItem[] = [
     prerequisiteSkill: "fire_burn",
     descriptionSuffix: " of tower damage",
   }),
+  createUpgrade({
+    id: "fire_percentage_damage_upgrade",
+    name: "Percentage Health Damage",
+    upgradeAmount: 5,
+    cost: 5000,
+    prerequisiteSkill: "fire_percentage_damage",
+  }),
   // Ice element ability upgrades
   createUpgrade({
     id: "ice_slow_effect_upgrade",

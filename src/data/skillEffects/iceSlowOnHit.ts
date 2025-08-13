@@ -1,11 +1,6 @@
 import type { Enemy, SkillContext } from "../../types/GameState";
-import { allUpgrades } from "../upgrades";
-
-// Helper function to get upgrade amount for a specific upgrade
-const getUpgradeAmount = (upgradeId: string): number => {
-  const upgrade = allUpgrades.find((item) => item.id === upgradeId);
-  return upgrade?.upgradeAmount || 1; // fallback to 1 if not found
-};
+import { SKILL_BASE_VALUES } from "../allSkills";
+import { calculateSkillValue } from "../../utils/skills";
 
 // Ice Slow onHit handler - applies slow effect to enemies
 export const iceSlowOnHit = (
@@ -13,11 +8,12 @@ export const iceSlowOnHit = (
   _damage: number,
   context: SkillContext
 ) => {
-  // Base slow effect percentage + upgrades
-  const baseSlowPercent = 5; // Matches elements.ts base value
-  const slowUpgrades = context.purchases["ice_slow_effect_upgrade"] || 0;
-  const slowUpgradeAmount = getUpgradeAmount("ice_slow_effect_upgrade");
-  const slowEffectPercent = baseSlowPercent + slowUpgrades * slowUpgradeAmount;
+  // Calculate slow effect percentage using centralized skill value calculator
+  const slowEffectPercent = calculateSkillValue(
+    SKILL_BASE_VALUES.ICE_SLOW_EFFECT,
+    "ice_slow_effect_upgrade",
+    context.purchases
+  );
 
   const slowDuration = 3000; // 3 seconds in milliseconds
   const currentTime = Date.now();
