@@ -1,5 +1,12 @@
-import type { Skill } from "../types/GameState";
-import { createSkill } from "../utils/skills";
+import type {
+  Skill,
+  Enemy,
+  Defender,
+  SkillContext,
+  SkillCategory,
+} from "../types/GameState";
+
+import { calculateSkillValue } from "../utils/skills";
 import {
   fireBurnOnHit,
   iceSlowOnHit,
@@ -362,3 +369,62 @@ export const allSkills: Skill[] = [
     category: "attack_modifier",
   }),
 ];
+
+// Helper function to create skills with dynamic stats and centralized base values
+function createSkill(config: {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  unlockRequirements: Record<string, number>;
+  icon: string;
+  category: SkillCategory;
+  statName?: string;
+  baseValue?: number;
+  upgradeId?: string;
+  unit?: string;
+  maxValue?: number;
+  priority?: number;
+  cooldown?: number;
+  onHit?: (enemy: Enemy, damage: number, context: SkillContext) => void;
+  onAttack?: (defender: Defender, target: Enemy, context: SkillContext) => void;
+}): Skill {
+  const skill: Skill = {
+    id: config.id,
+    name: config.name,
+    description: config.description,
+    cost: config.cost,
+    unlockRequirements: config.unlockRequirements,
+    icon: config.icon,
+    category: config.category,
+  };
+
+  // Add optional fields
+  if (config.priority !== undefined) skill.priority = config.priority;
+  if (config.cooldown !== undefined) skill.cooldown = config.cooldown;
+  if (config.onHit) skill.onHit = config.onHit;
+  if (config.onAttack) skill.onAttack = config.onAttack;
+
+  // Add dynamic stat calculation if base value is provided
+  if (config.statName && config.baseValue !== undefined) {
+    skill.statName = config.statName;
+
+    if (config.upgradeId) {
+      // Dynamic stat value with upgrades
+      skill.statValue = (purchases: Record<string, number>) => {
+        const finalValue = calculateSkillValue(
+          config.baseValue!,
+          config.upgradeId!,
+          purchases,
+          config.maxValue
+        );
+        return `${finalValue}${config.unit || "%"}`;
+      };
+    } else {
+      // Static stat value
+      skill.statValue = `${config.baseValue}${config.unit || "%"}`;
+    }
+  }
+
+  return skill;
+}
