@@ -221,12 +221,7 @@ export const updateDefenders = (
 
         // Set cooldown for this skill
         if (activeSkill.cooldown) {
-          setSkillCooldown(
-            defender,
-            activeSkill.id,
-            activeSkill.cooldown,
-            currentTime
-          );
+          setSkillCooldown(defender, activeSkill.id, purchases, currentTime);
         }
       }
     } else {

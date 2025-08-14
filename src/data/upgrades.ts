@@ -62,6 +62,16 @@ export const allUpgrades: UpgradeShopItem[] = [
     cost: 5000,
     prerequisiteSkill: "fire_percentage_damage",
   }),
+  createUpgrade({
+    id: "fire_lightning_bolt_cooldown_upgrade",
+    name: "Lightning Bolt Cooldown",
+    upgradeAmount: 1000, // 1 second reduction
+    cost: 50000,
+    prerequisiteSkill: "fire_lightning_bolt",
+
+    unit: "s",
+    descriptionSuffix: " cooldown reduction",
+  }),
   // Ice element ability upgrades
   createUpgrade({
     id: "ice_slow_effect_upgrade",
@@ -105,6 +115,7 @@ export const allUpgrades: UpgradeShopItem[] = [
     upgradeAmount: 1,
     cost: 10000,
     prerequisiteSkill: "air_burst",
+
     unit: "s",
     descriptionSuffix: " cooldown reduction",
   }),

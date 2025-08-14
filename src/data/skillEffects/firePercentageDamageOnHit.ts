@@ -7,32 +7,37 @@ export const firePercentageDamageOnHit = (
   damage: number,
   context: SkillContext
 ) => {
-  // Only apply percentage damage to enemies that are NOT currently burning
+  // Only apply percentage damage to enemies that were NOT burning before this hit
+  // If enemy has burn that expires in exactly 2000ms from now, it was just applied by the burn skill
   const currentTime = Date.now();
-  const isBurning = !!(
-    enemy.burnDamage &&
-    enemy.burnEndTime &&
-    currentTime < enemy.burnEndTime
+  const wasJustBurned = !!(
+    (
+      enemy.burnDamage &&
+      enemy.burnEndTime &&
+      Math.abs(enemy.burnEndTime - (currentTime + 2000)) < 50
+    ) // Within 50ms of exactly 2s from now
   );
 
-  // Skip percentage damage if enemy is already burning
-  if (isBurning) {
+  // If enemy wasn't burning before OR was just burned by this same attack, apply percentage damage
+  const wasBurningBefore = !!(
+    enemy.burnDamage &&
+    enemy.burnEndTime &&
+    !wasJustBurned
+  );
+
+  if (wasBurningBefore) {
     return;
   }
 
-  // Calculate percentage damage using centralized skill value calculator
   const totalPercent = calculateSkillValue(
     SKILL_BASE_VALUES.FIRE_PERCENTAGE_DAMAGE,
     "fire_percentage_damage_upgrade",
     context.purchases
   );
 
-  // Calculate percentage damage (% of enemy's health BEFORE the normal damage was applied)
-  // Since onHit is called AFTER normal damage, we need to add the damage back to get original health
   const originalHealth = enemy.health + damage;
   const percentageDamage = Math.floor(originalHealth * (totalPercent / 100));
 
-  // Apply additional percentage damage (beyond the normal damage that was already applied)
   const additionalDamage = Math.max(0, percentageDamage - damage);
   if (additionalDamage > 0) {
     enemy.health = Math.max(0, enemy.health - additionalDamage);

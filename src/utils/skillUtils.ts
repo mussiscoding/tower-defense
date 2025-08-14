@@ -7,7 +7,11 @@ import type {
   SkillContext,
 } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { getSkillsForElement, getSkillById } from "./skills";
+import {
+  getSkillsForElement,
+  getSkillById,
+  calculateCooldownValue,
+} from "./skills";
 import { allSkills } from "../data/allSkills";
 
 /**
@@ -259,23 +263,43 @@ export const isSkillOffCooldown = (
 };
 
 /**
+ * Calculate the actual cooldown for a skill based on upgrades
+ */
+const calculateActualCooldown = (
+  skillId: string,
+  purchases: Record<string, number>
+): number => {
+  const skill = getSkillById(skillId);
+  if (!skill?.cooldown) return 0;
+
+  // If skill has a cooldown upgrade, calculate the reduced cooldown
+  if (skill.cooldownUpgradeId) {
+    return calculateCooldownValue(
+      skill.cooldown,
+      skill.cooldownUpgradeId,
+      purchases
+    );
+  }
+
+  return skill.cooldown;
+};
+
+/**
  * Set a skill on cooldown for a defender
  */
 export const setSkillCooldown = (
   defender: Defender,
   skillId: string,
-  cooldownMs: number,
+  purchases: Record<string, number>,
   currentTime: number
 ): void => {
   if (!defender.skillCooldowns) {
     defender.skillCooldowns = {};
   }
-  defender.skillCooldowns[skillId] = currentTime + cooldownMs;
+  const actualCooldown = calculateActualCooldown(skillId, purchases);
+  defender.skillCooldowns[skillId] = currentTime + actualCooldown;
 };
 
-/**
- * Get the best active skill for a defender to cast (highest priority that's available)
- */
 export const getBestActiveSkill = (
   defender: Defender,
   purchases: Record<string, number>,

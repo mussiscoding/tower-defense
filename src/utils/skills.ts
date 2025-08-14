@@ -27,6 +27,18 @@ export const calculateSkillValue = (
   return maxValue ? Math.min(maxValue, totalValue) : totalValue;
 };
 
+export const calculateCooldownValue = (
+  baseValue: number,
+  cooldownUpgradeId: string,
+  purchases: Record<string, number>,
+  minNumber?: number
+): number => {
+  const upgrades = purchases[cooldownUpgradeId] || 0;
+  const upgradeAmount = getUpgradeAmount(cooldownUpgradeId);
+  const totalValue = baseValue - upgrades * upgradeAmount;
+  return minNumber ? Math.max(minNumber, totalValue) : totalValue;
+};
+
 // Helper functions for working with skills
 export const getSkillsForElement = (elementType: ElementType): Skill[] => {
   return allSkills.filter(

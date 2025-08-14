@@ -13,12 +13,14 @@ import {
   earthSplashOnHit,
   airBurstOnAttack,
   firePercentageDamageOnHit,
+  fireLightningBoltOnAttack,
 } from "./skillEffects";
 
 // Centralized skill base values - single source of truth
 export const SKILL_BASE_VALUES = {
   FIRE_BURN_DAMAGE: 20,
   FIRE_PERCENTAGE_DAMAGE: 5,
+  FIRE_LIGHTNING_BOLT_COOLDOWN: 30000, // 30 seconds
   ICE_SLOW_EFFECT: 5,
   EARTH_SPLASH_DAMAGE: 20,
   EARTH_SPLASH_MAX: 100,
@@ -79,6 +81,7 @@ export const allSkills: Skill[] = [
     category: "active",
     priority: 1,
     cooldown: SKILL_BASE_VALUES.AIR_BURST_COOLDOWN,
+    cooldownUpgradeId: "air_burst_cooldown_upgrade",
     statName: "Burst Shots",
     baseValue: SKILL_BASE_VALUES.AIR_BURST_SHOTS,
     upgradeId: "air_burst_shots_upgrade",
@@ -89,9 +92,9 @@ export const allSkills: Skill[] = [
   createSkill({
     id: "fire_percentage_damage",
     name: "Percentage Health Damage",
-    description: "Fire arrows do % enemy health damage on hit",
+    description: "Fire arrows do % health damage to non-burning enemies",
     cost: 30000,
-    unlockRequirements: { fire: 15 },
+    unlockRequirements: { fire: 25 },
     icon: "2",
     category: "attack_modifier",
     statName: "% Health Damage",
@@ -111,12 +114,16 @@ export const allSkills: Skill[] = [
   createSkill({
     id: "fire_lightning_bolt",
     name: "Lightning Bolt",
-    description: "Lightning bolt kills the highest HP enemy on the map",
-    cost: 250000,
-    unlockRequirements: { fire: 55 },
-
+    description:
+      "Lightning bolt instantly kills the highest HP enemy on the map",
+    cost: 25,
+    unlockRequirements: { fire: 5 },
     icon: "6",
-    category: "attack_modifier",
+    category: "active",
+    priority: 2,
+    cooldown: SKILL_BASE_VALUES.FIRE_LIGHTNING_BOLT_COOLDOWN,
+    cooldownUpgradeId: "fire_lightning_bolt_cooldown_upgrade",
+    onAttack: fireLightningBoltOnAttack,
   }),
   createSkill({
     id: "fire_bonus_1",
@@ -386,6 +393,7 @@ function createSkill(config: {
   maxValue?: number;
   priority?: number;
   cooldown?: number;
+  cooldownUpgradeId?: string; // For cooldown upgrades
   onHit?: (enemy: Enemy, damage: number, context: SkillContext) => void;
   onAttack?: (defender: Defender, target: Enemy, context: SkillContext) => void;
 }): Skill {
@@ -401,9 +409,16 @@ function createSkill(config: {
 
   // Add optional fields
   if (config.priority !== undefined) skill.priority = config.priority;
-  if (config.cooldown !== undefined) skill.cooldown = config.cooldown;
   if (config.onHit) skill.onHit = config.onHit;
   if (config.onAttack) skill.onAttack = config.onAttack;
+
+  // Add static cooldown - dynamic calculation happens in defender logic
+  if (config.cooldown !== undefined) {
+    skill.cooldown = config.cooldown;
+  }
+  if (config.cooldownUpgradeId) {
+    skill.cooldownUpgradeId = config.cooldownUpgradeId;
+  }
 
   // Add dynamic stat calculation if base value is provided
   if (config.statName && config.baseValue !== undefined) {

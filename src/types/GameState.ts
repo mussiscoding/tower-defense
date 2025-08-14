@@ -26,7 +26,6 @@ export interface Defender {
   lastAttack: number;
   level: number;
   cost: number;
-  burstCooldownEnd?: number; // When burst cooldown ends
   currentAnimationFrame?: number; // Current animation frame (1-7)
   skillCooldowns?: Record<string, number>; // skill_id -> end_time mapping for active cooldowns
 }
@@ -189,6 +188,7 @@ export interface Skill {
   category: SkillCategory;
   priority?: number; // For actives - higher priority casts first
   cooldown?: number; // For actives and spells - milliseconds
+  cooldownUpgradeId?: string; // ID of upgrade that reduces this skill's cooldown
 
   // UI display properties - for showing skill stats in Mages component
   statName?: string; // e.g. "Burn Damage", "Slow Effect", "Splash Radius"
