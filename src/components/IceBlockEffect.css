@@ -1,0 +1,13 @@
+.ice-block-effect {
+  position: absolute;
+  pointer-events: none; /* Don't interfere with clicking */
+  z-index: 10; /* Show above enemy but below UI */
+  transform: translate(-50%, -50%); /* Center on enemy */
+}
+
+.ice-block-image {
+  width: 40px; /* Adjust size to fit enemy */
+  height: 40px;
+  opacity: 0.5; /* 50% opacity as requested */
+  transition: opacity 0.2s ease-in-out;
+}

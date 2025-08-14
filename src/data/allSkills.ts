@@ -10,6 +10,7 @@ import { calculateSkillValue } from "../utils/skills";
 import {
   fireBurnOnHit,
   iceSlowOnHit,
+  icePermafrostOnHit,
   earthSplashOnHit,
   airBurstOnAttack,
   firePercentageDamageOnHit,
@@ -150,11 +151,11 @@ export const allSkills: Skill[] = [
     id: "ice_permafrost",
     name: "Permafrost",
     description: "On first hit from ice tower, freeze enemy for 1s",
-    cost: 30000,
-    unlockRequirements: { ice: 15 },
-
+    cost: 300,
+    unlockRequirements: { ice: 5 },
     icon: "2",
     category: "attack_modifier",
+    onHit: icePermafrostOnHit,
   }),
   createSkill({
     id: "ice_damage_upgrade",

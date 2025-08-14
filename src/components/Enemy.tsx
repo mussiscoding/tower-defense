@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { Enemy as EnemyType } from "../types/GameState";
 import BurnDamageNumber from "./BurnDamageNumber";
 import FireParticles from "./FireParticles";
+import IceBlockEffect from "./IceBlockEffect";
 import EnemySprite from "./EnemySprite";
 import "./Enemy.css";
 
@@ -55,6 +56,13 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
     Date.now() < enemy.slowEndTime
   );
 
+  // Check if enemy is completely frozen (permafrost effect = 100% slow)
+  const isFrozen = !!(
+    enemy.slowEffect === 100 &&
+    enemy.slowEndTime &&
+    Date.now() < enemy.slowEndTime
+  );
+
   return (
     <>
       <div
@@ -91,6 +99,9 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
           )
         }
       />
+
+      {/* Ice block effect for frozen enemies */}
+      <IceBlockEffect x={enemy.x + 9} y={enemy.y + 31} isFrozen={isFrozen} />
 
       {/* Burn damage numbers */}
       {burnDamageNumbers.map((damageNumber) => (

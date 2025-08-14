@@ -57,15 +57,15 @@ Skills are permanent, game-changing abilities that unlock at specific element le
 
 **Damage Abilities:**
 
-- [ ] Fire: Percentage Health Damage (Level 15)
+- [x] Fire: Percentage Health Damage (Level 15)
 - [ ] Ice: [TBD Ice Damage] (Level 35)
 - [ ] Earth: Smart Targeting (Level 15)
 - [ ] Air: Critical Hit Chance (Level 15)
 
 **Utility Abilities:**
 
-- [ ] Fire: Lightning Bolt - instant kill highest HP (Level 55)
-- [ ] Ice: Permafrost - freeze on first hit (Level 15)
+- [x] Fire: Lightning Bolt - instant kill highest HP (Level 55)
+- [x] Ice: Permafrost - freeze on first hit (Level 15)
 - [ ] Earth: Earthquake - map-wide damage (Level 55)
 - [ ] Air: Smart Burst Targeting (Level 55)
 

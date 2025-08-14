@@ -108,6 +108,41 @@ React state batching issue in the game loop. The defender's `lastAttack` is not 
 
 ## ⚠️ Priority 2 (Medium)
 
+### Lightning Bolt Hitting Multiple Enemies
+
+**Description**
+
+The Lightning Bolt skill appears to be hitting multiple enemies simultaneously, even though it should only target the highest HP enemy. Visual observation shows a second enemy (often nearby) also being killed at the same time as the primary target.
+
+**Symptoms**
+
+- Lightning Bolt visually affects multiple enemies at once
+- Secondary enemy is usually close to the primary target
+- Logs only show one enemy ID being targeted (suggesting the targeting logic is correct)
+- Multiple enemies appear to die simultaneously when Lightning Bolt fires
+
+**Root Cause**
+
+Unknown - the targeting logic in `fireLightningBoltOnAttack.ts` correctly identifies and targets only the highest HP enemy. The issue may be:
+
+- Multiple enemies with the same id
+- Splash damage or other effects incorrectly triggering
+- Visual rendering issue making it appear multiple enemies are hit
+- Race condition with other skills/effects
+- Unintended side effects from the instant-kill logic
+
+**Investigation Needed**
+
+- Check if other skills (splash, burn, etc.) are triggering simultaneously
+- Verify that only the targeted enemy's health is being set to 0
+- Review enemy update/render cycle for timing issues
+
+**Workaround**
+
+None currently - skill appears to function correctly in logs but visually shows unexpected behavior.
+
+---
+
 ### Upgrade Shop Purchases State Bug
 
 **Description**
@@ -238,6 +273,53 @@ The visual splash effect uses the same radius as the actual splash damage calcul
 - **Priority**: Low
 - **Impact**: Visual polish and player expectations
 - **Workaround**: Visual radius scaled to 1/3 of actual radius
+
+---
+
+### Enemy Overlay Positioning Inconsistency
+
+**Description**
+
+Different visual effects (ice blocks, fire particles, burn effects) require different manual positioning offsets to appear correctly centered on enemies. The `enemy.x + 0, enemy.y + 0` coordinates are far off from the visual center of the enemy sprite.
+
+**Symptoms**
+
+- Ice block effect needs `enemy.x + 9, enemy.y + 31` to appear centered
+- Fire particles and other effects need different offset values
+- `enemy.x + 0, enemy.y + 0` appears at top-left corner instead of center
+- Each new overlay effect requires manual trial-and-error positioning
+- Inconsistent positioning system across different visual components
+
+**Root Cause**
+
+Multiple positioning issues combined:
+
+1. **Different transform origins** - Some effects use `transform: translate(-50%, -50%)` while others don't
+2. **Inconsistent coordinate systems** - `enemy.x, enemy.y` represents top-left corner, not sprite center
+3. **Nested element structure** - Enemy has health bar, sprite container, and text that affect visual center
+4. **Incremental development** - Each effect was added separately with its own positioning workarounds
+
+**Technical Details**
+
+- Enemy base position uses top-left corner coordinates
+- IceBlockEffect uses `transform: translate(-50%, -50%)` for centering
+- FireParticles and other effects may position from top-left without centering
+- CSS z-index and positioning context varies between effects
+- Each overlay component has its own positioning logic
+
+**Potential Solutions**
+
+1. **Standardize enemy positioning** - Make `enemy.x, enemy.y` represent the center of the sprite
+2. **Create consistent overlay system** - All effects use the same positioning logic and transform origins
+3. **Add helper functions** - `getEnemyCenter(enemy)` or `getEnemySpritePosition(enemy)` for consistent positioning
+4. **Refactor overlay components** - Standardize how all visual effects handle positioning and centering
+
+**Status**
+
+- **Status**: Known issue, workarounds implemented
+- **Priority**: Low
+- **Impact**: Development efficiency and code maintainability
+- **Workaround**: Manual offset adjustments for each effect (ice: +9, +31, etc.)
 
 ---
 
