@@ -13,6 +13,7 @@ import {
   icePermafrostOnHit,
   earthSplashOnHit,
   airBurstOnAttack,
+  airCriticalHitOnHit,
   firePercentageDamageOnHit,
   fireLightningBoltOnAttack,
 } from "./skillEffects";
@@ -28,7 +29,8 @@ export const SKILL_BASE_VALUES = {
   EARTH_SPLASH_RADIUS: 50,
   AIR_BURST_SHOTS: 2,
   AIR_BURST_COOLDOWN: 8000,
-  AIR_CRITICAL_HIT_CHANCE: 5,
+  AIR_CRITICAL_HIT_MULTIPLIER: 2,
+  AIR_CRITICAL_HIT_CHANCE: 10, // 5% base critical hit chance
 } as const;
 
 export const allSkills: Skill[] = [
@@ -151,8 +153,8 @@ export const allSkills: Skill[] = [
     id: "ice_permafrost",
     name: "Permafrost",
     description: "On first hit from ice tower, freeze enemy for 1s",
-    cost: 300,
-    unlockRequirements: { ice: 5 },
+    cost: 30000,
+    unlockRequirements: { ice: 15 },
     icon: "2",
     category: "attack_modifier",
     onHit: icePermafrostOnHit,
@@ -260,6 +262,7 @@ export const allSkills: Skill[] = [
     statName: "Crit Chance",
     baseValue: SKILL_BASE_VALUES.AIR_CRITICAL_HIT_CHANCE,
     upgradeId: "air_critical_hit_chance_upgrade",
+    onHit: airCriticalHitOnHit,
   }),
   createSkill({
     id: "air_double_attack_speed",

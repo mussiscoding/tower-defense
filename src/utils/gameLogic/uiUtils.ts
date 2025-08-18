@@ -83,7 +83,8 @@ export const createDamageNumber = (
   x: number,
   y: number,
   elementType: ElementType,
-  currentTime: number
+  currentTime: number,
+  isCritical: boolean = false
 ): DamageNumber => {
   return {
     id: generateDamageNumberId(),
@@ -92,6 +93,7 @@ export const createDamageNumber = (
     y,
     elementType,
     startTime: currentTime,
+    isCritical,
   };
 };
 

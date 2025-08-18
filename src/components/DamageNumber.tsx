@@ -9,6 +9,7 @@ interface DamageNumberProps {
   y: number;
   elementType: ElementType;
   onComplete: () => void;
+  isCritical?: boolean;
 }
 
 const DamageNumber: React.FC<DamageNumberProps> = ({
@@ -17,6 +18,7 @@ const DamageNumber: React.FC<DamageNumberProps> = ({
   y,
   elementType,
   onComplete,
+  isCritical = false,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -33,7 +35,7 @@ const DamageNumber: React.FC<DamageNumberProps> = ({
 
   return (
     <div
-      className="damage-number"
+      className={`damage-number ${isCritical ? "critical-hit" : ""}`}
       style={{
         left: `${x}px`,
         top: `${y}px`,

@@ -398,6 +398,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             x={damageNumber.x}
             y={damageNumber.y}
             elementType={damageNumber.elementType}
+            isCritical={damageNumber.isCritical}
             onComplete={() => {
               setGameState((prev) => ({
                 ...prev,

@@ -5,3 +5,4 @@ export * from "./iceSlowOnHit";
 export * from "./icePermafrostOnHit";
 export * from "./earthSplashOnHit";
 export * from "./airBurstOnAttack";
+export * from "./airCriticalHitOnHit";

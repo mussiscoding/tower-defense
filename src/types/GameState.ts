@@ -92,6 +92,7 @@ export interface DamageNumber {
   y: number;
   elementType: ElementType;
   startTime: number;
+  isCritical?: boolean;
 }
 
 export interface GameState {
@@ -147,6 +148,13 @@ export interface SplashEffect {
   duration: number; // milliseconds
 }
 
+export interface BonusDamage {
+  amount: number;
+  x: number;
+  y: number;
+  elementType: ElementType;
+}
+
 export interface ShopItem {
   id: string;
   name: string;
@@ -176,6 +184,7 @@ export interface SkillContext {
   arrows: Arrow[]; // For skills that create arrows
   elements: Record<ElementType, ElementData>;
   splashEffects: SplashEffect[]; // For skills that create splash effects
+  bonusDamage: BonusDamage[];
 }
 
 export interface Skill {

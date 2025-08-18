@@ -46,61 +46,50 @@ Skills are permanent, game-changing abilities that unlock at specific element le
 
 **Integration**: Skills row sits above existing shop content, maintaining current shop functionality below.
 
-### ⚔️ **Core Abilities Implementation**
+### ⚔️ **Core Abilities Implementation (Ordered by Level)**
 
-**Basic Abilities**
+**Level 5 - Basic Abilities (Free Skills):**
 
-- [x] Fire: Burn (Level 5) - Free skill implemented
-- [x] Ice: Slow enemies (Level 5) - Free skill implemented
-- [x] Earth: Splash (Level 5) - Free skill implemented
-- [x] Air: Burst (Level 5) - Free skill implemented
+- [x] Fire: Burn - Free skill implemented
+- [x] Ice: Slow enemies - Free skill implemented
+- [x] Earth: Splash - Free skill implemented
+- [x] Air: Burst - Free skill implemented
 
-**Damage Abilities:**
+**Level 15 - Early Game Abilities:**
 
-- [x] Fire: Percentage Health Damage (Level 15)
-- [ ] Ice: [TBD Ice Damage] (Level 35)
-- [ ] Earth: Smart Targeting (Level 15)
-- [ ] Air: Critical Hit Chance (Level 15)
+- [x] Fire: Percentage Health Damage
+- [x] Ice: Permafrost - freeze on first hit
+- [ ] Earth: Smart Targeting
+- [x] Air: Critical Hit Chance
 
-**Utility Abilities:**
+**Level 25 - Mid-Game Abilities:**
 
-- [x] Fire: Lightning Bolt - instant kill highest HP (Level 55)
-- [x] Ice: Permafrost - freeze on first hit (Level 15)
-- [ ] Earth: Earthquake - map-wide damage (Level 55)
-- [ ] Air: Smart Burst Targeting (Level 55)
+- [ ] Fire + Ice: Freezeburn - frozen enemies take double burn damage
+- [ ] Earth + Air: Vortex - pulling enemies into tighter groups
 
-**Support Abilities:**
+**Level 35 - Mid-Game Abilities:**
 
-- [ ] Fire: Burn Stacking (Level 35)
-- [ ] Ice: Critical Vulnerability - crits on slowed enemies (Level 55)
-- [ ] Earth: Stone Skin - castle defense (Level 35)
-- [ ] Air: Double Attack Speed for neighbors (Level 35)
+- [ ] Fire: Burn Stacking
+- [ ] Ice: [TBD Ice Damage]
+- [ ] Earth: Stone Skin - castle defense
+- [ ] Air: Double Attack Speed for neighbors
 
-### 🔗 **Synergy Abilities Implementation**
+**Level 45 - Late Game Abilities:**
 
-**Fire + Ice: Freezeburn (Fire L25, Ice L25):**
+- [ ] Fire + Air: Firewave - semi-circle of fire arrows
+- [ ] Ice + Earth: Ice Spikes - ice circles on map that slow + damage
 
-- [ ] Implement frozen enemies take double burn damage
+**Level 55 - Late Game Abilities:**
 
-**Fire + Earth: Disco Inferno (Fire L65, Earth L55):**
+- [x] Fire: Lightning Bolt - instant kill highest HP
+- [ ] Earth: Earthquake - map-wide damage
+- [ ] Air: Smart Burst Targeting
+- [ ] Ice: Critical Vulnerability - crits on slowed enemies
 
-- [ ] Implement burn spreads to nearby enemies on death
+**Level 65 - End Game Abilities:**
 
-**Fire + Air: Firewave (Fire L45, Air L45):**
-
-- [ ] Implement semi-circle of fire arrows
-
-**Ice + Earth: Ice Spikes (Ice L45, Earth L45):**
-
-- [ ] Implement ice circles on map that slow + damage
-
-**Ice + Air: Icy Wind (Ice L65, Air L65):**
-
-- [ ] Implement map-wide wind currents that slow all enemies
-
-**Earth + Air: Vortex (Earth L25, Air L25):**
-
-- [ ] Implement pulling enemies into tighter groups
+- [ ] Fire + Earth: Disco Inferno - burn spreads to nearby enemies on death
+- [ ] Ice + Air: Icy Wind - map-wide wind currents that slow all enemies
 
 ### 🎁 **Bonus Abilities (Design + Implement)**
 

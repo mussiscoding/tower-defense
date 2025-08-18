@@ -152,18 +152,6 @@ export const processArrowImpacts = (
           damage
         );
 
-        // Create damage number if damage > 1
-        if (damage > 1) {
-          const damageNumber = createDamageNumber(
-            damage,
-            targetEnemy.x + 20, // Center of enemy
-            targetEnemy.y - 10, // Above enemy
-            arrow.elementType,
-            currentTime
-          );
-          newDamageNumbers.push(damageNumber);
-        }
-
         // Grant XP to elements based on damage dealt (1 damage = 1 XP)
         if (element) {
           element.xp += damage;
@@ -201,7 +189,8 @@ export const processArrowImpacts = (
             elements: updatedElements,
             enemies: updatedEnemies,
             arrows: activeArrows,
-            splashEffects: [], // Will be populated by skills and added to newSplashEffects
+            splashEffects: [],
+            bonusDamage: [],
           };
 
           // Execute all onHit effects
@@ -213,6 +202,45 @@ export const processArrowImpacts = (
 
           // Collect splash effects created by skills
           newSplashEffects.push(...skillContext.splashEffects);
+
+          // Create damage numbers for bonus damage from skills
+          skillContext.bonusDamage.forEach((bonus) => {
+            const bonusDamageNumber = createDamageNumber(
+              bonus.amount,
+              bonus.x,
+              bonus.y,
+              bonus.elementType,
+              currentTime,
+              true
+            );
+            newDamageNumbers.push(bonusDamageNumber);
+          });
+
+          // Create damage number for base damage (only if no bonus damage)
+          if (damage > 1 && !skillContext.bonusDamage.length) {
+            const damageNumber = createDamageNumber(
+              damage,
+              targetEnemy.x + 20, // Center of enemy
+              targetEnemy.y - 10, // Above enemy
+              arrow.elementType,
+              currentTime,
+              false
+            );
+            newDamageNumbers.push(damageNumber);
+          }
+        } else {
+          // No onHit effects, create base damage number
+          if (damage > 1) {
+            const damageNumber = createDamageNumber(
+              damage,
+              targetEnemy.x + 20, // Center of enemy
+              targetEnemy.y - 10, // Above enemy
+              arrow.elementType,
+              currentTime,
+              false
+            );
+            newDamageNumbers.push(damageNumber);
+          }
         }
 
         updatedEnemies = updatedEnemies.map((enemy) =>
