@@ -25,8 +25,8 @@ const DamageNumber: React.FC<DamageNumberProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onComplete, 300); // Wait for fade out animation
-    }, 1000);
+      setTimeout(onComplete, 200);
+    }, 700);
 
     return () => clearTimeout(timer);
   }, [onComplete]);

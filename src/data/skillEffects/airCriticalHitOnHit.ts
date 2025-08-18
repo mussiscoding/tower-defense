@@ -8,33 +8,28 @@ export const airCriticalHitOnHit = (
   context: SkillContext
 ) => {
   // Calculate critical hit chance using centralized skill value calculator
-  const criticalHitChance = calculateSkillValue(
-    SKILL_BASE_VALUES.AIR_CRITICAL_HIT_CHANCE,
-    "air_critical_hit_chance_upgrade",
-    context.purchases
-  );
+  const criticalHitChance = SKILL_BASE_VALUES.AIR_CRITICAL_HIT_CHANCE;
 
   // Check if this hit is a critical hit
   const randomValue = Math.random() * 100;
   if (randomValue <= criticalHitChance) {
-    // Critical hit! Apply damage multiplier
-    // Starting at 1.5x, increasing by 0.5x per upgrade
-    const baseMultiplier = SKILL_BASE_VALUES.AIR_CRITICAL_HIT_MULTIPLIER;
-    const upgradeCount =
-      context.purchases["air_critical_hit_chance_upgrade"] || 0;
-    const damageMultiplier = baseMultiplier + upgradeCount * 0.5;
+    const damageMultiplier = calculateSkillValue(
+      SKILL_BASE_VALUES.AIR_CRITICAL_HIT_MULTIPLIER,
+      "air_critical_hit_damage_upgrade",
+      context.purchases
+    );
 
     const criticalDamage = Math.floor(damage * damageMultiplier);
+    console.log("criticalDamage", criticalDamage);
     const additionalDamage = criticalDamage - damage;
 
     if (additionalDamage > 0) {
       enemy.health = Math.max(0, enemy.health - additionalDamage);
 
-      // Add total critical damage to the skill context for visual effects
       context.bonusDamage.push({
-        amount: criticalDamage, // Total damage (base + bonus), not just bonus
-        x: enemy.x + 20, // Center of enemy
-        y: enemy.y - 10, // Above enemy
+        amount: criticalDamage,
+        x: enemy.x + 20,
+        y: enemy.y - 10,
         elementType: "air",
       });
     }

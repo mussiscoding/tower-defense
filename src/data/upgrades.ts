@@ -25,7 +25,7 @@ const createUpgrade = (config: {
   id: config.id,
   name: config.name,
   description: `Increase ${config.name.toLowerCase()} +${config.upgradeAmount}${
-    config.unit || "%"
+    config.unit || ""
   }${config.descriptionSuffix || ""}`,
   shortName: `+${config.upgradeAmount}${config.unit || "%"}`,
   cost: config.cost,
@@ -54,6 +54,7 @@ export const allUpgrades: UpgradeShopItem[] = [
     cost: 1000,
     prerequisiteSkill: "fire_burn",
     descriptionSuffix: " of tower damage",
+    unit: "%",
   }),
   createUpgrade({
     id: "fire_percentage_damage_upgrade",
@@ -61,6 +62,7 @@ export const allUpgrades: UpgradeShopItem[] = [
     upgradeAmount: 5,
     cost: 5000,
     prerequisiteSkill: "fire_percentage_damage",
+    unit: "%",
   }),
   createUpgrade({
     id: "fire_lightning_bolt_cooldown_upgrade",
@@ -79,6 +81,7 @@ export const allUpgrades: UpgradeShopItem[] = [
     upgradeAmount: 1,
     cost: 1000,
     prerequisiteSkill: "ice_slow",
+    unit: "%",
   }),
   // Earth element ability upgrades
   createUpgrade({
@@ -87,6 +90,7 @@ export const allUpgrades: UpgradeShopItem[] = [
     upgradeAmount: 5,
     cost: 1000,
     prerequisiteSkill: "earth_splash",
+    unit: "%",
   }),
 
   createUpgrade({
@@ -115,8 +119,16 @@ export const allUpgrades: UpgradeShopItem[] = [
     upgradeAmount: 1,
     cost: 10000,
     prerequisiteSkill: "air_burst",
-
     unit: "s",
     descriptionSuffix: " cooldown reduction",
+  }),
+  createUpgrade({
+    id: "air_critical_hit_damage_upgrade",
+    name: "Critical Hit Damage",
+    upgradeAmount: 0.5,
+    cost: 10000,
+    prerequisiteSkill: "air_critical_hit",
+    unit: "x",
+    descriptionSuffix: " critical hit damage",
   }),
 ];

@@ -45,6 +45,7 @@ export const allSkills: Skill[] = [
     statName: "Burn Damage",
     baseValue: SKILL_BASE_VALUES.FIRE_BURN_DAMAGE,
     upgradeId: "fire_burn_damage_upgrade",
+    unit: "%",
     onHit: fireBurnOnHit,
   }),
   createSkill({
@@ -97,12 +98,13 @@ export const allSkills: Skill[] = [
     name: "Percentage Health Damage",
     description: "Fire arrows do % health damage to non-burning enemies",
     cost: 30000,
-    unlockRequirements: { fire: 25 },
+    unlockRequirements: { fire: 15 },
     icon: "2",
     category: "attack_modifier",
     statName: "% Health Damage",
     baseValue: SKILL_BASE_VALUES.FIRE_PERCENTAGE_DAMAGE,
     upgradeId: "fire_percentage_damage_upgrade",
+    unit: "%",
     onHit: firePercentageDamageOnHit,
   }),
   createSkill({
@@ -119,8 +121,8 @@ export const allSkills: Skill[] = [
     name: "Lightning Bolt",
     description:
       "Lightning bolt instantly kills the highest HP enemy on the map",
-    cost: 25,
-    unlockRequirements: { fire: 5 },
+    cost: 250000,
+    unlockRequirements: { fire: 55 },
     icon: "6",
     category: "active",
     priority: 2,
@@ -259,9 +261,10 @@ export const allSkills: Skill[] = [
     unlockRequirements: { air: 15 },
     icon: "2",
     category: "attack_modifier",
-    statName: "Crit Chance",
-    baseValue: SKILL_BASE_VALUES.AIR_CRITICAL_HIT_CHANCE,
-    upgradeId: "air_critical_hit_chance_upgrade",
+    statName: "Crit Damage",
+    baseValue: SKILL_BASE_VALUES.AIR_CRITICAL_HIT_MULTIPLIER,
+    upgradeId: "air_critical_hit_damage_upgrade",
+    unit: "x",
     onHit: airCriticalHitOnHit,
   }),
   createSkill({
@@ -357,16 +360,6 @@ export const allSkills: Skill[] = [
     unlockRequirements: { ice: 65, air: 65 },
 
     icon: "7",
-    category: "attack_modifier",
-  }),
-  createSkill({
-    id: "vortex",
-    name: "Vortex",
-    description: "Pulls enemies into tighter groups",
-    cost: 50000,
-    unlockRequirements: { earth: 25, air: 25 },
-
-    icon: "3",
     category: "attack_modifier",
   }),
   createSkill({
