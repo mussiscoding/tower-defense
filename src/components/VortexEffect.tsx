@@ -18,7 +18,7 @@ const VortexEffect: React.FC<VortexEffectProps> = ({ vortex, currentTime }) => {
   // Update rotation every frame for smooth animation
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => (prev + 2) % 360); // Rotate 2 degrees per frame
+      setRotation((prev) => (prev - 2 + 360) % 360); // Rotate -2 degrees per frame (counter-clockwise)
     }, 16); // ~60 FPS
 
     return () => clearInterval(interval);

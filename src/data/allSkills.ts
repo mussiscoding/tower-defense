@@ -35,7 +35,7 @@ export const SKILL_BASE_VALUES = {
   VORTEX_PULL_RADIUS: 50,
   VORTEX_PULL_STRENGTH: 0.6,
   VORTEX_DURATION: 1000,
-  VORTEX_COOLDOWN: 10000,
+  VORTEX_COOLDOWN: 20000,
 } as const;
 
 export const allSkills: Skill[] = [
