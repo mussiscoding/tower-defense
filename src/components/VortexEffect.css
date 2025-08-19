@@ -1,0 +1,117 @@
+.vortex-effect {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vortex-svg {
+  position: absolute;
+  transition: transform 0.016s linear; /* Smooth rotation */
+  filter: drop-shadow(0 0 10px rgba(135, 206, 250, 0.6)); /* Blue glow */
+  opacity: 0.5; /* 50% transparency */
+}
+.vortex-pull-indicators {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.pull-indicator {
+  position: absolute;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(135, 206, 250, 0.8),
+    rgba(135, 206, 250, 0.2)
+  );
+  border-radius: 2px;
+  animation: pullWind 2s ease-in-out infinite;
+}
+
+@keyframes pullWind {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scaleY(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10px) scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scaleY(0.5);
+  }
+}
+
+/* Position pull indicators around the vortex */
+.pull-indicator:nth-child(1) {
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pull-indicator:nth-child(2) {
+  top: 20%;
+  right: 20%;
+}
+.pull-indicator:nth-child(3) {
+  top: 50%;
+  right: 10%;
+}
+.pull-indicator:nth-child(4) {
+  bottom: 20%;
+  right: 20%;
+}
+.pull-indicator:nth-child(5) {
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pull-indicator:nth-child(6) {
+  bottom: 20%;
+  left: 20%;
+}
+.pull-indicator:nth-child(7) {
+  top: 50%;
+  left: 10%;
+}
+.pull-indicator:nth-child(8) {
+  top: 20%;
+  left: 20%;
+}
+
+/* Vortex entrance animation */
+.vortex-effect {
+  animation: vortexEntrance 0.3s ease-out;
+}
+
+@keyframes vortexEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Vortex exit animation */
+.vortex-effect.vortex-exiting {
+  animation: vortexExit 0.2s ease-in;
+}
+
+@keyframes vortexExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}

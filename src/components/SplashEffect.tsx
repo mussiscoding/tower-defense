@@ -14,8 +14,8 @@ const SplashEffectComponent: React.FC<SplashEffectProps> = ({
   const elapsed = currentTime - effect.startTime;
   const progress = Math.min(elapsed / effect.duration, 1);
 
-  // Calculate corner positions - scale down the visual radius to 1/3 of actual radius
-  const visualRadius = effect.radius / 3;
+  // Calculate corner positions - use actual radius for visual effect
+  const visualRadius = effect.radius;
   const corners = [
     { x: effect.centerX - visualRadius, y: effect.centerY - visualRadius }, // Top-left
     { x: effect.centerX + visualRadius, y: effect.centerY - visualRadius }, // Top-right

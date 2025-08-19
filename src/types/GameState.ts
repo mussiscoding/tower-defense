@@ -13,6 +13,13 @@ export interface Enemy {
   burnEndTime?: number;
   slowEffect?: number;
   slowEndTime?: number;
+  vortexEffect?: {
+    vortexId: string;
+    pullDirectionX: number;
+    pullDirectionY: number;
+    pullStrength: number;
+    endTime: number;
+  };
 }
 
 export interface Defender {
@@ -105,6 +112,7 @@ export interface GameState {
   arrows: Arrow[];
   goldPopups: GoldPopup[];
   splashEffects: SplashEffect[];
+  vortexes: VortexData[]; // Active vortex effects
   levelUpAnimations: LevelUpAnimation[];
   floatingTexts: FloatingText[];
   upgradeAnimations: UpgradeAnimation[];
@@ -148,6 +156,17 @@ export interface SplashEffect {
   duration: number; // milliseconds
 }
 
+export interface VortexData {
+  id: string;
+  centerX: number;
+  centerY: number;
+  radius: number;
+  pullStrength: number;
+  startTime: number;
+  duration: number;
+  affectedEnemyIds: Set<string>;
+}
+
 export interface BonusDamage {
   amount: number;
   x: number;
@@ -184,6 +203,7 @@ export interface SkillContext {
   arrows: Arrow[]; // For skills that create arrows
   elements: Record<ElementType, ElementData>;
   splashEffects: SplashEffect[]; // For skills that create splash effects
+  vortexes: VortexData[]; // For skills that create vortex effects
   bonusDamage: BonusDamage[];
 }
 

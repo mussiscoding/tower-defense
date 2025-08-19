@@ -16,21 +16,26 @@ import {
   airCriticalHitOnHit,
   firePercentageDamageOnHit,
   fireLightningBoltOnAttack,
+  vortexOnAttack,
 } from "./skillEffects";
 
 // Centralized skill base values - single source of truth
 export const SKILL_BASE_VALUES = {
   FIRE_BURN_DAMAGE: 20,
   FIRE_PERCENTAGE_DAMAGE: 5,
-  FIRE_LIGHTNING_BOLT_COOLDOWN: 30000, // 30 seconds
+  FIRE_LIGHTNING_BOLT_COOLDOWN: 30000,
   ICE_SLOW_EFFECT: 5,
   EARTH_SPLASH_DAMAGE: 20,
   EARTH_SPLASH_MAX: 100,
-  EARTH_SPLASH_RADIUS: 50,
+  EARTH_SPLASH_RADIUS: 20,
   AIR_BURST_SHOTS: 2,
   AIR_BURST_COOLDOWN: 8000,
   AIR_CRITICAL_HIT_MULTIPLIER: 2,
-  AIR_CRITICAL_HIT_CHANCE: 10, // 5% base critical hit chance
+  AIR_CRITICAL_HIT_CHANCE: 10,
+  VORTEX_PULL_RADIUS: 50,
+  VORTEX_PULL_STRENGTH: 0.6,
+  VORTEX_DURATION: 1000,
+  VORTEX_COOLDOWN: 10000,
 } as const;
 
 export const allSkills: Skill[] = [
@@ -83,7 +88,7 @@ export const allSkills: Skill[] = [
     unlockRequirements: { air: 5 },
     icon: "1",
     category: "active",
-    priority: 1,
+    priority: 9,
     cooldown: SKILL_BASE_VALUES.AIR_BURST_COOLDOWN,
     cooldownUpgradeId: "air_burst_cooldown_upgrade",
     statName: "Burst Shots",
@@ -366,11 +371,16 @@ export const allSkills: Skill[] = [
     id: "vortex",
     name: "Vortex",
     description: "Pulls enemies into tighter groups",
-    cost: 50000,
-    unlockRequirements: { earth: 25, air: 25 },
-
+    cost: 500,
+    unlockRequirements: { earth: 2, air: 2 },
     icon: "3",
-    category: "attack_modifier",
+    category: "active",
+    priority: 1,
+    cooldown: SKILL_BASE_VALUES.VORTEX_COOLDOWN,
+    statName: "Pull Radius",
+    baseValue: SKILL_BASE_VALUES.VORTEX_PULL_RADIUS,
+    unit: "px",
+    onAttack: vortexOnAttack,
   }),
 ];
 

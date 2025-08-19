@@ -8,15 +8,14 @@ export {
   damageEnemy,
   damageCastle,
   handleEnemyDeath,
+  updateVortexEffectsInGameLoop,
 } from "./enemy";
 
 // Defender functions
-export {
-  createDefender,
-  findNearestEnemy,
-  canDefenderAttack,
-  updateDefenders,
-} from "./defender";
+export { createDefender, canDefenderAttack, updateDefenders } from "./defender";
+
+// Targeting functions
+export { findNearestEnemy, findBestSplashEnemy } from "./targeting";
 
 // Arrow functions
 export {

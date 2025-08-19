@@ -3,6 +3,7 @@ import type {
   Enemy,
   Arrow,
   SkillContext,
+  VortexData,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
@@ -16,6 +17,9 @@ import {
   getActiveSkillsForElement,
 } from "../skillUtils";
 import { calculatePredictedEnemyPosition } from "./uiUtils";
+import { findNearestEnemy, findBestSplashEnemy } from "./targeting";
+import { SKILL_BASE_VALUES } from "../../data/allSkills";
+import { calculateSkillValue } from "../skills";
 
 export const getBisectingDefenderPosition = (
   existingDefenders: Defender[]
@@ -98,45 +102,6 @@ export const createDefender = (
   };
 };
 
-export const findNearestEnemy = (
-  defender: Defender,
-  enemies: Enemy[],
-  predictedArrowDamage: Map<string, number>,
-  predictedBurnDamage: Map<string, number>
-): Enemy | null => {
-  // Range is based on distance from castle (left edge), not 2D distance
-  const enemiesInRange = enemies.filter((enemy) => {
-    const distanceFromCastle = enemy.x - GAME_DIMENSIONS.CASTLE_WIDTH; // Castle is at x=75
-
-    // Log range check
-    if (distanceFromCastle > defender.range) {
-      return false;
-    }
-
-    // Check if enemy will be dead from predicted damage
-    const arrowPredictedDamage = predictedArrowDamage.get(enemy.id) || 0;
-    const burnPredictedDamage = predictedBurnDamage.get(enemy.id) || 0;
-    const totalPredictedDamage = arrowPredictedDamage + burnPredictedDamage;
-
-    const finalPredictedHealth = enemy.health - totalPredictedDamage;
-
-    return finalPredictedHealth > 0;
-  });
-
-  if (enemiesInRange.length === 0) {
-    return null;
-  }
-
-  // Find the nearest enemy (closest to castle)
-  const target = enemiesInRange.reduce((nearest, enemy) => {
-    const nearestDistance = nearest.x - GAME_DIMENSIONS.CASTLE_WIDTH;
-    const enemyDistance = enemy.x - GAME_DIMENSIONS.CASTLE_WIDTH;
-    return enemyDistance < nearestDistance ? enemy : nearest;
-  });
-
-  return target;
-};
-
 export const canDefenderAttack = (
   defender: Defender,
   currentTime: number
@@ -158,11 +123,13 @@ export const updateDefenders = (
   arrows: Arrow[];
   predictedArrowDamage: Map<string, number>;
   predictedBurnDamage: Map<string, number>;
+  vortexes: VortexData[];
 } => {
   const currentEnemies = [...enemies];
   const newArrows: Arrow[] = [];
   const updatedPredictedArrowDamage = new Map(predictedArrowDamage);
   const updatedPredictedBurnDamage = new Map(predictedBurnDamage);
+  const newVortexes: VortexData[] = []; // Collect vortexes from skills
 
   const updatedDefenders = defenders.map((defender) => {
     // Calculate animation frame for all defenders
@@ -175,12 +142,26 @@ export const updateDefenders = (
       };
     }
 
-    const target = findNearestEnemy(
-      defender,
-      currentEnemies,
-      updatedPredictedArrowDamage,
-      updatedPredictedBurnDamage
-    );
+    // Use Earth-specific targeting for Earth defenders only if they have the Smart Targeting skill
+    const target =
+      defender.type === "earth" && (purchases["earth_smart_targeting"] || 0) > 0
+        ? findBestSplashEnemy(
+            defender,
+            currentEnemies,
+            updatedPredictedArrowDamage,
+            updatedPredictedBurnDamage,
+            calculateSkillValue(
+              SKILL_BASE_VALUES.EARTH_SPLASH_RADIUS,
+              "earth_splash_radius_upgrade",
+              purchases
+            )
+          )
+        : findNearestEnemy(
+            defender,
+            currentEnemies,
+            updatedPredictedArrowDamage,
+            updatedPredictedBurnDamage
+          );
     if (!target) {
       return {
         ...defender,
@@ -199,6 +180,8 @@ export const updateDefenders = (
       enemies: currentEnemies,
       arrows: newArrows,
       splashEffects: [], // Not used in defender context
+      bonusDamage: [], // Not used in defender context
+      vortexes: [],
     };
 
     // Check for available active skills first (highest priority)
@@ -218,6 +201,11 @@ export const updateDefenders = (
       // Execute the active skill
       if (activeSkill.onAttack) {
         activeSkill.onAttack(defender, target, skillContext);
+
+        // Collect vortexes created by the skill
+        if (skillContext.vortexes && skillContext.vortexes.length > 0) {
+          newVortexes.push(...skillContext.vortexes);
+        }
 
         // Set cooldown for this skill
         if (activeSkill.cooldown) {
@@ -274,5 +262,6 @@ export const updateDefenders = (
     arrows: newArrows,
     predictedArrowDamage: updatedPredictedArrowDamage,
     predictedBurnDamage: updatedPredictedBurnDamage,
+    vortexes: newVortexes, // Return collected vortexes from skills
   };
 };

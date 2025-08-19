@@ -29,6 +29,8 @@ export const createEnemy = (
 export const moveEnemies = (enemies: Enemy[], currentTime: number): Enemy[] => {
   return enemies.map((enemy) => {
     let effectiveSpeed = enemy.speed;
+    let vortexPullX = 0;
+    let vortexPullY = 0;
 
     // Apply slow effect if active
     if (
@@ -40,9 +42,22 @@ export const moveEnemies = (enemies: Enemy[], currentTime: number): Enemy[] => {
       effectiveSpeed = enemy.speed * slowMultiplier;
     }
 
+    // Apply vortex effect if active
+    if (enemy.vortexEffect && currentTime < enemy.vortexEffect.endTime) {
+      // Calculate vortex pull effect
+      // The pullDirectionX/Y are already normalized and scaled by pullStrength
+      vortexPullX = enemy.vortexEffect.pullDirectionX;
+      vortexPullY = enemy.vortexEffect.pullDirectionY;
+    }
+
+    // Calculate final position
+    const newX = enemy.x - effectiveSpeed + vortexPullX;
+    const newY = enemy.y + vortexPullY;
+
     return {
       ...enemy,
-      x: enemy.x - effectiveSpeed,
+      x: newX,
+      y: newY,
     };
   });
 };
@@ -105,4 +120,26 @@ export const handleEnemyDeath = (
   ];
 
   return { goldGained, goldPopups };
+};
+
+// Helper function to update vortex effects and clean up expired ones
+export const updateVortexEffectsInGameLoop = (
+  enemies: Enemy[],
+  currentTime: number
+): Enemy[] => {
+  return enemies.map((enemy) => {
+    // If enemy has no vortex effect, return as is
+    if (!enemy.vortexEffect) return enemy;
+
+    // Check if vortex effect has expired
+    if (currentTime >= enemy.vortexEffect.endTime) {
+      // Remove expired vortex effect
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { vortexEffect, ...enemyWithoutVortex } = enemy;
+      return enemyWithoutVortex;
+    }
+
+    // Vortex effect is still active, keep it
+    return enemy;
+  });
 };

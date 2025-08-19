@@ -16,6 +16,7 @@ import LevelUpAnimationComponent from "./LevelUpAnimation";
 import FloatingText from "./FloatingText";
 import UpgradeFireworks from "./UpgradeFireworks";
 import DamageNumber from "./DamageNumber";
+import VortexEffect from "./VortexEffect";
 import { createLevelUpAnimation, createFloatingText } from "../utils/gameLogic";
 import {
   createEnemy,
@@ -29,6 +30,7 @@ import {
   processArrowImpacts,
   processBurnDamage,
   handleEnemyDeath,
+  updateVortexEffectsInGameLoop,
 } from "../utils/gameLogic";
 import { generateWave } from "../utils/gameLogic/waveGenerator";
 import { enemies } from "../data/enemies";
@@ -90,7 +92,18 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
 
     const gameLoop = setInterval(() => {
       setGameState((prev) => {
-        const movedEnemies = moveEnemies(prev.enemies, Date.now());
+        // Update vortex effects first (clean up expired ones)
+        const enemiesWithUpdatedVortexes = updateVortexEffectsInGameLoop(
+          prev.enemies,
+          Date.now()
+        );
+
+        // Move enemies (including vortex pull effects)
+        const movedEnemies = moveEnemies(
+          enemiesWithUpdatedVortexes,
+          Date.now()
+        );
+
         const enemiesWithBurnDamage = processBurnDamage(
           movedEnemies,
           Date.now()
@@ -104,6 +117,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           arrows: newArrows,
           predictedArrowDamage: updatedPredictedArrowDamage,
           predictedBurnDamage: updatedPredictedBurnDamage,
+          vortexes: newVortexes,
         } = updateDefenders(
           prev.defenders,
           aliveEnemies,
@@ -204,6 +218,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           gold: prev.gold + goldGained,
           goldPopups: [...prev.goldPopups, ...newGoldPopups],
           splashEffects: [...prev.splashEffects, ...newSplashEffects],
+          vortexes: [...prev.vortexes, ...newVortexes], // Add new vortexes to game state
           damageNumbers: [...prev.damageNumbers, ...newDamageNumbers],
           levelUpAnimations: [
             ...prev.levelUpAnimations,
@@ -372,6 +387,15 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
                 floatingTexts: prev.floatingTexts.filter((t) => t.id !== id),
               }));
             }}
+          />
+        ))}
+
+        {/* Render active vortex effects */}
+        {gameState.vortexes?.map((vortex) => (
+          <VortexEffect
+            key={vortex.id}
+            vortex={vortex}
+            currentTime={Date.now()}
           />
         ))}
 

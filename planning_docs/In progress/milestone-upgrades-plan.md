@@ -65,7 +65,7 @@ Skills are permanent, game-changing abilities that unlock at specific element le
 **Level 25 - Mid-Game Abilities:**
 
 - [ ] Fire + Ice: Freezeburn - frozen enemies take double burn damage
-- [ ] Earth + Air: Vortex - pulling enemies into tighter groups
+- [x] Earth + Air: Vortex - pulling enemies into tighter groups
 
 **Level 35 - Mid-Game Abilities:**
 
@@ -429,6 +429,7 @@ This gives each element 8 skills (+ base ability at level 5) = 9 total per eleme
 - **Effect**: Pulls enemies into tighter groups (for better earth splash damage)
 - **Visual**: Swirling wind effects that draw enemies together
 - **Priority**: Medium
+- **Plan**: See `vortex-skill-implementation-plan.md` for detailed design and implementation
 
 #### Level 35: Earth Support - Stone Skin
 

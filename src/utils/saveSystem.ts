@@ -11,6 +11,11 @@ export const saveGame = (gameState: GameState): void => {
         gameState.predictedArrowDamage.entries()
       ),
       predictedBurnDamage: Array.from(gameState.predictedBurnDamage.entries()),
+      vortexes:
+        gameState.vortexes?.map((vortex) => ({
+          ...vortex,
+          affectedEnemyIds: Array.from(vortex.affectedEnemyIds),
+        })) || [],
     });
     localStorage.setItem(SAVE_KEY, saveData);
   } catch (error) {
@@ -40,6 +45,10 @@ export const loadGame = (): GameState | null => {
       floatingTexts: parsed.floatingTexts ?? [],
       upgradeAnimations: parsed.upgradeAnimations ?? [],
       damageNumbers: parsed.damageNumbers ?? [],
+      vortexes: (parsed.vortexes ?? []).map((vortex) => ({
+        ...vortex,
+        affectedEnemyIds: new Set(vortex.affectedEnemyIds || []),
+      })),
       lastSave: parsed.lastSave ?? Date.now(),
       isPaused: parsed.isPaused ?? false,
       purchases: parsed.purchases ?? {},

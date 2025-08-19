@@ -26,6 +26,7 @@ function App() {
     floatingTexts: [],
     upgradeAnimations: [],
     damageNumbers: [],
+    vortexes: [], // Active vortex effects
     lastSave: Date.now(),
     isPaused: false,
     purchases: {},
@@ -101,6 +102,7 @@ function App() {
       floatingTexts: [],
       upgradeAnimations: [],
       damageNumbers: [],
+      vortexes: [], // Active vortex effects
       lastSave: Date.now(),
       isPaused: false,
       purchases: {},
