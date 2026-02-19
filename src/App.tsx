@@ -5,34 +5,13 @@ import GameArea from "./components/GameArea";
 import GameSidebar from "./components/GameSidebar";
 import { useGameStateRef } from "./hooks/useGameStateRef";
 import { createInitialGameState } from "./utils/initialState";
-import { saveGame, loadGame, clearSave } from "./utils/saveSystem";
+import { loadGame, clearSave } from "./utils/saveSystem";
 import type { GameState } from "./types/GameStateSlices";
 
 function App() {
   const { stateRef, triggerRender } = useGameStateRef<GameState>(
     createInitialGameState(true) // dev mode = true for 500 starting gold
   );
-
-  // Timer - increment time survived every second
-  useEffect(() => {
-    const timerLoop = setInterval(() => {
-      if (stateRef.current.core.isPaused) return;
-      stateRef.current.core.timeSurvived += 1;
-      triggerRender();
-    }, 1000);
-
-    return () => clearInterval(timerLoop);
-  }, [stateRef, triggerRender]);
-
-  // Auto-save every 5 seconds
-  useEffect(() => {
-    const saveInterval = setInterval(() => {
-      saveGame(stateRef.current);
-      stateRef.current.core.lastSave = Date.now();
-    }, 5000);
-
-    return () => clearInterval(saveInterval);
-  }, [stateRef]);
 
   // Load save on mount
   useEffect(() => {

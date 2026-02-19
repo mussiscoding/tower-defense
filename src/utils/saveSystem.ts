@@ -59,6 +59,7 @@ export const loadGame = (): GameState | null => {
       },
       entities: {
         enemies: parsed.entities?.enemies ?? defaultEntities.enemies,
+        pendingEnemies: [], // Always start fresh - pending enemies are transient
         defenders: parsed.entities?.defenders ?? defaultEntities.defenders,
         arrows: [], // Always start fresh - arrows are transient
         vortexes: [], // Always start fresh - vortexes are transient

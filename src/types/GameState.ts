@@ -9,6 +9,7 @@ export interface Enemy {
   speed: number;
   goldValue: number;
   colorIndex: number; // Add color index for shirt color variations
+  spawnTime?: number; // When this enemy should spawn (for pending enemies)
   burnDamage?: number;
   burnEndTime?: number;
   slowEffect?: number;

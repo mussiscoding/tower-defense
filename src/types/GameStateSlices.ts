@@ -29,6 +29,7 @@ export interface CoreState {
 // Entity state - game objects
 export interface EntityState {
   enemies: Enemy[];
+  pendingEnemies: Enemy[]; // Enemies waiting to spawn (staggered wave spawning)
   defenders: Defender[];
   arrows: Arrow[];
   vortexes: VortexData[];

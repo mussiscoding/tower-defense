@@ -34,6 +34,12 @@ import {
 import { generateWave } from "../utils/gameLogic/waveGenerator";
 import { enemies } from "../data/enemies";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
+import {
+  GAME_TIMING,
+  createInitialGameLoopMeta,
+  type GameLoopMeta,
+} from "../constants/gameTiming";
+import { saveGame } from "../utils/saveSystem";
 import "./GameArea.css";
 
 interface GameAreaProps {
@@ -43,72 +49,80 @@ interface GameAreaProps {
 
 const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
   const gameAreaRef = useRef<HTMLDivElement>(null);
-  const waveTimeoutsRef = useRef<number[]>([]);
+  const metaRef = useRef<GameLoopMeta>(createInitialGameLoopMeta());
 
-  // Wave-based enemy spawning with random distribution over 3s
-  useEffect(() => {
-    if (stateRef.current.core.isPaused) return;
-
-    const spawnWave = () => {
-      if (!gameAreaRef.current) return;
-      const wave = generateWave(stateRef.current.core.difficultyLevel, enemies);
-      const enemyIds: string[] = wave.waveEnemies.flatMap((waveEnemy) =>
-        Array(waveEnemy.count).fill(waveEnemy.enemyId)
-      );
-      const rect = gameAreaRef.current.getBoundingClientRect();
-
-      waveTimeoutsRef.current.forEach(clearTimeout);
-      waveTimeoutsRef.current = [];
-
-      enemyIds.forEach((enemyId) => {
-        const delay = Math.random() * 3000;
-        const timeout = setTimeout(() => {
-          const spawnX = Math.max(rect.width - 100, 700);
-          const spawnY = Math.random() * (rect.height - 100) + 50;
-          const newEnemy = createEnemy(spawnX, spawnY, enemyId);
-          stateRef.current.entities.enemies = [
-            ...stateRef.current.entities.enemies,
-            newEnemy,
-          ];
-        }, delay);
-        waveTimeoutsRef.current.push(timeout);
-      });
-    };
-
-    spawnWave();
-    const waveInterval = setInterval(spawnWave, 3000);
-
-    return () => {
-      clearInterval(waveInterval);
-      waveTimeoutsRef.current.forEach(clearTimeout);
-    };
-  }, [
-    stateRef.current.core.difficultyLevel,
-    stateRef.current.core.isPaused,
-    stateRef,
-  ]);
-
-  // Main game loop
+  // Single unified game loop
   useEffect(() => {
     if (stateRef.current.core.isPaused) return;
 
     const gameLoop = setInterval(() => {
       const state = stateRef.current;
+      const meta = metaRef.current;
       const now = Date.now();
 
-      // Update vortex effects first (clean up expired ones)
+      meta.tickCount++;
+
+      // 1. TIME UPDATE (every second)
+      if (
+        meta.tickCount - meta.lastTimeUpdateTick >=
+        GAME_TIMING.TIME_SURVIVED_TICKS
+      ) {
+        state.core.timeSurvived++;
+        meta.lastTimeUpdateTick = meta.tickCount;
+      }
+
+      // 2. WAVE SPAWNING (every 3 seconds)
+      if (
+        meta.tickCount - meta.lastWaveSpawnTick >=
+        GAME_TIMING.WAVE_SPAWN_TICKS
+      ) {
+        if (gameAreaRef.current) {
+          const rect = gameAreaRef.current.getBoundingClientRect();
+          const wave = generateWave(state.core.difficultyLevel, enemies);
+          const enemyIds: string[] = wave.waveEnemies.flatMap((waveEnemy) =>
+            Array(waveEnemy.count).fill(waveEnemy.enemyId)
+          );
+
+          // Add enemies with staggered spawn times
+          enemyIds.forEach((enemyId) => {
+            const spawnDelay = Math.random() * 3000;
+            const spawnX = Math.max(rect.width - 100, 700);
+            const spawnY = Math.random() * (rect.height - 100) + 50;
+            const newEnemy = createEnemy(spawnX, spawnY, enemyId);
+            newEnemy.spawnTime = now + spawnDelay;
+            state.entities.pendingEnemies.push(newEnemy);
+          });
+        }
+        meta.lastWaveSpawnTick = meta.tickCount;
+      }
+
+      // 3. PROCESS PENDING ENEMY SPAWNS
+      const readyToSpawn = state.entities.pendingEnemies.filter(
+        (e) => e.spawnTime && now >= e.spawnTime
+      );
+      if (readyToSpawn.length > 0) {
+        state.entities.enemies.push(...readyToSpawn);
+        state.entities.pendingEnemies = state.entities.pendingEnemies.filter(
+          (e) => !e.spawnTime || now < e.spawnTime
+        );
+      }
+
+      // 4. UPDATE VORTEX EFFECTS (clean up expired ones)
       const enemiesWithUpdatedVortexes = updateVortexEffectsInGameLoop(
         state.entities.enemies,
         now
       );
 
-      // Move enemies (including vortex pull effects)
+      // 5. MOVE ENEMIES (including vortex pull effects)
       const movedEnemies = moveEnemies(enemiesWithUpdatedVortexes, now);
 
+      // 6. PROCESS BURN DAMAGE
       const enemiesWithBurnDamage = processBurnDamage(movedEnemies, now);
+
+      // 7. REMOVE DEAD ENEMIES
       const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
 
-      // Update defenders (attack enemies)
+      // 8. DEFENDER ATTACKS
       const {
         defenders: updatedDefenders,
         enemies: enemiesAfterDefenderAttacks,
@@ -126,7 +140,6 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.elements
       );
 
-      // Update state synchronously
       state.entities.defenders = updatedDefenders;
       state.tracking.predictedArrowDamage = updatedPredictedArrowDamage;
       state.tracking.predictedBurnDamage = updatedPredictedBurnDamage;
@@ -139,7 +152,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         air: state.core.elements.air?.level || 1,
       };
 
-      // Process arrow impacts
+      // 9. PROCESS ARROW IMPACTS
       const {
         arrows: activeArrows,
         enemies: enemiesAfterArrowImpacts,
@@ -160,7 +173,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.purchases
       );
 
-      // Check for level-ups and create animations
+      // 10. CHECK FOR LEVEL-UPS
       const newLevelUpAnimations: LevelUpAnimation[] = [];
       const newFloatingTexts: FloatingTextType[] = [];
       const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
@@ -176,44 +189,45 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
           );
 
           defendersOfType.forEach((defender) => {
-            const levelUpAnimation = createLevelUpAnimation(
-              elementType,
-              defender.x + 11,
-              defender.y + 8,
-              now
+            newLevelUpAnimations.push(
+              createLevelUpAnimation(
+                elementType,
+                defender.x + 11,
+                defender.y + 8,
+                now
+              )
             );
-            newLevelUpAnimations.push(levelUpAnimation);
-
-            const floatingText = createFloatingText(
-              "Level up!",
-              defender.x + 20,
-              defender.y - 10,
-              elementType,
-              now
+            newFloatingTexts.push(
+              createFloatingText(
+                "Level up!",
+                defender.x + 20,
+                defender.y - 10,
+                elementType,
+                now
+              )
             );
-            newFloatingTexts.push(floatingText);
           });
         }
       });
 
-      // Remove dead enemies after all processing
+      // 11. REMOVE DEAD ENEMIES (after arrow impacts)
       const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
 
-      // Handle castle damage
+      // 12. CASTLE DAMAGE CHECK
       const {
         castleHealth,
         enemies: enemiesAfterCastle,
         castleDestroyed,
       } = damageCastle(finalEnemies, state.core.castleHealth);
 
-      // If castle is destroyed, apply death penalty
       if (castleDestroyed) {
         state.core.castleHealth = 100;
-        state.core.gold = Math.floor(state.core.gold / 2); // Death penalty: lose half gold
+        state.core.gold = Math.floor(state.core.gold / 2);
         state.entities.enemies = [];
+        state.entities.pendingEnemies = [];
         state.entities.arrows = [];
         state.entities.vortexes = [];
-        state.tracking.predictedArrowDamage = new Map(); // Clear stale tracking
+        state.tracking.predictedArrowDamage = new Map();
         state.tracking.predictedBurnDamage = new Map();
         state.visuals.goldPopups = [];
         state.visuals.damageNumbers = [];
@@ -221,7 +235,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         return;
       }
 
-      // Update all state synchronously
+      // Update game state
       state.entities.enemies = enemiesAfterCastle;
       state.entities.arrows = activeArrows;
       state.entities.vortexes = [...state.entities.vortexes, ...newVortexes];
@@ -232,52 +246,47 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       state.tracking.predictedBurnDamage = finalPredictedBurnDamage;
 
       // Update visuals
-      state.visuals.goldPopups = [...state.visuals.goldPopups, ...newGoldPopups];
-      state.visuals.splashEffects = [
-        ...state.visuals.splashEffects,
-        ...newSplashEffects,
-      ];
-      state.visuals.damageNumbers = [
-        ...state.visuals.damageNumbers,
-        ...newDamageNumbers,
-      ];
-      state.visuals.levelUpAnimations = [
-        ...state.visuals.levelUpAnimations,
-        ...newLevelUpAnimations,
-      ];
-      state.visuals.floatingTexts = [
-        ...state.visuals.floatingTexts,
-        ...newFloatingTexts,
-      ];
+      state.visuals.goldPopups.push(...newGoldPopups);
+      state.visuals.splashEffects.push(...newSplashEffects);
+      state.visuals.damageNumbers.push(...newDamageNumbers);
+      state.visuals.levelUpAnimations.push(...newLevelUpAnimations);
+      state.visuals.floatingTexts.push(...newFloatingTexts);
 
+      // 13. CLEANUP VISUALS (every 200ms)
+      if (meta.tickCount - meta.lastCleanupTick >= GAME_TIMING.CLEANUP_TICKS) {
+        const visuals = state.visuals;
+        visuals.splashEffects = visuals.splashEffects.filter(
+          (effect) => now - effect.startTime < effect.duration
+        );
+        visuals.floatingTexts = visuals.floatingTexts.filter(
+          (text) => now - text.startTime < text.duration
+        );
+        visuals.damageNumbers = visuals.damageNumbers.filter(
+          (dn) => now - dn.startTime < 1500
+        );
+        visuals.upgradeAnimations = visuals.upgradeAnimations.filter(
+          (animation) => now - animation.startTime < animation.duration
+        );
+        // Also clean up expired vortexes
+        state.entities.vortexes = state.entities.vortexes.filter(
+          (vortex) => now - vortex.startTime < vortex.duration
+        );
+        meta.lastCleanupTick = meta.tickCount;
+      }
+
+      // 14. AUTO-SAVE (every 5 seconds)
+      if (meta.tickCount - meta.lastSaveTick >= GAME_TIMING.SAVE_TICKS) {
+        saveGame(state);
+        state.core.lastSave = now;
+        meta.lastSaveTick = meta.tickCount;
+      }
+
+      // 15. TRIGGER RENDER
       triggerRender();
-    }, 50);
+    }, GAME_TIMING.TICK_MS);
 
     return () => clearInterval(gameLoop);
   }, [stateRef.current.core.isPaused, stateRef, triggerRender]);
-
-  // Clean up expired visual effects
-  useEffect(() => {
-    const cleanupInterval = setInterval(() => {
-      const visuals = stateRef.current.visuals;
-      const currentTime = Date.now();
-
-      visuals.splashEffects = visuals.splashEffects.filter(
-        (effect) => currentTime - effect.startTime < effect.duration
-      );
-      visuals.floatingTexts = visuals.floatingTexts.filter(
-        (text) => currentTime - text.startTime < text.duration
-      );
-      visuals.damageNumbers = visuals.damageNumbers.filter(
-        (dn) => currentTime - dn.startTime < 1500
-      );
-      visuals.upgradeAnimations = visuals.upgradeAnimations.filter(
-        (animation) => currentTime - animation.startTime < animation.duration
-      );
-    }, 100);
-
-    return () => clearInterval(cleanupInterval);
-  }, [stateRef]);
 
   const handleEnemyClick = useCallback(
     (enemy: EnemyType) => {
@@ -302,10 +311,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
           (e) => e.id !== enemy.id
         );
         state.core.gold += goldGained;
-        state.visuals.goldPopups = [
-          ...state.visuals.goldPopups,
-          ...deathPopups,
-        ];
+        state.visuals.goldPopups.push(...deathPopups);
       }
 
       triggerRender();

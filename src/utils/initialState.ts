@@ -36,6 +36,7 @@ export const createInitialCoreState = (devMode: boolean = false): CoreState => (
 
 export const createInitialEntityState = (): EntityState => ({
   enemies: [],
+  pendingEnemies: [],
   defenders: [],
   arrows: [],
   vortexes: [],
