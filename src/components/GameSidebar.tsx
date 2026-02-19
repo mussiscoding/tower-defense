@@ -1,4 +1,4 @@
-import type { GameState } from "../types/GameState";
+import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "../data/elements";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
 import { allUpgrades } from "../data/upgrades";
@@ -9,7 +9,7 @@ import {
   createFloatingText,
 } from "../utils/gameLogic/uiUtils";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
-import { purchaseSkill } from "../utils/skillUtils";
+import { purchaseSkillSliced } from "../utils/skillUtils";
 
 import "./GameSidebar.css";
 import Mages from "./Mages";
@@ -24,43 +24,40 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
   triggerRender,
 }) => {
   const handleSkillPurchase = (skillId: string) => {
-    const newState = purchaseSkill(stateRef.current, skillId);
-    stateRef.current = newState;
+    purchaseSkillSliced(stateRef.current, skillId);
     triggerRender();
   };
 
   const handlePurchase = (itemId: string) => {
     const state = stateRef.current;
     const item = shopItems.find((shopItem) => shopItem.id === itemId);
-    const currentPrice = getCurrentPrice(item!, state.purchases);
-    if (!item || state.gold < currentPrice) return;
+    const currentPrice = getCurrentPrice(item!, state.core.purchases);
+    if (!item || state.core.gold < currentPrice) return;
 
     // Handle click damage upgrade (special case)
     if (itemId === "click_damage_upgrade") {
-      state.gold -= currentPrice;
-      state.clickDamage += 1;
-      state.purchases = {
-        ...state.purchases,
-        [itemId]: (state.purchases[itemId] || 0) + 1,
+      state.core.gold -= currentPrice;
+      state.core.clickDamage += 1;
+      state.core.purchases = {
+        ...state.core.purchases,
+        [itemId]: (state.core.purchases[itemId] || 0) + 1,
       };
       triggerRender();
       return;
     }
 
-    // Handle upgrade shop items (they define their own effects)
+    // Handle upgrade shop items
     const upgradeItem = allUpgrades.find((upgrade) => upgrade.id === itemId);
     if (upgradeItem) {
-      const updatedState = upgradeItem.effect(state);
-
       // Determine the element type from the upgrade ID
       const elementType = itemId.split("_")[0] as ElementType;
 
       // Find all mages of this element type to get their positions
-      const magesOfType = state.defenders.filter(
+      const magesOfType = state.entities.defenders.filter(
         (defender) => defender.type === elementType
       );
 
-      // Create fireworks animation and floating text for each mage of this element type
+      // Create fireworks animation and floating text for each mage
       const newUpgradeAnimations = magesOfType.map((mage) => {
         return createUpgradeAnimation(
           upgradeItem.shortName || item.name,
@@ -71,7 +68,6 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
         );
       });
 
-      // Create floating texts for each mage
       const newFloatingTexts = magesOfType.map((mage) => {
         return createFloatingText(
           upgradeItem.shortName || item.name,
@@ -83,42 +79,42 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
       });
 
       // Update state
-      stateRef.current = {
-        ...updatedState,
-        gold: state.gold - currentPrice,
-        purchases: {
-          ...updatedState.purchases,
-          [itemId]: (state.purchases[itemId] || 0) + 1,
-        },
-        upgradeAnimations: [
-          ...(state.upgradeAnimations || []),
-          ...newUpgradeAnimations,
-        ],
-        floatingTexts: [...state.floatingTexts, ...newFloatingTexts],
+      state.core.gold -= currentPrice;
+      state.core.purchases = {
+        ...state.core.purchases,
+        [itemId]: (state.core.purchases[itemId] || 0) + 1,
       };
+      state.visuals.upgradeAnimations = [
+        ...state.visuals.upgradeAnimations,
+        ...newUpgradeAnimations,
+      ];
+      state.visuals.floatingTexts = [
+        ...state.visuals.floatingTexts,
+        ...newFloatingTexts,
+      ];
       triggerRender();
     }
   };
 
   const handlePurchaseMage = (elementType: ElementType, cost: number) => {
     const state = stateRef.current;
-    const elementLevel = state.elements[elementType]?.level || 1;
+    const elementLevel = state.core.elements[elementType]?.level || 1;
     const canPurchase = canPurchaseMage(
-      state.defenders,
+      state.entities.defenders,
       elementType,
       elementLevel
     );
 
-    if (state.gold >= cost && canPurchase) {
-      const smartY = getBisectingDefenderPosition(state.defenders);
-      state.gold -= cost;
-      state.defenders = [
-        ...state.defenders,
+    if (state.core.gold >= cost && canPurchase) {
+      const smartY = getBisectingDefenderPosition(state.entities.defenders);
+      state.core.gold -= cost;
+      state.entities.defenders = [
+        ...state.entities.defenders,
         createDefender(GAME_DIMENSIONS.DEFENDER_SPAWN_X, smartY, elementType),
       ];
-      state.purchases = {
-        ...state.purchases,
-        [elementType]: (state.purchases[elementType] || 0) + 1,
+      state.core.purchases = {
+        ...state.core.purchases,
+        [elementType]: (state.core.purchases[elementType] || 0) + 1,
       };
       triggerRender();
     }
@@ -126,26 +122,29 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
 
   const handleDifficultyChange = (delta: number) => {
     const state = stateRef.current;
-    state.difficultyLevel = Math.max(1, Math.min(10000, state.difficultyLevel + delta));
+    state.core.difficultyLevel = Math.max(
+      1,
+      Math.min(10000, state.core.difficultyLevel + delta)
+    );
     triggerRender();
   };
 
   const handleDifficultyInput = (value: number) => {
-    stateRef.current.difficultyLevel = Math.max(1, Math.min(10000, value));
+    stateRef.current.core.difficultyLevel = Math.max(1, Math.min(10000, value));
     triggerRender();
   };
 
   // Read current state for rendering
-  const gameState = stateRef.current;
+  const { core, entities } = stateRef.current;
 
   return (
     <div className="game-sidebar">
       <div className="sidebar-section">
         <Mages
-          elements={gameState.elements}
-          currentGold={gameState.gold}
-          purchases={gameState.purchases}
-          defenders={gameState.defenders}
+          elements={core.elements}
+          currentGold={core.gold}
+          purchases={core.purchases}
+          defenders={entities.defenders}
           onPurchaseMage={handlePurchaseMage}
           onPurchaseUpgrade={handlePurchase}
           onPurchaseSkill={handleSkillPurchase}
@@ -164,7 +163,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
                 type="number"
                 min="1"
                 max="10000"
-                value={gameState.difficultyLevel}
+                value={core.difficultyLevel}
                 onChange={(e) =>
                   handleDifficultyInput(parseInt(e.target.value) || 1)
                 }

@@ -1,21 +1,32 @@
-import type { GameState } from "../types/GameState";
+import type { GameState } from "../types/GameStateSlices";
+import {
+  createInitialCoreState,
+  createInitialEntityState,
+  createInitialVisuals,
+} from "./initialState";
 
 const SAVE_KEY = "towerDefenseSave";
 
-export const saveGame = (gameState: GameState): void => {
+export const saveGame = (state: GameState): void => {
   try {
-    // Convert Map to array for JSON serialization
+    // Only save persistent state - exclude visual effects and transient entities
     const saveData = JSON.stringify({
-      ...gameState,
-      predictedArrowDamage: Array.from(
-        gameState.predictedArrowDamage.entries()
-      ),
-      predictedBurnDamage: Array.from(gameState.predictedBurnDamage.entries()),
-      vortexes:
-        gameState.vortexes?.map((vortex) => ({
-          ...vortex,
-          affectedEnemyIds: Array.from(vortex.affectedEnemyIds),
-        })) || [],
+      core: state.core,
+      entities: {
+        enemies: state.entities.enemies,
+        defenders: state.entities.defenders,
+        // Don't save arrows - they're transient
+        // Don't save vortexes - they're transient
+      },
+      tracking: {
+        predictedArrowDamage: Array.from(
+          state.tracking.predictedArrowDamage.entries()
+        ),
+        predictedBurnDamage: Array.from(
+          state.tracking.predictedBurnDamage.entries()
+        ),
+      },
+      // Visual effects are NOT saved - they're ephemeral
     });
     localStorage.setItem(SAVE_KEY, saveData);
   } catch (error) {
@@ -30,32 +41,33 @@ export const loadGame = (): GameState | null => {
 
     const parsed = JSON.parse(savedData);
 
-    // Validate and ensure all required fields exist
+    // Reconstruct state with defaults for missing fields
+    const defaultCore = createInitialCoreState();
+    const defaultEntities = createInitialEntityState();
+
     const validatedState: GameState = {
-      gold: parsed.gold ?? 0,
-      castleHealth: parsed.castleHealth ?? 100,
-      timeSurvived: parsed.timeSurvived ?? 0,
-      clickDamage: parsed.clickDamage ?? 1,
-      defenders: parsed.defenders ?? [],
-      enemies: parsed.enemies ?? [],
-      arrows: parsed.arrows ?? [],
-      goldPopups: parsed.goldPopups ?? [],
-      splashEffects: parsed.splashEffects ?? [],
-      levelUpAnimations: parsed.levelUpAnimations ?? [],
-      floatingTexts: parsed.floatingTexts ?? [],
-      upgradeAnimations: parsed.upgradeAnimations ?? [],
-      damageNumbers: parsed.damageNumbers ?? [],
-      vortexes: (parsed.vortexes ?? []).map((vortex: { affectedEnemyIds?: string[] }) => ({
-        ...vortex,
-        affectedEnemyIds: new Set(vortex.affectedEnemyIds || []),
-      })),
-      lastSave: parsed.lastSave ?? Date.now(),
-      isPaused: parsed.isPaused ?? false,
-      purchases: parsed.purchases ?? {},
-      difficultyLevel: parsed.difficultyLevel ?? 1,
-      predictedArrowDamage: new Map(parsed.predictedArrowDamage ?? []),
-      predictedBurnDamage: new Map(parsed.predictedBurnDamage ?? []),
-      elements: parsed.elements ?? {},
+      core: {
+        gold: parsed.core?.gold ?? defaultCore.gold,
+        castleHealth: parsed.core?.castleHealth ?? defaultCore.castleHealth,
+        timeSurvived: parsed.core?.timeSurvived ?? defaultCore.timeSurvived,
+        clickDamage: parsed.core?.clickDamage ?? defaultCore.clickDamage,
+        difficultyLevel: parsed.core?.difficultyLevel ?? defaultCore.difficultyLevel,
+        isPaused: parsed.core?.isPaused ?? defaultCore.isPaused,
+        lastSave: parsed.core?.lastSave ?? defaultCore.lastSave,
+        purchases: parsed.core?.purchases ?? defaultCore.purchases,
+        elements: parsed.core?.elements ?? defaultCore.elements,
+      },
+      entities: {
+        enemies: parsed.entities?.enemies ?? defaultEntities.enemies,
+        defenders: parsed.entities?.defenders ?? defaultEntities.defenders,
+        arrows: [], // Always start fresh - arrows are transient
+        vortexes: [], // Always start fresh - vortexes are transient
+      },
+      tracking: {
+        predictedArrowDamage: new Map(parsed.tracking?.predictedArrowDamage ?? []),
+        predictedBurnDamage: new Map(parsed.tracking?.predictedBurnDamage ?? []),
+      },
+      visuals: createInitialVisuals(), // Always start fresh - visuals are ephemeral
     };
 
     return validatedState;

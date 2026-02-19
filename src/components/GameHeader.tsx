@@ -1,4 +1,4 @@
-import type { GameState } from "../types/GameState";
+import type { GameState } from "../types/GameStateSlices";
 import "./GameHeader.css";
 
 interface GameHeaderProps {
@@ -14,7 +14,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   onReset,
   onDevGold,
 }) => {
-  const gameState = stateRef.current;
+  const core = stateRef.current.core;
 
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -36,31 +36,31 @@ const GameHeader: React.FC<GameHeaderProps> = ({
       <div className="header-stat">
         <span className="stat-icon">💰</span>
         <span className="stat-label">Gold:</span>
-        <span className="stat-value">{formatNumber(gameState.gold)}</span>
+        <span className="stat-value">{formatNumber(core.gold)}</span>
       </div>
 
       <div className="header-stat">
         <span className="stat-icon">🏰</span>
         <span className="stat-label">Castle:</span>
-        <span className="stat-value">{gameState.castleHealth}/100</span>
+        <span className="stat-value">{core.castleHealth}/100</span>
       </div>
 
       <div className="header-stat">
         <span className="stat-icon">⏱️</span>
         <span className="stat-label">Time:</span>
-        <span className="stat-value">{formatTime(gameState.timeSurvived)}</span>
+        <span className="stat-value">{formatTime(core.timeSurvived)}</span>
       </div>
 
       <div className="header-stat">
         <span className="stat-icon">💾</span>
         <span className="stat-label">Last Save:</span>
         <span className="stat-value">
-          {new Date(gameState.lastSave).toLocaleTimeString()}
+          {new Date(core.lastSave).toLocaleTimeString()}
         </span>
       </div>
 
       <button className="pause-button" onClick={onPauseToggle}>
-        {gameState.isPaused ? "▶️" : "⏸️"}
+        {core.isPaused ? "▶️" : "⏸️"}
       </button>
 
       <button className="reset-button" onClick={onReset}>

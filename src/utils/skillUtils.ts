@@ -1,11 +1,12 @@
 import type {
-  GameState,
   Skill,
   SkillState,
   SkillCategory,
   Defender,
   SkillContext,
 } from "../types/GameState";
+import type { GameState as LegacyGameState } from "../types/GameState";
+import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "../data/elements";
 import {
   getSkillsForElement,
@@ -132,9 +133,9 @@ export const getAllPurchasedSkills = (
 };
 
 /**
- * Purchase a skill and update game state
+ * Purchase a skill and update game state (legacy flat state)
  */
-export const purchaseSkill = (state: GameState, skillId: string): GameState => {
+export const purchaseSkill = (state: LegacyGameState, skillId: string): LegacyGameState => {
   const skill = getSkillById(skillId);
   if (!skill) {
     console.error(`Skill not found: ${skillId}`);
@@ -155,6 +156,30 @@ export const purchaseSkill = (state: GameState, skillId: string): GameState => {
       ...state.purchases,
       [skillId]: 1, // Skills are one-time purchases
     },
+  };
+};
+
+/**
+ * Purchase a skill and update sliced game state (mutates in place)
+ */
+export const purchaseSkillSliced = (state: GameState, skillId: string): void => {
+  const skill = getSkillById(skillId);
+  if (!skill) {
+    console.error(`Skill not found: ${skillId}`);
+    return;
+  }
+
+  // Validate purchase
+  if (!canPurchaseSkill(skill, state.core.elements, state.core.gold, state.core.purchases)) {
+    console.error(`Cannot purchase skill: ${skillId}`);
+    return;
+  }
+
+  // Update purchases and deduct gold (mutate in place)
+  state.core.gold -= skill.cost;
+  state.core.purchases = {
+    ...state.core.purchases,
+    [skillId]: 1, // Skills are one-time purchases
   };
 };
 

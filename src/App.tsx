@@ -6,17 +6,18 @@ import GameSidebar from "./components/GameSidebar";
 import { useGameStateRef } from "./hooks/useGameStateRef";
 import { createInitialGameState } from "./utils/initialState";
 import { saveGame, loadGame, clearSave } from "./utils/saveSystem";
+import type { GameState } from "./types/GameStateSlices";
 
 function App() {
-  const { stateRef, triggerRender } = useGameStateRef(
+  const { stateRef, triggerRender } = useGameStateRef<GameState>(
     createInitialGameState(true) // dev mode = true for 500 starting gold
   );
 
   // Timer - increment time survived every second
   useEffect(() => {
     const timerLoop = setInterval(() => {
-      if (stateRef.current.isPaused) return;
-      stateRef.current.timeSurvived += 1;
+      if (stateRef.current.core.isPaused) return;
+      stateRef.current.core.timeSurvived += 1;
       triggerRender();
     }, 1000);
 
@@ -27,8 +28,7 @@ function App() {
   useEffect(() => {
     const saveInterval = setInterval(() => {
       saveGame(stateRef.current);
-      stateRef.current.lastSave = Date.now();
-      // Don't need to trigger render for save - it's background
+      stateRef.current.core.lastSave = Date.now();
     }, 5000);
 
     return () => clearInterval(saveInterval);
@@ -40,7 +40,7 @@ function App() {
     if (savedGameState) {
       console.log(
         "Loading saved game state, difficulty level:",
-        savedGameState.difficultyLevel
+        savedGameState.core.difficultyLevel
       );
       stateRef.current = savedGameState;
       triggerRender();
@@ -50,7 +50,7 @@ function App() {
   }, [stateRef, triggerRender]);
 
   const togglePause = () => {
-    stateRef.current.isPaused = !stateRef.current.isPaused;
+    stateRef.current.core.isPaused = !stateRef.current.core.isPaused;
     triggerRender();
   };
 
@@ -61,7 +61,7 @@ function App() {
   };
 
   const addDevGold = () => {
-    stateRef.current.gold += 10000;
+    stateRef.current.core.gold += 10000;
     triggerRender();
   };
 
