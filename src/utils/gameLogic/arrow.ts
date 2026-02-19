@@ -191,6 +191,7 @@ export const processArrowImpacts = (
             arrows: activeArrows,
             splashEffects: [],
             bonusDamage: [],
+            vortexes: [],
           };
 
           // Execute all onHit effects

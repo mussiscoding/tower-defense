@@ -1,69 +1,38 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import GameHeader from "./components/GameHeader";
 import GameArea from "./components/GameArea";
 import GameSidebar from "./components/GameSidebar";
-import type { GameState } from "./types/GameState";
+import { useGameStateRef } from "./hooks/useGameStateRef";
+import { createInitialGameState } from "./utils/initialState";
 import { saveGame, loadGame, clearSave } from "./utils/saveSystem";
-import {
-  getAvailableElements,
-  createInitialElementData,
-} from "./data/elements";
-import type { ElementData } from "./types/GameState";
 
 function App() {
-  const [gameState, setGameState] = useState<GameState>({
-    gold: 0,
-    castleHealth: 100,
-    timeSurvived: 0,
-    clickDamage: 1,
-    defenders: [],
-    enemies: [],
-    arrows: [],
-    goldPopups: [],
-    splashEffects: [],
-    levelUpAnimations: [],
-    floatingTexts: [],
-    upgradeAnimations: [],
-    damageNumbers: [],
-    vortexes: [], // Active vortex effects
-    lastSave: Date.now(),
-    isPaused: false,
-    purchases: {},
-    difficultyLevel: 1,
-    predictedArrowDamage: new Map(),
-    predictedBurnDamage: new Map(),
-    elements: getAvailableElements().reduce((acc, elementType) => {
-      acc[elementType] = createInitialElementData(elementType);
-      return acc;
-    }, {} as Record<string, ElementData>),
-  });
+  const { stateRef, triggerRender } = useGameStateRef(
+    createInitialGameState(true) // dev mode = true for 500 starting gold
+  );
 
-  // Game loop
+  // Timer - increment time survived every second
   useEffect(() => {
-    if (gameState.isPaused) return;
-
-    const gameLoop = setInterval(() => {
-      setGameState((prev) => ({
-        ...prev,
-        timeSurvived: prev.timeSurvived + 1,
-      }));
+    const timerLoop = setInterval(() => {
+      if (stateRef.current.isPaused) return;
+      stateRef.current.timeSurvived += 1;
+      triggerRender();
     }, 1000);
 
-    return () => clearInterval(gameLoop);
-  }, [gameState.isPaused]);
+    return () => clearInterval(timerLoop);
+  }, [stateRef, triggerRender]);
 
   // Auto-save every 5 seconds
   useEffect(() => {
     const saveInterval = setInterval(() => {
-      setGameState((prev) => {
-        saveGame(prev);
-        return { ...prev, lastSave: Date.now() };
-      });
+      saveGame(stateRef.current);
+      stateRef.current.lastSave = Date.now();
+      // Don't need to trigger render for save - it's background
     }, 5000);
 
     return () => clearInterval(saveInterval);
-  }, []); // Empty dependency array - only run once on mount
+  }, [stateRef]);
 
   // Load save on mount
   useEffect(() => {
@@ -73,67 +42,40 @@ function App() {
         "Loading saved game state, difficulty level:",
         savedGameState.difficultyLevel
       );
-      setGameState(savedGameState);
+      stateRef.current = savedGameState;
+      triggerRender();
     } else {
       console.log("No saved game found, using default difficulty level: 1");
     }
-  }, []);
+  }, [stateRef, triggerRender]);
 
   const togglePause = () => {
-    setGameState((prev) => ({
-      ...prev,
-      isPaused: !prev.isPaused,
-    }));
+    stateRef.current.isPaused = !stateRef.current.isPaused;
+    triggerRender();
   };
 
   const resetGame = () => {
     clearSave();
-    setGameState({
-      gold: 500, // dev only
-      castleHealth: 100,
-      timeSurvived: 0,
-      clickDamage: 1,
-      defenders: [],
-      enemies: [],
-      arrows: [],
-      goldPopups: [],
-      splashEffects: [],
-      levelUpAnimations: [],
-      floatingTexts: [],
-      upgradeAnimations: [],
-      damageNumbers: [],
-      vortexes: [], // Active vortex effects
-      lastSave: Date.now(),
-      isPaused: false,
-      purchases: {},
-      difficultyLevel: 1,
-      predictedArrowDamage: new Map(),
-      predictedBurnDamage: new Map(),
-      elements: getAvailableElements().reduce((acc, elementType) => {
-        acc[elementType] = createInitialElementData(elementType);
-        return acc;
-      }, {} as Record<string, ElementData>),
-    });
+    stateRef.current = createInitialGameState(true); // dev mode
+    triggerRender();
   };
 
   const addDevGold = () => {
-    setGameState((prev) => ({
-      ...prev,
-      gold: prev.gold + 10000,
-    }));
+    stateRef.current.gold += 10000;
+    triggerRender();
   };
 
   return (
     <div className="App">
       <GameHeader
-        gameState={gameState}
+        stateRef={stateRef}
         onPauseToggle={togglePause}
         onReset={resetGame}
         onDevGold={addDevGold}
       />
       <div className="game-container">
-        <GameArea gameState={gameState} setGameState={setGameState} />
-        <GameSidebar gameState={gameState} setGameState={setGameState} />
+        <GameArea stateRef={stateRef} triggerRender={triggerRender} />
+        <GameSidebar stateRef={stateRef} triggerRender={triggerRender} />
       </div>
     </div>
   );

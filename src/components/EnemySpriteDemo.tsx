@@ -32,7 +32,7 @@ const EnemySpriteDemo: React.FC = () => {
       <div className="enemy-grid">
         {enemies.map((enemy) => (
           <div key={enemy.type} className="enemy-card">
-            <EnemySprite type={enemy.type} />
+            <EnemySprite colorIndex={enemies.indexOf(enemy)} />
             <h4>{enemy.name}</h4>
             <p>{enemy.description}</p>
           </div>

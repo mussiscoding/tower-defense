@@ -5,7 +5,7 @@ import type {
   FloatingText as FloatingTextType,
 } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Enemy from "./Enemy";
 import Castle from "./Castle";
 import Defender from "./Defender";
@@ -38,241 +38,234 @@ import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 import "./GameArea.css";
 
 interface GameAreaProps {
-  gameState: GameState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  stateRef: React.MutableRefObject<GameState>;
+  triggerRender: () => void;
 }
 
-const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
+const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const waveTimeoutsRef = useRef<number[]>([]);
 
   // Wave-based enemy spawning with random distribution over 3s
   useEffect(() => {
-    if (gameState.isPaused) return;
-
-    const timeouts: number[] = [];
+    if (stateRef.current.isPaused) return;
 
     const spawnWave = () => {
       if (!gameAreaRef.current) return;
-      const wave = generateWave(gameState.difficultyLevel, enemies);
-      // Flatten the wave into a list of enemyIds
+      const wave = generateWave(stateRef.current.difficultyLevel, enemies);
       const enemyIds: string[] = wave.waveEnemies.flatMap((waveEnemy) =>
         Array(waveEnemy.count).fill(waveEnemy.enemyId)
       );
       const rect = gameAreaRef.current.getBoundingClientRect();
-      // For each enemy, schedule a spawn at a random time in [0, 3000) ms
+
+      // Clear previous timeouts
+      waveTimeoutsRef.current.forEach(clearTimeout);
+      waveTimeoutsRef.current = [];
+
       enemyIds.forEach((enemyId) => {
         const delay = Math.random() * 3000;
         const timeout = setTimeout(() => {
           const spawnX = Math.max(rect.width - 100, 700);
           const spawnY = Math.random() * (rect.height - 100) + 50;
           const newEnemy = createEnemy(spawnX, spawnY, enemyId);
-          setGameState((prev) => ({
-            ...prev,
-            enemies: [...prev.enemies, newEnemy],
-          }));
+          stateRef.current.enemies = [...stateRef.current.enemies, newEnemy];
+          // Don't trigger render here - game loop will handle it
         }, delay);
-        timeouts.push(timeout);
+        waveTimeoutsRef.current.push(timeout);
       });
     };
 
-    // Spawn a wave every 3 seconds
     spawnWave();
     const waveInterval = setInterval(spawnWave, 3000);
 
     return () => {
       clearInterval(waveInterval);
-      timeouts.forEach(clearTimeout);
+      waveTimeoutsRef.current.forEach(clearTimeout);
     };
-  }, [gameState.difficultyLevel, gameState.isPaused, setGameState]);
+  }, [stateRef.current.difficultyLevel, stateRef.current.isPaused, stateRef]);
 
-  // Enemy movement and defender attacks
-  // Game loop
+  // Main game loop - now uses ref-based state for synchronous updates
   useEffect(() => {
-    if (gameState.isPaused) return;
+    if (stateRef.current.isPaused) return;
 
     const gameLoop = setInterval(() => {
-      setGameState((prev) => {
-        // Update vortex effects first (clean up expired ones)
-        const enemiesWithUpdatedVortexes = updateVortexEffectsInGameLoop(
-          prev.enemies,
-          Date.now()
-        );
+      const state = stateRef.current;
+      const now = Date.now();
 
-        // Move enemies (including vortex pull effects)
-        const movedEnemies = moveEnemies(
-          enemiesWithUpdatedVortexes,
-          Date.now()
-        );
+      // Update vortex effects first (clean up expired ones)
+      const enemiesWithUpdatedVortexes = updateVortexEffectsInGameLoop(
+        state.enemies,
+        now
+      );
 
-        const enemiesWithBurnDamage = processBurnDamage(
-          movedEnemies,
-          Date.now()
-        );
-        const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
+      // Move enemies (including vortex pull effects)
+      const movedEnemies = moveEnemies(enemiesWithUpdatedVortexes, now);
 
-        // Update defenders (attack enemies)
-        const {
-          defenders: updatedDefenders,
-          enemies: enemiesAfterDefenderAttacks,
-          arrows: newArrows,
-          predictedArrowDamage: updatedPredictedArrowDamage,
-          predictedBurnDamage: updatedPredictedBurnDamage,
-          vortexes: newVortexes,
-        } = updateDefenders(
-          prev.defenders,
-          aliveEnemies,
-          Date.now(),
-          prev.predictedArrowDamage,
-          prev.predictedBurnDamage,
-          prev.purchases,
-          prev.elements
-        );
+      const enemiesWithBurnDamage = processBurnDamage(movedEnemies, now);
+      const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
 
-        // Capture previous element levels before arrow processing
-        const previousElementLevels = {
-          fire: prev.elements.fire?.level || 1,
-          ice: prev.elements.ice?.level || 1,
-          earth: prev.elements.earth?.level || 1,
-          air: prev.elements.air?.level || 1,
-        };
+      // Update defenders (attack enemies) - now reads current predicted damage synchronously
+      const {
+        defenders: updatedDefenders,
+        enemies: enemiesAfterDefenderAttacks,
+        arrows: newArrows,
+        predictedArrowDamage: updatedPredictedArrowDamage,
+        predictedBurnDamage: updatedPredictedBurnDamage,
+        vortexes: newVortexes,
+      } = updateDefenders(
+        state.defenders,
+        aliveEnemies,
+        now,
+        state.predictedArrowDamage,
+        state.predictedBurnDamage,
+        state.purchases,
+        state.elements
+      );
 
-        // Process arrow impacts and update arrows
-        const {
-          arrows: activeArrows,
-          enemies: enemiesAfterArrowImpacts,
-          goldGained,
-          goldPopups: newGoldPopups,
-          splashEffects: newSplashEffects,
-          damageNumbers: newDamageNumbers,
-          predictedArrowDamage: finalPredictedArrowDamage,
-          predictedBurnDamage: finalPredictedBurnDamage,
-          elements: updatedElements,
-        } = processArrowImpacts(
-          [...prev.arrows, ...newArrows],
-          enemiesAfterDefenderAttacks,
-          Date.now(),
-          updatedPredictedArrowDamage,
-          updatedPredictedBurnDamage,
-          prev.elements,
-          prev.purchases
-        );
+      // Update state synchronously - these values are immediately visible
+      state.defenders = updatedDefenders;
+      state.predictedArrowDamage = updatedPredictedArrowDamage;
+      state.predictedBurnDamage = updatedPredictedBurnDamage;
 
-        // Check for level-ups and create animations for all defenders of that element type
-        const newLevelUpAnimations: LevelUpAnimation[] = [];
-        const newFloatingTexts: FloatingTextType[] = [];
-        const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+      // Capture previous element levels before arrow processing
+      const previousElementLevels = {
+        fire: state.elements.fire?.level || 1,
+        ice: state.elements.ice?.level || 1,
+        earth: state.elements.earth?.level || 1,
+        air: state.elements.air?.level || 1,
+      };
 
-        elementTypes.forEach((elementType) => {
-          const prevLevel = previousElementLevels[elementType];
-          const updatedElement = updatedElements[elementType];
-          const newLevel = updatedElement?.level || 1;
+      // Process arrow impacts and update arrows
+      const {
+        arrows: activeArrows,
+        enemies: enemiesAfterArrowImpacts,
+        goldGained,
+        goldPopups: newGoldPopups,
+        splashEffects: newSplashEffects,
+        damageNumbers: newDamageNumbers,
+        predictedArrowDamage: finalPredictedArrowDamage,
+        predictedBurnDamage: finalPredictedBurnDamage,
+        elements: updatedElements,
+      } = processArrowImpacts(
+        [...state.arrows, ...newArrows],
+        enemiesAfterDefenderAttacks,
+        now,
+        updatedPredictedArrowDamage,
+        updatedPredictedBurnDamage,
+        state.elements,
+        state.purchases
+      );
 
-          if (newLevel > prevLevel) {
-            // Find all defenders of this element type
-            const defendersOfType = updatedDefenders.filter(
-              (defender) => defender.type === elementType
+      // Check for level-ups and create animations for all defenders of that element type
+      const newLevelUpAnimations: LevelUpAnimation[] = [];
+      const newFloatingTexts: FloatingTextType[] = [];
+      const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+
+      elementTypes.forEach((elementType) => {
+        const prevLevel = previousElementLevels[elementType];
+        const updatedElement = updatedElements[elementType];
+        const newLevel = updatedElement?.level || 1;
+
+        if (newLevel > prevLevel) {
+          const defendersOfType = updatedDefenders.filter(
+            (defender) => defender.type === elementType
+          );
+
+          defendersOfType.forEach((defender) => {
+            const levelUpAnimation = createLevelUpAnimation(
+              elementType,
+              defender.x + 11,
+              defender.y + 8,
+              now
             );
+            newLevelUpAnimations.push(levelUpAnimation);
 
-            // Create level-up animation and floating text for each defender of this element type
-            defendersOfType.forEach((defender) => {
-              const levelUpAnimation = createLevelUpAnimation(
-                elementType,
-                defender.x + 11,
-                defender.y + 8,
-                Date.now()
-              );
-              newLevelUpAnimations.push(levelUpAnimation);
-
-              // Create floating text showing the stat increase
-              const floatingText = createFloatingText(
-                "Level up!",
-                defender.x + 20, // Center of the defender
-                defender.y - 10, // Position above the defender
-                elementType,
-                Date.now()
-              );
-              newFloatingTexts.push(floatingText);
-            });
-          }
-        });
-
-        // Remove dead enemies after all processing
-        const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
-
-        // Handle castle damage
-        const { castleHealth, enemies, castleDestroyed } = damageCastle(
-          finalEnemies,
-          prev.castleHealth
-        );
-
-        // If castle is destroyed, handle the consequences
-        if (castleDestroyed) {
-          return handleCastleDestruction(prev);
+            const floatingText = createFloatingText(
+              "Level up!",
+              defender.x + 20,
+              defender.y - 10,
+              elementType,
+              now
+            );
+            newFloatingTexts.push(floatingText);
+          });
         }
-
-        return {
-          ...prev,
-          defenders: updatedDefenders,
-          enemies,
-          arrows: activeArrows,
-          gold: prev.gold + goldGained,
-          goldPopups: [...prev.goldPopups, ...newGoldPopups],
-          splashEffects: [...prev.splashEffects, ...newSplashEffects],
-          vortexes: [...prev.vortexes, ...newVortexes], // Add new vortexes to game state
-          damageNumbers: [...prev.damageNumbers, ...newDamageNumbers],
-          levelUpAnimations: [
-            ...prev.levelUpAnimations,
-            ...newLevelUpAnimations,
-          ],
-          floatingTexts: [...prev.floatingTexts, ...newFloatingTexts],
-          castleHealth,
-          predictedArrowDamage: finalPredictedArrowDamage,
-          predictedBurnDamage: finalPredictedBurnDamage,
-          elements: updatedElements,
-        };
       });
-    }, 50); // Update every 50ms for smooth movement
+
+      // Remove dead enemies after all processing
+      const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
+
+      // Handle castle damage
+      const { castleHealth, enemies: enemiesAfterCastle, castleDestroyed } = damageCastle(
+        finalEnemies,
+        state.castleHealth
+      );
+
+      // If castle is destroyed, handle the consequences
+      if (castleDestroyed) {
+        const destroyedState = handleCastleDestruction(state);
+        stateRef.current = destroyedState;
+        triggerRender();
+        return;
+      }
+
+      // Update all state synchronously
+      state.enemies = enemiesAfterCastle;
+      state.arrows = activeArrows;
+      state.gold = state.gold + goldGained;
+      state.goldPopups = [...state.goldPopups, ...newGoldPopups];
+      state.splashEffects = [...state.splashEffects, ...newSplashEffects];
+      state.vortexes = [...state.vortexes, ...newVortexes];
+      state.damageNumbers = [...state.damageNumbers, ...newDamageNumbers];
+      state.levelUpAnimations = [...state.levelUpAnimations, ...newLevelUpAnimations];
+      state.floatingTexts = [...state.floatingTexts, ...newFloatingTexts];
+      state.castleHealth = castleHealth;
+      state.predictedArrowDamage = finalPredictedArrowDamage;
+      state.predictedBurnDamage = finalPredictedBurnDamage;
+      state.elements = updatedElements;
+
+      // Trigger single render at end of tick
+      triggerRender();
+    }, 50);
 
     return () => clearInterval(gameLoop);
-  }, [gameState.isPaused, setGameState]);
+  }, [stateRef.current.isPaused, stateRef, triggerRender]);
 
   // Clean up expired splash effects and floating texts
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
+      const state = stateRef.current;
       const currentTime = Date.now();
-      setGameState((prev) => ({
-        ...prev,
-        splashEffects: prev.splashEffects.filter(
-          (effect) => currentTime - effect.startTime < effect.duration
-        ),
-        floatingTexts: prev.floatingTexts.filter(
-          (text) => currentTime - text.startTime < text.duration
-        ),
-        damageNumbers:
-          prev.damageNumbers?.filter(
-            (damageNumber) => currentTime - damageNumber.startTime < 1500
-          ) || [],
-        upgradeAnimations:
-          prev.upgradeAnimations?.filter(
-            (animation) =>
-              currentTime - animation.startTime < animation.duration
-          ) || [],
-      }));
-    }, 100); // Check every 100ms
+
+      state.splashEffects = state.splashEffects.filter(
+        (effect) => currentTime - effect.startTime < effect.duration
+      );
+      state.floatingTexts = state.floatingTexts.filter(
+        (text) => currentTime - text.startTime < text.duration
+      );
+      state.damageNumbers = (state.damageNumbers || []).filter(
+        (damageNumber) => currentTime - damageNumber.startTime < 1500
+      );
+      state.upgradeAnimations = (state.upgradeAnimations || []).filter(
+        (animation) => currentTime - animation.startTime < animation.duration
+      );
+      // Don't trigger render - let game loop handle it
+    }, 100);
 
     return () => clearInterval(cleanupInterval);
-  }, [setGameState]);
+  }, [stateRef]);
 
-  const handleEnemyClick = (enemy: EnemyType) => {
-    if (gameState.isPaused) return; // Prevent clicking when paused
+  const handleEnemyClick = useCallback(
+    (enemy: EnemyType) => {
+      const state = stateRef.current;
+      if (state.isPaused) return;
 
-    const { enemy: damagedEnemy, isDead } = damageEnemy(
-      enemy,
-      gameState.clickDamage
-    );
+      const { enemy: damagedEnemy, isDead } = damageEnemy(
+        enemy,
+        state.clickDamage
+      );
 
-    setGameState((prev) => {
-      const updatedEnemies = prev.enemies.map((e) =>
+      state.enemies = state.enemies.map((e) =>
         e.id === enemy.id ? damagedEnemy : e
       );
 
@@ -281,20 +274,68 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           enemy,
           Date.now()
         );
-        return {
-          ...prev,
-          enemies: updatedEnemies.filter((e) => e.id !== enemy.id),
-          gold: prev.gold + goldGained,
-          goldPopups: [...prev.goldPopups, ...deathPopups],
-        };
+        state.enemies = state.enemies.filter((e) => e.id !== enemy.id);
+        state.gold = state.gold + goldGained;
+        state.goldPopups = [...state.goldPopups, ...deathPopups];
       }
 
-      return {
-        ...prev,
-        enemies: updatedEnemies,
-      };
-    });
-  };
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleGoldPopupComplete = useCallback(
+    (id: string) => {
+      stateRef.current.goldPopups = stateRef.current.goldPopups.filter(
+        (p) => p.id !== id
+      );
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleLevelUpComplete = useCallback(
+    (id: string) => {
+      stateRef.current.levelUpAnimations = stateRef.current.levelUpAnimations.filter(
+        (a) => a.id !== id
+      );
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleFloatingTextComplete = useCallback(
+    (id: string) => {
+      stateRef.current.floatingTexts = stateRef.current.floatingTexts.filter(
+        (t) => t.id !== id
+      );
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleUpgradeComplete = useCallback(
+    (id: string) => {
+      stateRef.current.upgradeAnimations = (
+        stateRef.current.upgradeAnimations || []
+      ).filter((a) => a.id !== id);
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleDamageNumberComplete = useCallback(
+    (id: string) => {
+      stateRef.current.damageNumbers = (
+        stateRef.current.damageNumbers || []
+      ).filter((dn) => dn.id !== id);
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  // Read current state for rendering
+  const gameState = stateRef.current;
 
   return (
     <div className="game-area" ref={gameAreaRef}>
@@ -345,12 +386,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             x={popup.x}
             y={popup.y}
             amount={popup.amount}
-            onComplete={() => {
-              setGameState((prev) => ({
-                ...prev,
-                goldPopups: prev.goldPopups.filter((p) => p.id !== popup.id),
-              }));
-            }}
+            onComplete={() => handleGoldPopupComplete(popup.id)}
           />
         ))}
 
@@ -366,14 +402,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           <LevelUpAnimationComponent
             key={animation.id}
             animation={animation}
-            onComplete={(id: string) => {
-              setGameState((prev) => ({
-                ...prev,
-                levelUpAnimations: prev.levelUpAnimations.filter(
-                  (a) => a.id !== id
-                ),
-              }));
-            }}
+            onComplete={handleLevelUpComplete}
           />
         ))}
 
@@ -381,16 +410,10 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
           <FloatingText
             key={text.id}
             text={text}
-            onComplete={(id: string) => {
-              setGameState((prev) => ({
-                ...prev,
-                floatingTexts: prev.floatingTexts.filter((t) => t.id !== id),
-              }));
-            }}
+            onComplete={handleFloatingTextComplete}
           />
         ))}
 
-        {/* Render active vortex effects */}
         {gameState.vortexes?.map((vortex) => (
           <VortexEffect
             key={vortex.id}
@@ -405,13 +428,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             animation={animation}
             x={animation.mageX}
             y={animation.mageY}
-            onComplete={(id: string) => {
-              setGameState((prev) => ({
-                ...prev,
-                upgradeAnimations:
-                  prev.upgradeAnimations?.filter((a) => a.id !== id) || [],
-              }));
-            }}
+            onComplete={handleUpgradeComplete}
           />
         ))}
 
@@ -423,15 +440,7 @@ const GameArea: React.FC<GameAreaProps> = ({ gameState, setGameState }) => {
             y={damageNumber.y}
             elementType={damageNumber.elementType}
             isCritical={damageNumber.isCritical}
-            onComplete={() => {
-              setGameState((prev) => ({
-                ...prev,
-                damageNumbers:
-                  prev.damageNumbers?.filter(
-                    (dn) => dn.id !== damageNumber.id
-                  ) || [],
-              }));
-            }}
+            onComplete={() => handleDamageNumberComplete(damageNumber.id)}
           />
         ))}
       </div>

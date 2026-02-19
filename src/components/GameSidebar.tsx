@@ -15,90 +15,128 @@ import "./GameSidebar.css";
 import Mages from "./Mages";
 
 interface GameSidebarProps {
-  gameState: GameState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  stateRef: React.MutableRefObject<GameState>;
+  triggerRender: () => void;
 }
 
 const GameSidebar: React.FC<GameSidebarProps> = ({
-  gameState,
-  setGameState,
+  stateRef,
+  triggerRender,
 }) => {
   const handleSkillPurchase = (skillId: string) => {
-    setGameState((prev) => purchaseSkill(prev, skillId));
+    const newState = purchaseSkill(stateRef.current, skillId);
+    stateRef.current = newState;
+    triggerRender();
   };
 
   const handlePurchase = (itemId: string) => {
+    const state = stateRef.current;
     const item = shopItems.find((shopItem) => shopItem.id === itemId);
-    const currentPrice = getCurrentPrice(item!, gameState.purchases);
-    if (!item || gameState.gold < currentPrice) return;
+    const currentPrice = getCurrentPrice(item!, state.purchases);
+    if (!item || state.gold < currentPrice) return;
 
-    setGameState((prev) => {
-      // Handle click damage upgrade (special case)
-      if (itemId === "click_damage_upgrade") {
-        return {
-          ...prev,
-          gold: prev.gold - currentPrice,
-          clickDamage: prev.clickDamage + 1,
-          purchases: {
-            ...prev.purchases,
-            [itemId]: (prev.purchases[itemId] || 0) + 1,
-          },
-        };
-      }
+    // Handle click damage upgrade (special case)
+    if (itemId === "click_damage_upgrade") {
+      state.gold -= currentPrice;
+      state.clickDamage += 1;
+      state.purchases = {
+        ...state.purchases,
+        [itemId]: (state.purchases[itemId] || 0) + 1,
+      };
+      triggerRender();
+      return;
+    }
 
-      // Handle upgrade shop items (they define their own effects)
-      const upgradeItem = allUpgrades.find((upgrade) => upgrade.id === itemId);
-      if (upgradeItem) {
-        const updatedState = upgradeItem.effect(prev);
+    // Handle upgrade shop items (they define their own effects)
+    const upgradeItem = allUpgrades.find((upgrade) => upgrade.id === itemId);
+    if (upgradeItem) {
+      const updatedState = upgradeItem.effect(state);
 
-        // Determine the element type from the upgrade ID
-        const elementType = itemId.split("_")[0] as ElementType; // fire, ice, earth, air
+      // Determine the element type from the upgrade ID
+      const elementType = itemId.split("_")[0] as ElementType;
 
-        // Find all mages of this element type to get their positions
-        const magesOfType = prev.defenders.filter(
-          (defender) => defender.type === elementType
+      // Find all mages of this element type to get their positions
+      const magesOfType = state.defenders.filter(
+        (defender) => defender.type === elementType
+      );
+
+      // Create fireworks animation and floating text for each mage of this element type
+      const newUpgradeAnimations = magesOfType.map((mage) => {
+        return createUpgradeAnimation(
+          upgradeItem.shortName || item.name,
+          elementType,
+          mage.x - 5,
+          mage.y - 5,
+          Date.now()
         );
+      });
 
-        // Create fireworks animation and floating text for each mage of this element type
-        const newUpgradeAnimations = magesOfType.map((mage) => {
-          return createUpgradeAnimation(
-            upgradeItem.shortName || item.name,
-            elementType,
-            mage.x - 5, // Center of the mage (40px container)
-            mage.y - 5,
-            Date.now()
-          );
-        });
+      // Create floating texts for each mage
+      const newFloatingTexts = magesOfType.map((mage) => {
+        return createFloatingText(
+          upgradeItem.shortName || item.name,
+          mage.x + 20,
+          mage.y - 2,
+          elementType,
+          Date.now()
+        );
+      });
 
-        // Create floating texts for each mage
-        const newFloatingTexts = magesOfType.map((mage) => {
-          return createFloatingText(
-            upgradeItem.shortName || item.name,
-            mage.x + 20, // Center of the mage
-            mage.y - 2, // Position above the mage like level up text
-            elementType,
-            Date.now()
-          );
-        });
-
-        return {
-          ...updatedState,
-          gold: prev.gold - currentPrice,
-          purchases: {
-            ...prev.purchases,
-            [itemId]: (prev.purchases[itemId] || 0) + 1,
-          },
-          upgradeAnimations: [
-            ...prev.upgradeAnimations,
-            ...newUpgradeAnimations,
-          ],
-          floatingTexts: [...prev.floatingTexts, ...newFloatingTexts],
-        };
-      }
-
-      return prev;
-    });
+      // Update state
+      stateRef.current = {
+        ...updatedState,
+        gold: state.gold - currentPrice,
+        purchases: {
+          ...updatedState.purchases,
+          [itemId]: (state.purchases[itemId] || 0) + 1,
+        },
+        upgradeAnimations: [
+          ...(state.upgradeAnimations || []),
+          ...newUpgradeAnimations,
+        ],
+        floatingTexts: [...state.floatingTexts, ...newFloatingTexts],
+      };
+      triggerRender();
+    }
   };
+
+  const handlePurchaseMage = (elementType: ElementType, cost: number) => {
+    const state = stateRef.current;
+    const elementLevel = state.elements[elementType]?.level || 1;
+    const canPurchase = canPurchaseMage(
+      state.defenders,
+      elementType,
+      elementLevel
+    );
+
+    if (state.gold >= cost && canPurchase) {
+      const smartY = getBisectingDefenderPosition(state.defenders);
+      state.gold -= cost;
+      state.defenders = [
+        ...state.defenders,
+        createDefender(GAME_DIMENSIONS.DEFENDER_SPAWN_X, smartY, elementType),
+      ];
+      state.purchases = {
+        ...state.purchases,
+        [elementType]: (state.purchases[elementType] || 0) + 1,
+      };
+      triggerRender();
+    }
+  };
+
+  const handleDifficultyChange = (delta: number) => {
+    const state = stateRef.current;
+    state.difficultyLevel = Math.max(1, Math.min(10000, state.difficultyLevel + delta));
+    triggerRender();
+  };
+
+  const handleDifficultyInput = (value: number) => {
+    stateRef.current.difficultyLevel = Math.max(1, Math.min(10000, value));
+    triggerRender();
+  };
+
+  // Read current state for rendering
+  const gameState = stateRef.current;
 
   return (
     <div className="game-sidebar">
@@ -108,100 +146,31 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           currentGold={gameState.gold}
           purchases={gameState.purchases}
           defenders={gameState.defenders}
-          onPurchaseMage={(elementType, cost) => {
-            const elementLevel = gameState.elements[elementType]?.level || 1;
-            const canPurchase = canPurchaseMage(
-              gameState.defenders,
-              elementType,
-              elementLevel
-            );
-
-            if (gameState.gold >= cost && canPurchase) {
-              const smartY = getBisectingDefenderPosition(gameState.defenders);
-              setGameState((prev) => ({
-                ...prev,
-                gold: prev.gold - cost,
-                defenders: [
-                  ...prev.defenders,
-                  createDefender(
-                    GAME_DIMENSIONS.DEFENDER_SPAWN_X,
-                    smartY,
-                    elementType
-                  ),
-                ],
-                purchases: {
-                  ...prev.purchases,
-                  [elementType]: (prev.purchases[elementType] || 0) + 1,
-                },
-              }));
-            }
-          }}
-          onPurchaseUpgrade={(itemId) => {
-            handlePurchase(itemId);
-          }}
+          onPurchaseMage={handlePurchaseMage}
+          onPurchaseUpgrade={handlePurchase}
           onPurchaseSkill={handleSkillPurchase}
         />
       </div>
 
       <div className="sidebar-section">
-        <h3>⚙️ Difficulty Controls</h3>
+        <h3>Difficulty Controls</h3>
         <div className="difficulty-controls">
           <div className="control-group">
             <label htmlFor="difficulty">Difficulty Level</label>
             <div className="difficulty-input">
-              <button
-                onClick={() =>
-                  setGameState((prev) => ({
-                    ...prev,
-                    difficultyLevel: Math.max(1, prev.difficultyLevel - 10),
-                  }))
-                }
-              >
-                -10
-              </button>
-              <button
-                onClick={() =>
-                  setGameState((prev) => ({
-                    ...prev,
-                    difficultyLevel: Math.max(1, prev.difficultyLevel - 1),
-                  }))
-                }
-              >
-                -1
-              </button>
+              <button onClick={() => handleDifficultyChange(-10)}>-10</button>
+              <button onClick={() => handleDifficultyChange(-1)}>-1</button>
               <input
                 type="number"
                 min="1"
                 max="10000"
                 value={gameState.difficultyLevel}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value) || 1;
-                  setGameState((prev) => ({
-                    ...prev,
-                    difficultyLevel: Math.max(1, Math.min(10000, value)),
-                  }));
-                }}
+                onChange={(e) =>
+                  handleDifficultyInput(parseInt(e.target.value) || 1)
+                }
               />
-              <button
-                onClick={() =>
-                  setGameState((prev) => ({
-                    ...prev,
-                    difficultyLevel: Math.min(10000, prev.difficultyLevel + 1),
-                  }))
-                }
-              >
-                +1
-              </button>
-              <button
-                onClick={() =>
-                  setGameState((prev) => ({
-                    ...prev,
-                    difficultyLevel: Math.min(10000, prev.difficultyLevel + 10),
-                  }))
-                }
-              >
-                +10
-              </button>
+              <button onClick={() => handleDifficultyChange(1)}>+1</button>
+              <button onClick={() => handleDifficultyChange(10)}>+10</button>
             </div>
           </div>
         </div>

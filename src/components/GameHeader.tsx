@@ -2,18 +2,20 @@ import type { GameState } from "../types/GameState";
 import "./GameHeader.css";
 
 interface GameHeaderProps {
-  gameState: GameState;
+  stateRef: React.MutableRefObject<GameState>;
   onPauseToggle: () => void;
   onReset: () => void;
   onDevGold?: () => void;
 }
 
 const GameHeader: React.FC<GameHeaderProps> = ({
-  gameState,
+  stateRef,
   onPauseToggle,
   onReset,
   onDevGold,
 }) => {
+  const gameState = stateRef.current;
+
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

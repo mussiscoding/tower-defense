@@ -45,7 +45,7 @@ export const loadGame = (): GameState | null => {
       floatingTexts: parsed.floatingTexts ?? [],
       upgradeAnimations: parsed.upgradeAnimations ?? [],
       damageNumbers: parsed.damageNumbers ?? [],
-      vortexes: (parsed.vortexes ?? []).map((vortex) => ({
+      vortexes: (parsed.vortexes ?? []).map((vortex: { affectedEnemyIds?: string[] }) => ({
         ...vortex,
         affectedEnemyIds: new Set(vortex.affectedEnemyIds || []),
       })),

@@ -1,5 +1,4 @@
 import type { Enemy } from "../types/GameState";
-import type { ElementAbilities } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 
 // Legacy ElementEffectResult interface - kept for potential future use
