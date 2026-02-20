@@ -47,7 +47,7 @@ This file tracks additional features and improvements for future development pha
 
 ### Ice Upgrades
 
-- [ ] **Ice permafrost**: After x attacks, freeze enemy in place for 1s
+- [x] **Ice permafrost**: After x attacks, freeze enemy in place for 1s
   - Requires ice level 20, Expensive
   - Visual: Cool frozen effect (translucent ice block over the enemy)
 - [ ] **Ice wall**: Like invoker ice wall, across the middle of the map (vertical)

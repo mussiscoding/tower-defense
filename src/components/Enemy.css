@@ -3,11 +3,15 @@
   cursor: pointer;
   user-select: none;
   z-index: 5;
-  transition: transform 0.1s ease;
 }
 
 .enemy:active {
-  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+/* Giant enemies */
+.enemy-giant {
+  z-index: 6;
 }
 
 .enemy-dying {

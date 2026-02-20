@@ -5,9 +5,10 @@ interface FireParticlesProps {
   x: number;
   y: number;
   isBurning: boolean;
+  isGiant?: boolean;
 }
 
-const FireParticles: React.FC<FireParticlesProps> = ({ x, y, isBurning }) => {
+const FireParticles: React.FC<FireParticlesProps> = ({ x, y, isBurning, isGiant = false }) => {
   if (!isBurning) return null;
 
   return (
@@ -16,6 +17,7 @@ const FireParticles: React.FC<FireParticlesProps> = ({ x, y, isBurning }) => {
       style={{
         left: `${x}px`,
         top: `${y}px`,
+        ...(isGiant && { transform: 'scale(2)', transformOrigin: 'center center' }),
       }}
     >
       <div className="particle particle-1">🔥</div>

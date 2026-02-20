@@ -26,9 +26,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   };
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${Math.floor(num / 1000000)}M`;
-    if (num >= 1000) return `${Math.floor(num / 1000)}K`;
-    return num.toString();
+    if (num >= 100000000) return `${Math.floor(num / 1000000)}M`;
+    if (num >= 100000) return `${Math.floor(num / 1000)}K`;
+    return Math.floor(num).toString();
   };
 
   return (

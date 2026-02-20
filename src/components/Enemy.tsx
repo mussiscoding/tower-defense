@@ -63,13 +63,18 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
     Date.now() < enemy.slowEndTime
   );
 
+  const isGiant = enemy.isGiant ?? false;
+  const scale = isGiant ? 2 : 1;
+
   return (
     <>
       <div
-        className={`enemy ${isSlowed ? "enemy-slow" : ""}`}
+        className={`enemy ${isSlowed ? "enemy-slow" : ""} ${isGiant ? "enemy-giant" : ""}`}
         style={{
           left: `${enemy.x}px`,
           top: `${enemy.y}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: "center center",
         }}
         onClick={() => onClick(enemy)}
       >
@@ -89,8 +94,8 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
 
       {/* Fire particles for burning enemies */}
       <FireParticles
-        x={enemy.x}
-        y={enemy.y}
+        x={isGiant ? enemy.x - 15 : enemy.x}
+        y={isGiant ? enemy.y - 18 : enemy.y}
         isBurning={
           !!(
             enemy.burnDamage &&
@@ -98,10 +103,16 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
             Date.now() < enemy.burnEndTime
           )
         }
+        isGiant={isGiant}
       />
 
       {/* Ice block effect for frozen enemies */}
-      <IceBlockEffect x={enemy.x + 9} y={enemy.y + 31} isFrozen={isFrozen} />
+      <IceBlockEffect
+        x={isGiant ? enemy.x - 10 : enemy.x + 9}
+        y={isGiant ? enemy.y + 19 : enemy.y + 31}
+        isFrozen={isFrozen}
+        isGiant={isGiant}
+      />
 
       {/* Burn damage numbers */}
       {burnDamageNumbers.map((damageNumber) => (

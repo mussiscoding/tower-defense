@@ -7,6 +7,7 @@
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   min-height: 60px;
+  box-sizing: border-box;
 }
 
 .header-stat {

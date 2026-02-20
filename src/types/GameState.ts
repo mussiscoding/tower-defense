@@ -9,6 +9,7 @@ export interface Enemy {
   speed: number;
   goldValue: number;
   colorIndex: number; // Add color index for shirt color variations
+  isGiant?: boolean; // Giant enemies are 2x size
   spawnTime?: number; // When this enemy should spawn (for pending enemies)
   burnDamage?: number;
   burnEndTime?: number;

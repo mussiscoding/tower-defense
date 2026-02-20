@@ -79,18 +79,20 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         if (gameAreaRef.current) {
           const rect = gameAreaRef.current.getBoundingClientRect();
           const wave = generateWave(state.core.difficultyLevel, enemies);
-          const enemyIds: string[] = wave.waveEnemies.flatMap((waveEnemy) =>
-            Array(waveEnemy.count).fill(waveEnemy.enemyId)
-          );
 
           // Add enemies with staggered spawn times
-          enemyIds.forEach((enemyId) => {
-            const spawnDelay = Math.random() * 3000;
-            const spawnX = Math.max(rect.width - 100, 700);
-            const spawnY = Math.random() * (rect.height - 100) + 50;
-            const newEnemy = createEnemy(spawnX, spawnY, enemyId);
-            newEnemy.spawnTime = now + spawnDelay;
-            state.entities.pendingEnemies.push(newEnemy);
+          wave.waveEnemies.forEach((waveEnemy) => {
+            for (let i = 0; i < waveEnemy.count; i++) {
+              const spawnDelay = Math.random() * 3000;
+              const spawnX = rect.width;
+              const spawnY = Math.random() * (rect.height - 100) + 50;
+              const newEnemy = createEnemy(spawnX, spawnY, waveEnemy.enemyId, {
+                isGiant: waveEnemy.isGiant,
+                customHealth: waveEnemy.customHealth,
+              });
+              newEnemy.spawnTime = now + spawnDelay;
+              state.entities.pendingEnemies.push(newEnemy);
+            }
           });
         }
         meta.lastWaveSpawnTick = meta.tickCount;

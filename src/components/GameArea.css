@@ -1,10 +1,10 @@
 .game-area {
-  flex: 1;
+  width: 1000px; /* Fixed width for consistent gameplay */
+  height: 600px; /* Fixed height for consistent gameplay */
   background: linear-gradient(135deg, #3a5f3a 0%, #2d4a2d 100%);
   position: relative;
   overflow: hidden;
-  min-width: 800px; /* Ensure minimum width for proper gameplay */
-  max-height: 600px; /* Limit height for desktop screens */
+  flex-shrink: 0;
 }
 
 .battlefield {

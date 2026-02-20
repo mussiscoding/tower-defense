@@ -38,7 +38,7 @@ const Mages: React.FC<MagesProps> = ({
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(
     null
   );
-  const [elementTab, setElementTab] = useState<"stats" | "shop">("stats");
+  const [elementTab, setElementTab] = useState<"stats" | "shop">("shop");
 
   const getXPProgress = (element: ElementData) => {
     const currentLevelXP = getXPForLevel(element.level);
@@ -200,19 +200,19 @@ const Mages: React.FC<MagesProps> = ({
           <div className="element-tabs">
             <button
               className={`element-tab-button ${
-                elementTab === "stats" ? "active" : ""
-              }`}
-              onClick={() => setElementTab("stats")}
-            >
-              📊 Stats
-            </button>
-            <button
-              className={`element-tab-button ${
                 elementTab === "shop" ? "active" : ""
               }`}
               onClick={() => setElementTab("shop")}
             >
               🛒 Shop
+            </button>
+            <button
+              className={`element-tab-button ${
+                elementTab === "stats" ? "active" : ""
+              }`}
+              onClick={() => setElementTab("stats")}
+            >
+              📊 Stats
             </button>
           </div>
 

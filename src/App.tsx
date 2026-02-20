@@ -46,15 +46,17 @@ function App() {
 
   return (
     <div className="App">
-      <GameHeader
-        stateRef={stateRef}
-        onPauseToggle={togglePause}
-        onReset={resetGame}
-        onDevGold={addDevGold}
-      />
-      <div className="game-container">
-        <GameArea stateRef={stateRef} triggerRender={triggerRender} />
-        <GameSidebar stateRef={stateRef} triggerRender={triggerRender} />
+      <div className="game-wrapper">
+        <GameHeader
+          stateRef={stateRef}
+          onPauseToggle={togglePause}
+          onReset={resetGame}
+          onDevGold={addDevGold}
+        />
+        <div className="game-container">
+          <GameArea stateRef={stateRef} triggerRender={triggerRender} />
+          <GameSidebar stateRef={stateRef} triggerRender={triggerRender} />
+        </div>
       </div>
     </div>
   );

@@ -7,9 +7,10 @@ interface IceBlockEffectProps {
   x: number;
   y: number;
   isFrozen: boolean;
+  isGiant?: boolean;
 }
 
-const IceBlockEffect: React.FC<IceBlockEffectProps> = ({ x, y, isFrozen }) => {
+const IceBlockEffect: React.FC<IceBlockEffectProps> = ({ x, y, isFrozen, isGiant = false }) => {
   const [iceBlockType, setIceBlockType] = useState<1 | 2>(1);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ const IceBlockEffect: React.FC<IceBlockEffectProps> = ({ x, y, isFrozen }) => {
       style={{
         left: `${x}px`,
         top: `${y}px`,
+        ...(isGiant && { transform: 'scale(2)', transformOrigin: 'center center' }),
       }}
     >
       <img

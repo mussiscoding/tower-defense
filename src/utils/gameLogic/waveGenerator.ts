@@ -1,8 +1,15 @@
 import type { EnemyData } from "../../data/enemies";
 
+interface WaveEnemy {
+  enemyId: string;
+  count: number;
+  isGiant?: boolean;
+  customHealth?: number; // For giants with custom HP
+}
+
 interface WaveComposition {
   totalDifficultyValue: number;
-  waveEnemies: Array<{ enemyId: string; count: number }>;
+  waveEnemies: WaveEnemy[];
 }
 
 export function generateWave(
@@ -10,7 +17,27 @@ export function generateWave(
   availableEnemies: EnemyData[] // Now takes enemy data objects directly
 ): WaveComposition {
   const totalDifficultyValue = difficulty * 50;
+
+  // 1/10 chance for a giant wave
+  if (Math.random() < 0.1) {
+    return generateGiantWave(totalDifficultyValue);
+  }
+
   return generateValidComposition(totalDifficultyValue, availableEnemies);
+}
+
+function generateGiantWave(totalDifficultyValue: number): WaveComposition {
+  // Single giant enemy with 1.5x HP budget
+  const giantHealth = Math.floor(totalDifficultyValue * 1.5);
+  return {
+    totalDifficultyValue,
+    waveEnemies: [{
+      enemyId: "giant",
+      count: 1,
+      isGiant: true,
+      customHealth: giantHealth,
+    }],
+  };
 }
 
 function generateValidComposition(
