@@ -9,8 +9,8 @@ import type {
   Skill,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
-import { calculateElementStats, getLevelFromXP } from "../../data/elements";
 import { damageEnemy, handleEnemyDeath } from "./enemy";
+import { grantElementXP } from "./mutations";
 import { createDamageNumber } from "./uiUtils";
 import { GAME_MECHANICS } from "../../constants/gameDimensions";
 
@@ -154,19 +154,7 @@ export const processArrowImpacts = (
 
         // Grant XP to elements based on damage dealt (1 damage = 1 XP)
         if (element) {
-          element.xp += damage;
-          element.totalDamage += damage;
-
-          // Check for level up
-          const newLevel = getLevelFromXP(element.xp);
-          if (newLevel > element.level) {
-            element.level = newLevel;
-            // Update stats based on new level
-            element.baseStats = calculateElementStats(
-              arrow.elementType,
-              newLevel
-            );
-          }
+          grantElementXP(updatedElements, arrow.elementType, damage);
         }
 
         // Reduce predicted damage since this arrow has hit
