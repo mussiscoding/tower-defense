@@ -44,6 +44,14 @@ function App() {
     triggerRender();
   };
 
+  const handleDifficultyChange = (delta: number) => {
+    stateRef.current.core.difficultyLevel = Math.max(
+      1,
+      Math.min(10000, stateRef.current.core.difficultyLevel + delta)
+    );
+    triggerRender();
+  };
+
   return (
     <div className="App">
       <div className="game-wrapper">
@@ -52,6 +60,7 @@ function App() {
           onPauseToggle={togglePause}
           onReset={resetGame}
           onDevGold={addDevGold}
+          onDifficultyChange={handleDifficultyChange}
         />
         <div className="game-container">
           <GameArea stateRef={stateRef} triggerRender={triggerRender} />

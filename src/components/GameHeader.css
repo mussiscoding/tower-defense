@@ -95,3 +95,28 @@
 .dev-gold-button:active {
   transform: scale(0.95);
 }
+
+.difficulty-stat {
+  gap: 4px;
+}
+
+.difficulty-btn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #8b4513;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: #ffd700;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 28px;
+}
+
+.difficulty-btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.difficulty-btn:active {
+  transform: scale(0.95);
+}

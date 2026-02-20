@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "../data/elements";
 import type { MergeAnimation } from "../types/GameState";
@@ -16,6 +17,8 @@ import { recalculateElementDamage } from "../utils/gameLogic/mutations";
 import "./GameSidebar.css";
 import Mages from "./Mages";
 
+type SidebarTab = "mages" | "stats";
+
 interface GameSidebarProps {
   stateRef: React.MutableRefObject<GameState>;
   triggerRender: () => void;
@@ -25,6 +28,17 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
   stateRef,
   triggerRender,
 }) => {
+  const [activeTab, setActiveTab] = useState<SidebarTab>("mages");
+
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
   const handleSkillPurchase = (skillId: string) => {
     purchaseSkillSliced(stateRef.current, skillId);
     triggerRender();
@@ -176,61 +190,65 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
     triggerRender();
   };
 
-  const handleDifficultyChange = (delta: number) => {
-    const state = stateRef.current;
-    state.core.difficultyLevel = Math.max(
-      1,
-      Math.min(10000, state.core.difficultyLevel + delta)
-    );
-    triggerRender();
-  };
-
-  const handleDifficultyInput = (value: number) => {
-    stateRef.current.core.difficultyLevel = Math.max(1, Math.min(10000, value));
-    triggerRender();
-  };
-
   // Read current state for rendering
   const { core, entities } = stateRef.current;
 
   return (
     <div className="game-sidebar">
-      <div className="sidebar-section">
-        <Mages
-          elements={core.elements}
-          currentGold={core.gold}
-          purchases={core.purchases}
-          defenders={entities.defenders}
-          mageProgress={core.mageProgress}
-          onPurchaseMage={handlePurchaseMage}
-          onPurchaseUpgrade={handlePurchase}
-          onPurchaseSkill={handleSkillPurchase}
-        />
+      <div className="sidebar-tabs">
+        <button
+          className={`sidebar-tab ${activeTab === "mages" ? "active" : ""}`}
+          onClick={() => setActiveTab("mages")}
+        >
+          🧙 Mages
+        </button>
+        <button
+          className={`sidebar-tab ${activeTab === "stats" ? "active" : ""}`}
+          onClick={() => setActiveTab("stats")}
+        >
+          📊 Stats
+        </button>
       </div>
 
-      <div className="sidebar-section">
-        <h3>Difficulty Controls</h3>
-        <div className="difficulty-controls">
-          <div className="control-group">
-            <label htmlFor="difficulty">Difficulty Level</label>
-            <div className="difficulty-input">
-              <button onClick={() => handleDifficultyChange(-10)}>-10</button>
-              <button onClick={() => handleDifficultyChange(-1)}>-1</button>
-              <input
-                type="number"
-                min="1"
-                max="10000"
-                value={core.difficultyLevel}
-                onChange={(e) =>
-                  handleDifficultyInput(parseInt(e.target.value) || 1)
-                }
-              />
-              <button onClick={() => handleDifficultyChange(1)}>+1</button>
-              <button onClick={() => handleDifficultyChange(10)}>+10</button>
+      {activeTab === "mages" && (
+        <div className="sidebar-content">
+          <Mages
+            elements={core.elements}
+            currentGold={core.gold}
+            purchases={core.purchases}
+            defenders={entities.defenders}
+            mageProgress={core.mageProgress}
+            onPurchaseMage={handlePurchaseMage}
+            onPurchaseUpgrade={handlePurchase}
+            onPurchaseSkill={handleSkillPurchase}
+          />
+        </div>
+      )}
+
+      {activeTab === "stats" && (
+        <div className="sidebar-content stats-content">
+          <div className="stats-section">
+            <h3>Game Stats</h3>
+            <div className="stat-row">
+              <span className="stat-icon">⏱️</span>
+              <span className="stat-label">Time Played:</span>
+              <span className="stat-value">{formatTime(core.timeSurvived)}</span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-icon">💾</span>
+              <span className="stat-label">Last Save:</span>
+              <span className="stat-value">
+                {new Date(core.lastSave).toLocaleTimeString()}
+              </span>
             </div>
           </div>
+
+          <div className="stats-section">
+            <h3>Achievements</h3>
+            <p className="coming-soon">Coming soon...</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

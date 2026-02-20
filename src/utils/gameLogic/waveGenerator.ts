@@ -18,8 +18,8 @@ export function generateWave(
 ): WaveComposition {
   const totalDifficultyValue = difficulty * 50;
 
-  // 1/10 chance for a giant wave
-  if (Math.random() < 0.1) {
+  // Giants only spawn at difficulty 3+, then 10% chance per wave
+  if (difficulty >= 3 && Math.random() < 0.1) {
     return generateGiantWave(totalDifficultyValue);
   }
 

@@ -150,7 +150,7 @@ export interface GameState {
   lastSave: number;
   isPaused: boolean;
   purchases: Record<string, number>;
-  difficultyLevel: number; // Now supports 1-10000 range
+  difficultyLevel: number; // 1-10000, controls wave intensity and unlocks enemy types
   predictedArrowDamage: Map<string, number>;
   predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;
