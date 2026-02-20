@@ -314,8 +314,10 @@ const Mages: React.FC<MagesProps> = ({
                 if (magesOnField < 2) {
                   actionLabel = "Train Mage";
                 } else {
-                  const nextRank = getNextRankName(getTotalStars(progress) + 1);
-                  actionLabel = `Become ${nextRank}`;
+                  const nextProgress = getTotalStars(progress) + 1;
+                  const nextRank = getNextRankName(nextProgress);
+                  const nextStars = ((nextProgress - 1) % 5) + 1;
+                  actionLabel = `Become ${nextRank} ${nextStars}`;
                 }
 
                 // Star display
