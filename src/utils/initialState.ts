@@ -25,7 +25,7 @@ export const createInitialElements = (): Record<ElementType, ElementData> => {
 export const createInitialMageProgress = (): Record<ElementType, MageProgress> => {
   return getAvailableElements().reduce(
     (acc, elementType) => {
-      acc[elementType] = { stars: 1, tier: "bronze" };
+      acc[elementType] = { stars: 1, tier: "initiate" };
       return acc;
     },
     {} as Record<ElementType, MageProgress>

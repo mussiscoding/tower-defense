@@ -1,12 +1,7 @@
 import { useEffect } from "react";
 import type { MergeAnimation as MergeAnimationType } from "../types/GameState";
+import { getRankColor } from "../utils/starSystem";
 import "./MergeAnimation.css";
-
-const TIER_COLORS = {
-  bronze: "#cd7f32",
-  silver: "#c0c0c0",
-  gold: "#ffd700",
-} as const;
 
 interface MergeAnimationProps {
   animation: MergeAnimationType;
@@ -25,7 +20,7 @@ const MergeAnimation: React.FC<MergeAnimationProps> = ({
     return () => clearTimeout(timer);
   }, [animation.id, animation.duration, onComplete]);
 
-  const tierColor = TIER_COLORS[animation.resultTier];
+  const tierColor = getRankColor(animation.resultTier);
 
   return (
     <div className="merge-animation" style={{ pointerEvents: "none" }}>

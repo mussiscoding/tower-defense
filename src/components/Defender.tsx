@@ -2,12 +2,7 @@ import "./Defender.css";
 import type { ElementType } from "../data/elements";
 import type { MageProgress } from "../types/GameState";
 import { mageAttackSprites } from "../assets/mages/mage-sprites";
-
-const TIER_COLORS = {
-  bronze: "#cd7f32",
-  silver: "#c0c0c0",
-  gold: "#ffd700",
-} as const;
+import { getRankColor } from "../utils/starSystem";
 
 interface DefenderProps {
   id: string;
@@ -51,7 +46,7 @@ const Defender: React.FC<DefenderProps> = ({
   const starIndicator = mageProgress && (
     <div
       className="defender-stars"
-      style={{ color: TIER_COLORS[mageProgress.tier] }}
+      style={{ color: getRankColor(mageProgress.tier) }}
     >
       {"★".repeat(mageProgress.stars)}
     </div>

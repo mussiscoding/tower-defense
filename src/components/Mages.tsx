@@ -11,6 +11,9 @@ import {
   canPurchaseMoreStars,
   getStarDamageMultiplier,
   getTotalStars,
+  getRankName,
+  getRankColor,
+  getNextRankName,
 } from "../utils/starSystem";
 import { elements as elementConfigs } from "../data/elements";
 import SkillsRow from "./SkillsRow";
@@ -26,12 +29,6 @@ interface MagesProps {
   mageProgress?: Record<ElementType, MageProgress>;
 }
 
-const TIER_COLORS = {
-  bronze: "#cd7f32",
-  silver: "#c0c0c0",
-  gold: "#ffd700",
-} as const;
-
 const Mages: React.FC<MagesProps> = ({
   elements,
   onPurchaseMage,
@@ -42,7 +39,7 @@ const Mages: React.FC<MagesProps> = ({
   defenders = [],
   mageProgress,
 }) => {
-  const defaultProgress: MageProgress = { stars: 1, tier: "bronze" };
+  const defaultProgress: MageProgress = { stars: 1, tier: "initiate" };
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(
     null
   );
@@ -183,11 +180,11 @@ const Mages: React.FC<MagesProps> = ({
               {mageProgress && (
                 <div
                   className="element-stars"
-                  style={{ color: TIER_COLORS[mageProgress[selectedElement].tier] }}
+                  style={{ color: getRankColor(mageProgress[selectedElement].tier) }}
                 >
                   {"★".repeat(mageProgress[selectedElement].stars)}
                   {"☆".repeat(5 - mageProgress[selectedElement].stars)}
-                  {" "}{mageProgress[selectedElement].tier.charAt(0).toUpperCase() + mageProgress[selectedElement].tier.slice(1)}
+                  {" "}{getRankName(mageProgress[selectedElement].tier)}
                 </div>
               )}
               <div className="element-xp-bar">
@@ -314,20 +311,16 @@ const Mages: React.FC<MagesProps> = ({
 
                 // Determine action label
                 let actionLabel: string;
-                if (magesOnField === 0) {
-                  actionLabel = "Hire Mage";
-                } else if (magesOnField === 1) {
-                  actionLabel = "Hire 2nd Mage";
+                if (magesOnField < 2) {
+                  actionLabel = "Train Mage";
                 } else {
-                  const next = getTotalStars(progress) + 1;
-                  const nextTier = next > 10 ? "Gold" : next > 5 ? "Silver" : "Bronze";
-                  const nextStars = ((next - 1) % 5) + 1;
-                  actionLabel = `Merge -> ${nextStars} ${nextTier} Star${nextStars > 1 ? "s" : ""}`;
+                  const nextRank = getNextRankName(getTotalStars(progress) + 1);
+                  actionLabel = `Become ${nextRank}`;
                 }
 
                 // Star display
                 const totalStars = getTotalStars(progress);
-                const tierColor = TIER_COLORS[progress.tier];
+                const rankColor = getRankColor(progress.tier);
 
                 return (
                   <div
@@ -340,16 +333,16 @@ const Mages: React.FC<MagesProps> = ({
                       {actionLabel} - 💰{cost}
                     </h5>
                     <div className="mage-count-info">
-                      <span className="mage-count" style={{ color: tierColor }}>
+                      <span className="mage-count" style={{ color: rankColor }}>
                         {"★".repeat(progress.stars)}{"☆".repeat(5 - progress.stars)}
-                        {" "}{progress.tier.charAt(0).toUpperCase() + progress.tier.slice(1)}
+                        {" "}{getRankName(progress.tier)}
                       </span>
                       <span className="star-info">
-                        {totalStars}/15 total stars | {getStarDamageMultiplier(progress).toLocaleString()}x damage
+                        {totalStars}/50 | {getStarDamageMultiplier(progress).toLocaleString()}x damage
                       </span>
                     </div>
                     {!canBuyMore && (
-                      <p className="shop-item-description">Max tier reached!</p>
+                      <p className="shop-item-description">Max rank reached!</p>
                     )}
                   </div>
                 );
@@ -416,7 +409,7 @@ const Mages: React.FC<MagesProps> = ({
                 {mageProgress && (
                   <div
                     className="element-stars"
-                    style={{ color: TIER_COLORS[mageProgress[elementType as ElementType].tier] }}
+                    style={{ color: getRankColor(mageProgress[elementType as ElementType].tier) }}
                   >
                     {"★".repeat(mageProgress[elementType as ElementType].stars)}
                     {"☆".repeat(5 - mageProgress[elementType as ElementType].stars)}

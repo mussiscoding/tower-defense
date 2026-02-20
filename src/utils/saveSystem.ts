@@ -52,9 +52,19 @@ export const loadGame = (): GameState | null => {
     const defaultEntities = createInitialEntityState();
 
     // Migrate mageProgress if missing (old save format)
+    const OLD_TIER_MAP: Record<string, number> = { bronze: 0, silver: 1, gold: 2 };
     let mageProgress: Record<ElementType, MageProgress>;
     if (parsed.core?.mageProgress) {
       mageProgress = parsed.core.mageProgress;
+      // Migrate old tier names (bronze/silver/gold) to new rank names
+      const elementTypesForMigration: ElementType[] = ["fire", "ice", "earth", "air"];
+      elementTypesForMigration.forEach((et) => {
+        const p = mageProgress[et];
+        if (p && p.tier in OLD_TIER_MAP) {
+          const oldTotal = OLD_TIER_MAP[p.tier] * 5 + p.stars;
+          mageProgress[et] = progressFromTotalStars(oldTotal);
+        }
+      });
     } else {
       // Derive from existing purchases
       const purchases = parsed.core?.purchases ?? {};

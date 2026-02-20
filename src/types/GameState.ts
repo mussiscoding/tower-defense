@@ -1,6 +1,16 @@
 import type { ElementType } from "../data/elements";
 
-export type MageTier = "bronze" | "silver" | "gold";
+export type MageTier =
+  | "initiate"
+  | "apprentice"
+  | "journeyman"
+  | "adept"
+  | "mage"
+  | "sorcerer"
+  | "magus"
+  | "archmage"
+  | "grand_magus"
+  | "archon";
 
 export interface MageProgress {
   stars: number;
