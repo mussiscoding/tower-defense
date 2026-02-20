@@ -1,0 +1,84 @@
+.merge-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.merge-ghost {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: merge-slide linear forwards;
+}
+
+@keyframes merge-slide {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+
+.merge-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: merge-burst-expand ease-out forwards;
+}
+
+@keyframes merge-burst-expand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    width: 60px;
+    height: 60px;
+    opacity: 0;
+  }
+}
+
+.merge-stars-result {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 14px;
+  text-shadow: 0 0 6px currentColor;
+  opacity: 0;
+  animation: merge-stars-pop ease-out forwards;
+}
+
+@keyframes merge-stars-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-15px) scale(1);
+  }
+}

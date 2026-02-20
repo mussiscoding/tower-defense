@@ -11,6 +11,8 @@ import type {
   SplashEffect,
   LevelUpAnimation,
   UpgradeAnimation,
+  MageProgress,
+  MergeAnimation,
 } from "./GameState";
 
 // Core game state - persistent, saved
@@ -24,6 +26,7 @@ export interface CoreState {
   lastSave: number;
   purchases: Record<string, number>;
   elements: Record<ElementType, ElementData>;
+  mageProgress: Record<ElementType, MageProgress>;
 }
 
 // Entity state - game objects
@@ -49,6 +52,7 @@ export interface VisualEffects {
   splashEffects: SplashEffect[];
   levelUpAnimations: LevelUpAnimation[];
   upgradeAnimations: UpgradeAnimation[];
+  mergeAnimations: MergeAnimation[];
 }
 
 // Combined game state (what gets passed around)

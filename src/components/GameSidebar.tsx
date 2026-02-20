@@ -1,15 +1,17 @@
 import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "../data/elements";
+import type { MergeAnimation } from "../types/GameState";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
 import { allUpgrades } from "../data/upgrades";
-import { getBisectingDefenderPosition } from "../utils/gameLogic/defender";
-import { createDefender, canPurchaseMage } from "../utils/gameLogic";
+import { createDefender } from "../utils/gameLogic/defender";
 import {
   createUpgradeAnimation,
   createFloatingText,
 } from "../utils/gameLogic/uiUtils";
-import { GAME_DIMENSIONS } from "../constants/gameDimensions";
+import { GAME_DIMENSIONS, MAGE_POSITIONS } from "../constants/gameDimensions";
 import { purchaseSkillSliced } from "../utils/skillUtils";
+import { advanceStar, getNextMageCost } from "../utils/starSystem";
+import { recalculateElementDamage } from "../utils/gameLogic/mutations";
 
 import "./GameSidebar.css";
 import Mages from "./Mages";
@@ -96,28 +98,82 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
     }
   };
 
-  const handlePurchaseMage = (elementType: ElementType, cost: number) => {
+  const handlePurchaseMage = (elementType: ElementType) => {
     const state = stateRef.current;
-    const elementLevel = state.core.elements[elementType]?.level || 1;
-    const canPurchase = canPurchaseMage(
-      state.entities.defenders,
-      elementType,
-      elementLevel
-    );
+    const progress = state.core.mageProgress[elementType];
+    const cost = getNextMageCost(progress);
 
-    if (state.core.gold >= cost && canPurchase) {
-      const smartY = getBisectingDefenderPosition(state.entities.defenders);
-      state.core.gold -= cost;
+    if (state.core.gold < cost) return;
+
+    const positions = MAGE_POSITIONS[elementType];
+    const spawnX = GAME_DIMENSIONS.DEFENDER_SPAWN_X;
+    const magesOfType = state.entities.defenders.filter(
+      (d) => d.type === elementType
+    );
+    const count = magesOfType.length;
+
+    state.core.gold -= cost;
+
+    if (count === 0) {
+      // First mage: place at center
       state.entities.defenders = [
         ...state.entities.defenders,
-        createDefender(GAME_DIMENSIONS.DEFENDER_SPAWN_X, smartY, elementType),
+        createDefender(spawnX, positions.center, elementType),
       ];
-      state.core.purchases = {
-        ...state.core.purchases,
-        [elementType]: (state.core.purchases[elementType] || 0) + 1,
+    } else if (count === 1) {
+      // Second mage: reposition existing to slot1, create new at slot2
+      magesOfType[0].y = positions.slot1;
+      state.entities.defenders = [
+        ...state.entities.defenders,
+        createDefender(spawnX, positions.slot2, elementType),
+      ];
+    } else {
+      // Merge: remove one, reposition survivor to center, advance star
+      const fromPositions = magesOfType.map((d) => ({ x: d.x, y: d.y }));
+      const toPosition = { x: spawnX, y: positions.center };
+
+      // Remove the second defender
+      state.entities.defenders = state.entities.defenders.filter(
+        (d) => d.id !== magesOfType[1].id
+      );
+      // Reposition survivor to center and reset attack state
+      magesOfType[0].y = positions.center;
+      magesOfType[0].skillCooldowns = {};
+      magesOfType[0].lastAttack = 0;
+
+      // Advance star
+      const newProgress = advanceStar(progress);
+      state.core.mageProgress[elementType] = newProgress;
+
+      // Recalculate element damage with new star multiplier
+      recalculateElementDamage(
+        state.core.elements,
+        elementType,
+        newProgress
+      );
+
+      // Create merge animation
+      const mergeAnim: MergeAnimation = {
+        id: `merge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        elementType,
+        fromPositions,
+        toPosition,
+        startTime: Date.now(),
+        duration: 1000,
+        resultStars: newProgress.stars,
+        resultTier: newProgress.tier,
       };
-      triggerRender();
+      state.visuals.mergeAnimations = [
+        ...state.visuals.mergeAnimations,
+        mergeAnim,
+      ];
     }
+
+    state.core.purchases = {
+      ...state.core.purchases,
+      [elementType]: (state.core.purchases[elementType] || 0) + 1,
+    };
+    triggerRender();
   };
 
   const handleDifficultyChange = (delta: number) => {
@@ -145,6 +201,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           currentGold={core.gold}
           purchases={core.purchases}
           defenders={entities.defenders}
+          mageProgress={core.mageProgress}
           onPurchaseMage={handlePurchaseMage}
           onPurchaseUpgrade={handlePurchase}
           onPurchaseSkill={handleSkillPurchase}

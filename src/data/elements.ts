@@ -90,13 +90,13 @@ export const getLevelFromXP = (xp: number): number => {
 
 export const calculateElementStats = (
   elementType: ElementType,
-  level: number
+  _level: number,
+  starMultiplier: number = 1
 ): ElementBaseStats => {
   const baseStats = elements[elementType].baseStats;
-  const levelMultiplier = 1 + (level - 1) * 0.1;
 
   return {
-    damage: Math.floor(baseStats.damage * levelMultiplier),
+    damage: Math.floor(baseStats.damage * starMultiplier),
     attackSpeed: baseStats.attackSpeed,
     range: baseStats.range,
   };

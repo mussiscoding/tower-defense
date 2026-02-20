@@ -17,6 +17,7 @@ import FloatingText from "./FloatingText";
 import UpgradeFireworks from "./UpgradeFireworks";
 import DamageNumber from "./DamageNumber";
 import VortexEffect from "./VortexEffect";
+import MergeAnimationComponent from "./MergeAnimation";
 import { createLevelUpAnimation, createFloatingText } from "../utils/gameLogic";
 import {
   createEnemy,
@@ -269,6 +270,9 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         visuals.upgradeAnimations = visuals.upgradeAnimations.filter(
           (animation) => now - animation.startTime < animation.duration
         );
+        visuals.mergeAnimations = visuals.mergeAnimations.filter(
+          (anim) => now - anim.startTime < anim.duration
+        );
         // Also clean up expired vortexes
         state.entities.vortexes = state.entities.vortexes.filter(
           (vortex) => now - vortex.startTime < vortex.duration
@@ -366,6 +370,15 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
     [stateRef, triggerRender]
   );
 
+  const handleMergeComplete = useCallback(
+    (id: string) => {
+      stateRef.current.visuals.mergeAnimations =
+        stateRef.current.visuals.mergeAnimations.filter((a) => a.id !== id);
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
   // Read current state for rendering
   const { core, entities, visuals } = stateRef.current;
 
@@ -384,7 +397,11 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         </div>
 
         {entities.defenders.map((defender) => (
-          <Defender key={defender.id} {...defender} />
+          <Defender
+            key={defender.id}
+            {...defender}
+            mageProgress={core.mageProgress[defender.type]}
+          />
         ))}
 
         {entities.arrows.map((arrow) => {
@@ -473,6 +490,14 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             elementType={damageNumber.elementType}
             isCritical={damageNumber.isCritical}
             onComplete={() => handleDamageNumberComplete(damageNumber.id)}
+          />
+        ))}
+
+        {visuals.mergeAnimations?.map((animation) => (
+          <MergeAnimationComponent
+            key={animation.id}
+            animation={animation}
+            onComplete={handleMergeComplete}
           />
         ))}
       </div>

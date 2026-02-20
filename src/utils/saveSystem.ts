@@ -1,9 +1,15 @@
 import type { GameState } from "../types/GameStateSlices";
+import type { MageProgress } from "../types/GameState";
+import type { ElementType } from "../data/elements";
+import { elements as elementConfigs } from "../data/elements";
 import {
   createInitialCoreState,
   createInitialEntityState,
   createInitialVisuals,
+  createInitialMageProgress,
 } from "./initialState";
+import { progressFromTotalStars, getStarDamageMultiplier } from "./starSystem";
+import { MAGE_POSITIONS } from "../constants/gameDimensions";
 
 const SAVE_KEY = "towerDefenseSave";
 
@@ -45,6 +51,52 @@ export const loadGame = (): GameState | null => {
     const defaultCore = createInitialCoreState();
     const defaultEntities = createInitialEntityState();
 
+    // Migrate mageProgress if missing (old save format)
+    let mageProgress: Record<ElementType, MageProgress>;
+    if (parsed.core?.mageProgress) {
+      mageProgress = parsed.core.mageProgress;
+    } else {
+      // Derive from existing purchases
+      const purchases = parsed.core?.purchases ?? {};
+      mageProgress = createInitialMageProgress();
+      const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+      elementTypes.forEach((et) => {
+        const count = purchases[et] || 0;
+        const totalStars = count < 3 ? 1 : Math.floor((count - 1) / 2) + 1;
+        mageProgress[et] = progressFromTotalStars(totalStars);
+      });
+    }
+
+    // Recalculate element damage from raw config * star multiplier
+    const loadedElements = parsed.core?.elements ?? defaultCore.elements;
+    const elementTypes: ElementType[] = ["fire", "ice", "earth", "air"];
+    elementTypes.forEach((et) => {
+      if (loadedElements[et]) {
+        const starMult = getStarDamageMultiplier(mageProgress[et]);
+        const rawDamage = elementConfigs[et].baseStats.damage;
+        loadedElements[et].baseStats.damage = Math.floor(rawDamage * starMult);
+      }
+    });
+
+    // Migrate defenders: trim to max 2 per element and reposition to fixed slots
+    let defenders = parsed.entities?.defenders ?? defaultEntities.defenders;
+    elementTypes.forEach((et) => {
+      const magesOfType = defenders.filter((d: { type: ElementType }) => d.type === et);
+      if (magesOfType.length > 2) {
+        // Keep only first 2
+        const toRemove = magesOfType.slice(2);
+        defenders = defenders.filter((d: { id: string }) => !toRemove.some((r: { id: string }) => r.id === d.id));
+      }
+      // Reposition to fixed slots
+      const remaining = defenders.filter((d: { type: ElementType }) => d.type === et);
+      if (remaining.length === 1) {
+        remaining[0].y = MAGE_POSITIONS[et].center;
+      } else if (remaining.length === 2) {
+        remaining[0].y = MAGE_POSITIONS[et].slot1;
+        remaining[1].y = MAGE_POSITIONS[et].slot2;
+      }
+    });
+
     const validatedState: GameState = {
       core: {
         gold: parsed.core?.gold ?? defaultCore.gold,
@@ -55,12 +107,13 @@ export const loadGame = (): GameState | null => {
         isPaused: parsed.core?.isPaused ?? defaultCore.isPaused,
         lastSave: parsed.core?.lastSave ?? defaultCore.lastSave,
         purchases: parsed.core?.purchases ?? defaultCore.purchases,
-        elements: parsed.core?.elements ?? defaultCore.elements,
+        elements: loadedElements,
+        mageProgress,
       },
       entities: {
         enemies: parsed.entities?.enemies ?? defaultEntities.enemies,
         pendingEnemies: [], // Always start fresh - pending enemies are transient
-        defenders: parsed.entities?.defenders ?? defaultEntities.defenders,
+        defenders,
         arrows: [], // Always start fresh - arrows are transient
         vortexes: [], // Always start fresh - vortexes are transient
       },

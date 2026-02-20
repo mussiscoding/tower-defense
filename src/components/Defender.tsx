@@ -1,6 +1,13 @@
 import "./Defender.css";
 import type { ElementType } from "../data/elements";
+import type { MageProgress } from "../types/GameState";
 import { mageAttackSprites } from "../assets/mages/mage-sprites";
+
+const TIER_COLORS = {
+  bronze: "#cd7f32",
+  silver: "#c0c0c0",
+  gold: "#ffd700",
+} as const;
 
 interface DefenderProps {
   id: string;
@@ -13,6 +20,7 @@ interface DefenderProps {
   lastAttack: number;
   level: number;
   currentAnimationFrame?: number;
+  mageProgress?: MageProgress;
 }
 
 const Defender: React.FC<DefenderProps> = ({
@@ -20,6 +28,7 @@ const Defender: React.FC<DefenderProps> = ({
   x,
   y,
   currentAnimationFrame = 0,
+  mageProgress,
 }) => {
   const getElementColor = (elementType: ElementType) => {
     switch (elementType) {
@@ -38,6 +47,15 @@ const Defender: React.FC<DefenderProps> = ({
 
   // For now, only implement fire mage sprites
   const shouldUseSprites = type === "fire";
+
+  const starIndicator = mageProgress && (
+    <div
+      className="defender-stars"
+      style={{ color: TIER_COLORS[mageProgress.tier] }}
+    >
+      {"★".repeat(mageProgress.stars)}
+    </div>
+  );
 
   if (shouldUseSprites) {
     const spriteKey =
@@ -61,6 +79,7 @@ const Defender: React.FC<DefenderProps> = ({
             className="defender-sprite-image"
           />
         </div>
+        {starIndicator}
       </div>
     );
   }
@@ -78,6 +97,7 @@ const Defender: React.FC<DefenderProps> = ({
         className="defender-sprite"
         style={{ backgroundColor: getElementColor(type) }}
       ></div>
+      {starIndicator}
     </div>
   );
 };

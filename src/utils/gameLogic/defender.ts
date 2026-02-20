@@ -8,7 +8,7 @@ import type {
 import type { ElementType } from "../../data/elements";
 import { getDefenderData } from "../../data/defenders";
 import { createArrow } from "./arrow";
-import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
+
 import type { ElementData } from "../../types/GameState";
 import { calculateAnimationFrame } from "./animationUtils";
 import {
@@ -20,63 +20,6 @@ import { calculatePredictedEnemyPosition } from "./uiUtils";
 import { findNearestEnemy, findBestSplashEnemy } from "./targeting";
 import { SKILL_BASE_VALUES } from "../../data/allSkills";
 import { calculateSkillValue } from "../skills";
-
-export const getBisectingDefenderPosition = (
-  existingDefenders: Defender[]
-): number => {
-  const gameAreaHeight: number = GAME_DIMENSIONS.DEFENDER_SPAWN_Y_MAX;
-  const gameAreaTop: number = GAME_DIMENSIONS.DEFENDER_SPAWN_Y_MIN;
-  if (existingDefenders.length === 0) {
-    // First defender: place randomly in the middle third
-    const middleThirdStart = gameAreaTop + gameAreaHeight / 3;
-    const middleThirdEnd = gameAreaTop + (2 * gameAreaHeight) / 3;
-    return (
-      Math.random() * (middleThirdEnd - middleThirdStart) + middleThirdStart
-    );
-  }
-
-  // Get existing Y positions and sort them
-  const existingYPositions = existingDefenders
-    .map((d) => d.y)
-    .sort((a, b) => a - b);
-
-  // Find the largest gap between defenders
-  let largestGap = 0;
-  let gapStart = gameAreaTop;
-  let gapEnd = gameAreaTop + gameAreaHeight;
-
-  // Check gap before first defender
-  const gapBeforeFirst = existingYPositions[0] - gameAreaTop;
-  if (gapBeforeFirst > largestGap) {
-    largestGap = gapBeforeFirst;
-    gapStart = gameAreaTop;
-    gapEnd = existingYPositions[0];
-  }
-
-  // Check gaps between defenders
-  for (let i = 0; i < existingYPositions.length - 1; i++) {
-    const gap = existingYPositions[i + 1] - existingYPositions[i];
-    if (gap > largestGap) {
-      largestGap = gap;
-      gapStart = existingYPositions[i];
-      gapEnd = existingYPositions[i + 1];
-    }
-  }
-
-  // Check gap after last defender
-  const gapAfterLast =
-    gameAreaTop +
-    gameAreaHeight -
-    existingYPositions[existingYPositions.length - 1];
-  if (gapAfterLast > largestGap) {
-    largestGap = gapAfterLast;
-    gapStart = existingYPositions[existingYPositions.length - 1];
-    gapEnd = gameAreaTop + gameAreaHeight;
-  }
-
-  // Place new defender in the middle of the largest gap
-  return gapStart + (gapEnd - gapStart) / 2;
-};
 
 export const createDefender = (
   x: number,

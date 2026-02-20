@@ -1,4 +1,4 @@
-import type { ElementData } from "../types/GameState";
+import type { ElementData, MageProgress } from "../types/GameState";
 import type {
   CoreState,
   EntityState,
@@ -22,6 +22,16 @@ export const createInitialElements = (): Record<ElementType, ElementData> => {
   );
 };
 
+export const createInitialMageProgress = (): Record<ElementType, MageProgress> => {
+  return getAvailableElements().reduce(
+    (acc, elementType) => {
+      acc[elementType] = { stars: 1, tier: "bronze" };
+      return acc;
+    },
+    {} as Record<ElementType, MageProgress>
+  );
+};
+
 export const createInitialCoreState = (devMode: boolean = false): CoreState => ({
   gold: devMode ? 500 : 0,
   castleHealth: 100,
@@ -32,6 +42,7 @@ export const createInitialCoreState = (devMode: boolean = false): CoreState => (
   lastSave: Date.now(),
   purchases: {},
   elements: createInitialElements(),
+  mageProgress: createInitialMageProgress(),
 });
 
 export const createInitialEntityState = (): EntityState => ({
@@ -54,6 +65,7 @@ export const createInitialVisuals = (): VisualEffects => ({
   splashEffects: [],
   levelUpAnimations: [],
   upgradeAnimations: [],
+  mergeAnimations: [],
 });
 
 export const createInitialGameState = (devMode: boolean = false): GameState => ({

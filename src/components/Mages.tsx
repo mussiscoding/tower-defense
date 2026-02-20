@@ -1,30 +1,36 @@
 import React, { useState } from "react";
 import "./Mages.css";
-import type { ElementData, Defender } from "../types/GameState";
+import type { ElementData, Defender, MageProgress } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { getXPForLevel } from "../data/elements";
 import { allSkills } from "../data/allSkills";
-import { getDefenderData } from "../data/defenders";
 import { getCurrentPrice } from "../data/shopItems";
 import { allUpgrades } from "../data/upgrades";
-import type { ShopItem } from "../types/GameState";
 import {
-  getMaxMagesForElement,
-  countMagesOfElement,
-  canPurchaseMage,
-  getNextMageDefenderLevel,
-} from "../utils/gameLogic";
+  getNextMageCost,
+  canPurchaseMoreStars,
+  getStarDamageMultiplier,
+  getTotalStars,
+} from "../utils/starSystem";
+import { elements as elementConfigs } from "../data/elements";
 import SkillsRow from "./SkillsRow";
 
 interface MagesProps {
   elements: Record<ElementType, ElementData>;
-  onPurchaseMage?: (elementType: ElementType, cost: number) => void;
+  onPurchaseMage?: (elementType: ElementType) => void;
   onPurchaseUpgrade?: (itemId: string) => void;
   onPurchaseSkill?: (skillId: string) => void;
   currentGold?: number;
   purchases?: Record<string, number>;
   defenders?: Defender[];
+  mageProgress?: Record<ElementType, MageProgress>;
 }
+
+const TIER_COLORS = {
+  bronze: "#cd7f32",
+  silver: "#c0c0c0",
+  gold: "#ffd700",
+} as const;
 
 const Mages: React.FC<MagesProps> = ({
   elements,
@@ -34,7 +40,9 @@ const Mages: React.FC<MagesProps> = ({
   currentGold = 0,
   purchases = {},
   defenders = [],
+  mageProgress,
 }) => {
+  const defaultProgress: MageProgress = { stars: 1, tier: "bronze" };
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(
     null
   );
@@ -80,19 +88,7 @@ const Mages: React.FC<MagesProps> = ({
 
   const handlePurchaseMage = (elementType: ElementType) => {
     if (onPurchaseMage) {
-      const defenderData = getDefenderData(elementType);
-      if (defenderData) {
-        const shopItem: ShopItem = {
-          id: defenderData.id,
-          name: defenderData.name,
-          description: defenderData.description,
-          cost: defenderData.cost,
-          type: "defender",
-          costScalingFactor: defenderData.costScalingFactor,
-        };
-        const cost = getCurrentPrice(shopItem, purchases);
-        onPurchaseMage(elementType, cost);
-      }
+      onPurchaseMage(elementType);
     }
   };
 
@@ -184,6 +180,16 @@ const Mages: React.FC<MagesProps> = ({
             <div className="element-detail-info">
               <h2>{getElementName(selectedElement)}</h2>
               <div className="element-level">Level {elementData.level}</div>
+              {mageProgress && (
+                <div
+                  className="element-stars"
+                  style={{ color: TIER_COLORS[mageProgress[selectedElement].tier] }}
+                >
+                  {"★".repeat(mageProgress[selectedElement].stars)}
+                  {"☆".repeat(5 - mageProgress[selectedElement].stars)}
+                  {" "}{mageProgress[selectedElement].tier.charAt(0).toUpperCase() + mageProgress[selectedElement].tier.slice(1)}
+                </div>
+              )}
               <div className="element-xp-bar">
                 <div
                   className="xp-progress"
@@ -221,7 +227,19 @@ const Mages: React.FC<MagesProps> = ({
               <div className="element-detail-stats">
                 <div className="stat-grid">
                   <div className="stat-item">
-                    <span className="stat-label">Damage:</span>
+                    <span className="stat-label">Base Damage:</span>
+                    <span className="stat-value">
+                      {elementConfigs[selectedElement].baseStats.damage}
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Star Multiplier:</span>
+                    <span className="stat-value">
+                      {getStarDamageMultiplier(mageProgress?.[selectedElement] ?? defaultProgress).toLocaleString()}x
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Effective Damage:</span>
                     <span className="stat-value">
                       {elementData.baseStats.damage}
                     </span>
@@ -283,61 +301,58 @@ const Mages: React.FC<MagesProps> = ({
                 onPurchaseSkill={onPurchaseSkill}
               />
 
-              {/* Mage Purchase */}
+              {/* Mage Purchase / Merge */}
               {(() => {
-                const defenderData = getDefenderData(selectedElement);
-                if (defenderData) {
-                  const shopItem: ShopItem = {
-                    id: defenderData.id,
-                    name: defenderData.name,
-                    description: defenderData.description,
-                    cost: defenderData.cost,
-                    type: "defender",
-                    costScalingFactor: defenderData.costScalingFactor,
-                  };
-                  const cost = getCurrentPrice(shopItem, purchases);
-                  const canAfford = currentGold >= cost;
-                  const elementLevel = elements[selectedElement]?.level || 1;
-                  const canPurchaseMore = canPurchaseMage(
-                    defenders,
-                    selectedElement,
-                    elementLevel
-                  );
-                  const currentCount = countMagesOfElement(
-                    defenders,
-                    selectedElement
-                  );
-                  const maxCount = getMaxMagesForElement(elementLevel);
-                  const canPurchase = canAfford && canPurchaseMore;
+                const progress = mageProgress?.[selectedElement] ?? defaultProgress;
+                const cost = getNextMageCost(progress);
+                const canAfford = currentGold >= cost;
+                const canBuyMore = canPurchaseMoreStars(progress);
+                const magesOnField = defenders.filter(
+                  (d) => d.type === selectedElement
+                ).length;
+                const canPurchase = canAfford && canBuyMore;
 
-                  return (
-                    <div
-                      className={`shop-item ${!canPurchase ? "disabled" : ""}`}
-                      onClick={() =>
-                        canPurchase && handlePurchaseMage(selectedElement)
-                      }
-                    >
-                      <h5 className="shop-item-name">
-                        {defenderData.name} - 💰{cost}
-                      </h5>
-                      <div className="mage-count-info">
-                        <span className="mage-count">
-                          Mages: {currentCount}/{maxCount}
-                        </span>
-                        {!canPurchaseMore && (
-                          <span className="unlock-info">
-                            Next slot unlocks at level{" "}
-                            {getNextMageDefenderLevel(elementLevel)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="shop-item-description">
-                        {defenderData.description}
-                      </p>
-                    </div>
-                  );
+                // Determine action label
+                let actionLabel: string;
+                if (magesOnField === 0) {
+                  actionLabel = "Hire Mage";
+                } else if (magesOnField === 1) {
+                  actionLabel = "Hire 2nd Mage";
+                } else {
+                  const next = getTotalStars(progress) + 1;
+                  const nextTier = next > 10 ? "Gold" : next > 5 ? "Silver" : "Bronze";
+                  const nextStars = ((next - 1) % 5) + 1;
+                  actionLabel = `Merge -> ${nextStars} ${nextTier} Star${nextStars > 1 ? "s" : ""}`;
                 }
-                return null;
+
+                // Star display
+                const totalStars = getTotalStars(progress);
+                const tierColor = TIER_COLORS[progress.tier];
+
+                return (
+                  <div
+                    className={`shop-item ${!canPurchase ? "disabled" : ""}`}
+                    onClick={() =>
+                      canPurchase && handlePurchaseMage(selectedElement)
+                    }
+                  >
+                    <h5 className="shop-item-name">
+                      {actionLabel} - 💰{cost}
+                    </h5>
+                    <div className="mage-count-info">
+                      <span className="mage-count" style={{ color: tierColor }}>
+                        {"★".repeat(progress.stars)}{"☆".repeat(5 - progress.stars)}
+                        {" "}{progress.tier.charAt(0).toUpperCase() + progress.tier.slice(1)}
+                      </span>
+                      <span className="star-info">
+                        {totalStars}/15 total stars | {getStarDamageMultiplier(progress).toLocaleString()}x damage
+                      </span>
+                    </div>
+                    {!canBuyMore && (
+                      <p className="shop-item-description">Max tier reached!</p>
+                    )}
+                  </div>
+                );
               })()}
 
               {/* Element-specific upgrades */}
@@ -398,6 +413,15 @@ const Mages: React.FC<MagesProps> = ({
               <div className="element-info">
                 <h3>{getElementName(elementType as ElementType)}</h3>
                 <div className="element-level">Level {elementData.level}</div>
+                {mageProgress && (
+                  <div
+                    className="element-stars"
+                    style={{ color: TIER_COLORS[mageProgress[elementType as ElementType].tier] }}
+                  >
+                    {"★".repeat(mageProgress[elementType as ElementType].stars)}
+                    {"☆".repeat(5 - mageProgress[elementType as ElementType].stars)}
+                  </div>
+                )}
               </div>
             </div>
 

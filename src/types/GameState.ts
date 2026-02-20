@@ -1,5 +1,23 @@
 import type { ElementType } from "../data/elements";
 
+export type MageTier = "bronze" | "silver" | "gold";
+
+export interface MageProgress {
+  stars: number;
+  tier: MageTier;
+}
+
+export interface MergeAnimation {
+  id: string;
+  elementType: ElementType;
+  fromPositions: { x: number; y: number }[];
+  toPosition: { x: number; y: number };
+  startTime: number;
+  duration: number;
+  resultStars: number;
+  resultTier: MageTier;
+}
+
 export interface Enemy {
   id: string;
   x: number;
