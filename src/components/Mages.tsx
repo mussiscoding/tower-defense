@@ -14,6 +14,7 @@ import {
   getRankName,
   getRankColor,
   getNextRankName,
+  progressFromTotalStars,
 } from "../utils/starSystem";
 import { elements as elementConfigs } from "../data/elements";
 import SkillsRow from "./SkillsRow";
@@ -309,20 +310,11 @@ const Mages: React.FC<MagesProps> = ({
                 ).length;
                 const canPurchase = canAfford && canBuyMore;
 
-                // Determine action label
-                let actionLabel: string;
-                if (magesOnField < 2) {
-                  actionLabel = "Train Mage";
-                } else {
-                  const nextProgress = getTotalStars(progress) + 1;
-                  const nextRank = getNextRankName(nextProgress);
-                  const nextStars = ((nextProgress - 1) % 5) + 1;
-                  actionLabel = `Become ${nextRank} ${nextStars}`;
-                }
-
-                // Star display
-                const totalStars = getTotalStars(progress);
-                const rankColor = getRankColor(progress.tier);
+                const isMerge = magesOnField >= 2;
+                const nextTotal = getTotalStars(progress) + 1;
+                const nextStars = ((nextTotal - 1) % 5) + 1;
+                const nextRank = getNextRankName(nextTotal);
+                const nextColor = getRankColor(progressFromTotalStars(nextTotal).tier);
 
                 return (
                   <div
@@ -331,17 +323,25 @@ const Mages: React.FC<MagesProps> = ({
                       canPurchase && handlePurchaseMage(selectedElement)
                     }
                   >
-                    <h5 className="shop-item-name">
-                      {actionLabel} - 💰{cost}
-                    </h5>
-                    <div className="mage-count-info">
-                      <span className="mage-count" style={{ color: rankColor }}>
-                        {"★".repeat(progress.stars)}{"☆".repeat(5 - progress.stars)}
-                        {" "}{getRankName(progress.tier)}
-                      </span>
-                      <span className="star-info">
-                        {totalStars}/50 | {getStarDamageMultiplier(progress).toLocaleString()}x damage
-                      </span>
+                    <div className="shop-item-row">
+                      {isMerge ? (
+                        <div className="merge-preview" style={{ color: nextColor }}>
+                          <span className="merge-stars">{"★".repeat(nextStars)}</span>
+                          <span className="merge-rank">{nextRank}</span>
+                        </div>
+                      ) : (
+                        <div
+                          className="mage-preview"
+                          style={{ backgroundColor: getElementColor(selectedElement) }}
+                        >
+                          {selectedElement.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="shop-item-text">
+                        <h5 className="shop-item-name">
+                          {isMerge ? `Become ${nextRank} ${nextStars}` : "Train Mage"} - 💰{cost}
+                        </h5>
+                      </div>
                     </div>
                     {!canBuyMore && (
                       <p className="shop-item-description">Max rank reached!</p>
