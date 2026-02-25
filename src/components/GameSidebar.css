@@ -1,5 +1,5 @@
 .game-sidebar {
-  width: 300px;
+  width: 360px;
   height: 600px; /* Match game area height */
   background: linear-gradient(180deg, #4a2c2a 0%, #6b3e3a 100%);
   border-left: 3px solid #8b4513;
