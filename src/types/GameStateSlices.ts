@@ -27,6 +27,11 @@ export interface CoreState {
   purchases: Record<string, number>;
   elements: Record<ElementType, ElementData>;
   mageProgress: Record<ElementType, MageProgress>;
+  achievements: Record<string, number>; // id -> unlock timestamp (0 = locked)
+  totalEnemiesKilled: number;
+  totalGoldSpent: number;
+  totalGoldEarned: number;
+  totalMerges: number;
 }
 
 // Entity state - game objects
@@ -53,6 +58,7 @@ export interface VisualEffects {
   levelUpAnimations: LevelUpAnimation[];
   upgradeAnimations: UpgradeAnimation[];
   mergeAnimations: MergeAnimation[];
+  achievementQueue: string[]; // achievement IDs waiting to show popup
 }
 
 // Combined game state (what gets passed around)

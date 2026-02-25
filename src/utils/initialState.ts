@@ -43,6 +43,11 @@ export const createInitialCoreState = (devMode: boolean = false): CoreState => (
   purchases: {},
   elements: createInitialElements(),
   mageProgress: createInitialMageProgress(),
+  achievements: {},
+  totalEnemiesKilled: 0,
+  totalGoldSpent: 0,
+  totalGoldEarned: 0,
+  totalMerges: 0,
 });
 
 export const createInitialEntityState = (): EntityState => ({
@@ -66,6 +71,7 @@ export const createInitialVisuals = (): VisualEffects => ({
   levelUpAnimations: [],
   upgradeAnimations: [],
   mergeAnimations: [],
+  achievementQueue: [],
 });
 
 export const createInitialGameState = (devMode: boolean = false): GameState => ({

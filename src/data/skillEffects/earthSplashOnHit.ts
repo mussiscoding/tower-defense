@@ -39,6 +39,14 @@ export const earthSplashOnHit = (
     nearbyEnemy.health = Math.max(0, nearbyEnemy.health - splashDamage);
   });
 
+  // Track splash hit count for achievements
+  if (context.achievementEvents && nearbyEnemies.length > 0) {
+    if (!context.achievementEvents.splashHitCounts) {
+      context.achievementEvents.splashHitCounts = [];
+    }
+    context.achievementEvents.splashHitCounts.push(nearbyEnemies.length);
+  }
+
   // Create splash effect for visual feedback
   const currentTime = Date.now();
   const splashEffect = createSplashEffect(

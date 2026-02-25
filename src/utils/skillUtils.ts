@@ -177,6 +177,7 @@ export const purchaseSkillSliced = (state: GameState, skillId: string): void => 
 
   // Update purchases and deduct gold (mutate in place)
   state.core.gold -= skill.cost;
+  state.core.totalGoldSpent += skill.cost;
   state.core.purchases = {
     ...state.core.purchases,
     [skillId]: 1, // Skills are one-time purchases

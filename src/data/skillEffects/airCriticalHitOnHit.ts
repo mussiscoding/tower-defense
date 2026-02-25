@@ -32,6 +32,10 @@ export const airCriticalHitOnHit = (
         y: enemy.y - 10,
         elementType: "air",
       });
+
+      if (context.achievementEvents) {
+        context.achievementEvents.criticalHitLanded = true;
+      }
     }
   }
 };

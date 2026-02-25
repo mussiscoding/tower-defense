@@ -9,6 +9,17 @@ import type {
   Skill,
 } from "../../types/GameState";
 import type { ElementType } from "../../data/elements";
+
+export interface KilledEnemy {
+  enemy: Enemy;
+  elementType: ElementType;
+  damage: number;
+}
+
+export interface AchievementEvents {
+  criticalHitLanded?: boolean;
+  splashHitCounts?: number[];
+}
 import { damageEnemy, handleEnemyDeath } from "./enemy";
 import { grantElementXP } from "./mutations";
 import { createDamageNumber } from "./uiUtils";
@@ -97,6 +108,8 @@ export const processArrowImpacts = (
   predictedBurnDamage: Map<string, number>;
   elements: Record<ElementType, ElementData>;
   damageNumbers: DamageNumber[];
+  killedEnemies: KilledEnemy[];
+  achievementEvents: AchievementEvents;
 } => {
   const activeArrows: Arrow[] = [];
   let updatedEnemies = [...enemies];
@@ -113,6 +126,8 @@ export const processArrowImpacts = (
   };
   const processedArrowIds = new Set<string>();
   const newDamageNumbers: DamageNumber[] = [];
+  const killedEnemies: KilledEnemy[] = [];
+  const collectedAchievementEvents: AchievementEvents = {};
 
   arrows.forEach((arrow) => {
     // Skip if this arrow has already been processed
@@ -180,6 +195,7 @@ export const processArrowImpacts = (
             splashEffects: [],
             bonusDamage: [],
             vortexes: [],
+            achievementEvents: collectedAchievementEvents,
           };
 
           // Execute all onHit effects
@@ -237,6 +253,12 @@ export const processArrowImpacts = (
         );
 
         if (isDead) {
+          // Capture killed enemy info before filtering
+          killedEnemies.push({
+            enemy: targetEnemy,
+            elementType: arrow.elementType,
+            damage,
+          });
           updatedEnemies = updatedEnemies.filter(
             (enemy) => enemy.id !== targetEnemy.id
           );
@@ -288,5 +310,7 @@ export const processArrowImpacts = (
     predictedBurnDamage: updatedPredictedBurnDamage,
     elements: updatedElements,
     damageNumbers: newDamageNumbers,
+    killedEnemies,
+    achievementEvents: collectedAchievementEvents,
   };
 };

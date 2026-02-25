@@ -41,6 +41,8 @@ import {
   type GameLoopMeta,
 } from "../constants/gameTiming";
 import { saveGame } from "../utils/saveSystem";
+import { tryUnlockAchievement, checkStateAchievements } from "../utils/achievementUtils";
+import AchievementPopup from "./AchievementPopup";
 import "./GameArea.css";
 
 interface GameAreaProps {
@@ -122,7 +124,17 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       // 6. PROCESS BURN DAMAGE
       const enemiesWithBurnDamage = processBurnDamage(movedEnemies, now);
 
-      // 7. REMOVE DEAD ENEMIES
+      // 7. HANDLE BURN KILLS + REMOVE DEAD ENEMIES
+      const burnKilled = enemiesWithBurnDamage.filter((e) => e.health <= 0);
+      burnKilled.forEach((enemy) => {
+        state.core.totalEnemiesKilled++;
+        const { goldGained: burnGold, goldPopups: burnPopups } = handleEnemyDeath(enemy, now);
+        state.core.gold += burnGold;
+        state.core.totalGoldEarned += burnGold;
+        state.visuals.goldPopups.push(...burnPopups);
+        tryUnlockAchievement("burn_kill", state);
+        if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+      });
       const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
 
       // 8. DEFENDER ATTACKS
@@ -166,6 +178,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         predictedArrowDamage: finalPredictedArrowDamage,
         predictedBurnDamage: finalPredictedBurnDamage,
         elements: updatedElements,
+        killedEnemies,
+        achievementEvents,
       } = processArrowImpacts(
         [...state.entities.arrows, ...newArrows],
         enemiesAfterDefenderAttacks,
@@ -211,6 +225,38 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             );
           });
         }
+      });
+
+      // 10b. TRACK ARROW KILLS + ACHIEVEMENTS
+      state.core.totalEnemiesKilled += killedEnemies.length;
+      state.core.totalGoldEarned += goldGained;
+      killedEnemies.forEach(({ enemy, damage }) => {
+        if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        if (damage >= enemy.maxHealth * 100) tryUnlockAchievement("overkill", state);
+        if (enemy.slowEffect && enemy.slowEndTime && now < enemy.slowEndTime) {
+          tryUnlockAchievement("slow_kill", state);
+        }
+      });
+
+      // Check achievement events from skills
+      if (achievementEvents.criticalHitLanded) {
+        tryUnlockAchievement("critical_hit", state);
+      }
+      if (achievementEvents.splashHitCounts) {
+        if (achievementEvents.splashHitCounts.some((count) => count >= 3)) {
+          tryUnlockAchievement("splash_multi", state);
+        }
+      }
+
+      // 10c. HANDLE SPLASH KILLS (enemies killed by splash damage mutation)
+      const splashKilled = enemiesAfterArrowImpacts.filter((e) => e.health <= 0);
+      splashKilled.forEach((enemy) => {
+        state.core.totalEnemiesKilled++;
+        const { goldGained: splashGold, goldPopups: splashPopups } = handleEnemyDeath(enemy, now);
+        state.core.gold += splashGold;
+        state.core.totalGoldEarned += splashGold;
+        state.visuals.goldPopups.push(...splashPopups);
+        if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
       });
 
       // 11. REMOVE DEAD ENEMIES (after arrow impacts)
@@ -280,7 +326,12 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         meta.lastCleanupTick = meta.tickCount;
       }
 
-      // 14. AUTO-SAVE (every 5 seconds)
+      // 14. CHECK ACHIEVEMENTS (every 20 ticks)
+      if (meta.tickCount % 20 === 0) {
+        checkStateAchievements(state);
+      }
+
+      // 15. AUTO-SAVE (every 5 seconds)
       if (meta.tickCount - meta.lastSaveTick >= GAME_TIMING.SAVE_TICKS) {
         saveGame(state);
         state.core.lastSave = now;
@@ -317,7 +368,10 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
           (e) => e.id !== enemy.id
         );
         state.core.gold += goldGained;
+        state.core.totalGoldEarned += goldGained;
+        state.core.totalEnemiesKilled++;
         state.visuals.goldPopups.push(...deathPopups);
+        if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
       }
 
       triggerRender();
@@ -378,6 +432,11 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
     },
     [stateRef, triggerRender]
   );
+
+  const handleAchievementPopupComplete = useCallback(() => {
+    stateRef.current.visuals.achievementQueue.shift();
+    triggerRender();
+  }, [stateRef, triggerRender]);
 
   // Read current state for rendering
   const { core, entities, visuals } = stateRef.current;
@@ -500,6 +559,13 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             onComplete={handleMergeComplete}
           />
         ))}
+
+        {visuals.achievementQueue.length > 0 && (
+          <AchievementPopup
+            achievementId={visuals.achievementQueue[0]}
+            onComplete={handleAchievementPopupComplete}
+          />
+        )}
       </div>
     </div>
   );

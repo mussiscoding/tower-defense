@@ -119,6 +119,11 @@ export const loadGame = (): GameState | null => {
         purchases: parsed.core?.purchases ?? defaultCore.purchases,
         elements: loadedElements,
         mageProgress,
+        achievements: parsed.core?.achievements ?? defaultCore.achievements,
+        totalEnemiesKilled: parsed.core?.totalEnemiesKilled ?? defaultCore.totalEnemiesKilled,
+        totalGoldSpent: parsed.core?.totalGoldSpent ?? defaultCore.totalGoldSpent,
+        totalGoldEarned: parsed.core?.totalGoldEarned ?? defaultCore.totalGoldEarned,
+        totalMerges: parsed.core?.totalMerges ?? defaultCore.totalMerges,
       },
       entities: {
         enemies: parsed.entities?.enemies ?? defaultEntities.enemies,

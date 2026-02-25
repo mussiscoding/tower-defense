@@ -1,0 +1,118 @@
+.achievement-grid-container h3 {
+  color: #ffd700;
+  margin: 0 0 12px 0;
+  font-size: 1.1em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid #8b4513;
+  padding-bottom: 8px;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.achievement-slot {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid #5a3a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: center;
+}
+
+.achievement-slot:hover {
+  border-color: #8b4513;
+  transform: scale(1.1);
+}
+
+.achievement-slot.unlocked {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.achievement-slot.unlocked:hover {
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+.achievement-slot.hidden-achievement .achievement-slot-icon {
+  opacity: 0.4;
+}
+
+.achievement-slot.hidden-achievement .progress-ring {
+  opacity: 0.4;
+}
+
+.achievement-slot-icon {
+  font-size: 1.2em;
+  line-height: 1;
+  filter: none;
+}
+
+.achievement-slot:not(.unlocked):not(.hidden-achievement) .achievement-slot-icon {
+  filter: grayscale(0.6);
+  opacity: 0.7;
+}
+
+.progress-ring {
+  position: absolute;
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  pointer-events: none;
+}
+
+.achievement-tooltip {
+  position: fixed;
+  box-sizing: border-box;
+  background: #1a0e05;
+  border: 1px solid #8b4513;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 160px;
+  z-index: 50;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+.achievement-tooltip-name {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+}
+
+.achievement-tooltip-desc {
+  color: #ccc;
+  font-size: 0.8em;
+  line-height: 1.3;
+}
+
+.achievement-tooltip-hint {
+  color: #999;
+  font-size: 0.8em;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.achievement-tooltip-reward {
+  color: #ffd700;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.achievement-tooltip-progress {
+  color: #aaa;
+  font-size: 0.75em;
+  margin-top: 2px;
+}

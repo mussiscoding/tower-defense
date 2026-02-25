@@ -235,6 +235,10 @@ export interface SkillContext {
   splashEffects: SplashEffect[]; // For skills that create splash effects
   vortexes: VortexData[]; // For skills that create vortex effects
   bonusDamage: BonusDamage[];
+  achievementEvents?: {
+    criticalHitLanded?: boolean;
+    splashHitCounts?: number[];
+  };
 }
 
 export interface Skill {

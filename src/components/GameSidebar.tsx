@@ -14,6 +14,8 @@ import { purchaseSkillSliced } from "../utils/skillUtils";
 import { advanceStar, getNextMageCost } from "../utils/starSystem";
 import { recalculateElementDamage } from "../utils/gameLogic/mutations";
 
+import { tryUnlockAchievement } from "../utils/achievementUtils";
+import AchievementGrid from "./AchievementGrid";
 import "./GameSidebar.css";
 import Mages from "./Mages";
 
@@ -53,6 +55,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
     // Handle click damage upgrade (special case)
     if (itemId === "click_damage_upgrade") {
       state.core.gold -= currentPrice;
+      state.core.totalGoldSpent += currentPrice;
       state.core.clickDamage += 1;
       state.core.purchases = {
         ...state.core.purchases,
@@ -96,6 +99,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
 
       // Update state
       state.core.gold -= currentPrice;
+      state.core.totalGoldSpent += currentPrice;
       state.core.purchases = {
         ...state.core.purchases,
         [itemId]: (state.core.purchases[itemId] || 0) + 1,
@@ -127,6 +131,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
     const count = magesOfType.length;
 
     state.core.gold -= cost;
+    state.core.totalGoldSpent += cost;
 
     if (count === 0) {
       // First mage: place at center
@@ -143,6 +148,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
       ];
     } else {
       // Merge: remove one, reposition survivor to center, advance star
+      state.core.totalMerges++;
       const fromPositions = magesOfType.map((d) => ({ x: d.x, y: d.y }));
       const toPosition = { x: spawnX, y: positions.center };
 
@@ -204,7 +210,11 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
         </button>
         <button
           className={`sidebar-tab ${activeTab === "stats" ? "active" : ""}`}
-          onClick={() => setActiveTab("stats")}
+          onClick={() => {
+            setActiveTab("stats");
+            tryUnlockAchievement("stats_man", stateRef.current);
+            triggerRender();
+          }}
         >
           📊 Stats
         </button>
@@ -244,8 +254,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
           </div>
 
           <div className="stats-section">
-            <h3>Achievements</h3>
-            <p className="coming-soon">Coming soon...</p>
+            <AchievementGrid state={stateRef.current} />
           </div>
         </div>
       )}
