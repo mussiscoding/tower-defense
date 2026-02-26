@@ -12,11 +12,14 @@ interface WaveComposition {
   waveEnemies: WaveEnemy[];
 }
 
+const WAVE_BASE_HP = 50;
+const WAVE_GROWTH_RATE = 1.3;
+
 export function generateWave(
   difficulty: number,
   availableEnemies: EnemyData[] // Now takes enemy data objects directly
 ): WaveComposition {
-  const totalDifficultyValue = difficulty * 50;
+  const totalDifficultyValue = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
 
   // Giants only spawn at difficulty 3+, then 10% chance per wave
   if (difficulty >= 3 && Math.random() < 0.1) {

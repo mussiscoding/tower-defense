@@ -198,11 +198,8 @@ const AchievementGrid: React.FC<AchievementGridProps> = ({ state }) => {
             <div className="achievement-tooltip-name">
               {isHidden ? "???" : def.name}
             </div>
-            {unlocked && (
+            {!isHidden && (
               <div className="achievement-tooltip-desc">{def.description}</div>
-            )}
-            {!unlocked && !isHidden && def.hint && (
-              <div className="achievement-tooltip-hint">{def.hint}</div>
             )}
             {isHidden && (
               <div className="achievement-tooltip-hint">Hidden achievement</div>
