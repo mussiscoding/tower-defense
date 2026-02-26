@@ -290,18 +290,18 @@ const Mages: React.FC<MagesProps> = ({
 
                   <div className="stat-item">
                     <span className="stat-label">Total XP:</span>
-                    <span className="stat-value">{elementData.xp}</span>
+                    <span className="stat-value">{elementData.xp.toLocaleString()}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Next Level At:</span>
                     <span className="stat-value">
-                      {getXPForLevel(elementData.level + 1)}
+                      {getXPForLevel(elementData.level + 1).toLocaleString()}
                     </span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Remaining XP:</span>
                     <span className="stat-value">
-                      {getXPForLevel(elementData.level + 1) - elementData.xp}
+                      {(getXPForLevel(elementData.level + 1) - elementData.xp).toLocaleString()}
                     </span>
                   </div>
                 </div>
