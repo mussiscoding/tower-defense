@@ -52,21 +52,6 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
     }
   };
 
-  const getElementColor = (elementType: ElementType) => {
-    switch (elementType) {
-      case "fire":
-        return "#ff4444";
-      case "ice":
-        return "#4444ff";
-      case "earth":
-        return "#8b4513";
-      case "air":
-        return "#cccccc";
-      default:
-        return "#666666";
-    }
-  };
-
   const handleSkillClick = (skillId: string, state: string) => {
     if (state === "purchaseable" && onPurchaseSkill) {
       onPurchaseSkill(skillId);
@@ -91,8 +76,6 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
 
           const { skill, state } = skillState;
           const stateColor = getSkillStateColor(state);
-          const elementColor = getElementColor(elementType);
-
           return (
             <div
               key={skill.id}
@@ -111,7 +94,7 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
               }}
               onMouseLeave={() => setHoveredSkill(null)}
             >
-              <span className="skill-number" style={{ color: elementColor }}>
+              <span className="skill-number">
                 {skill.icon}
               </span>
 
@@ -129,7 +112,6 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
                     <div className="skill-popup-header">
                       <span
                         className="skill-popup-icon"
-                        style={{ color: elementColor }}
                       >
                         {skill.icon}
                       </span>

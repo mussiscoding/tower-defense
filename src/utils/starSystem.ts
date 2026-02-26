@@ -30,10 +30,10 @@ export const RANK_NAMES: Record<MageTier, string> = {
 
 // 3 bronze gradients, 3 silver, 3 gold, 1 white
 export const RANK_COLORS: Record<MageTier, string> = {
-  initiate: "#8B6914",
-  apprentice: "#CD7F32",
+  initiate: "#B8912E",
+  apprentice: "#D4944A",
   journeyman: "#DAA520",
-  adept: "#808090",
+  adept: "#9999A8",
   mage: "#C0C0C0",
   sorcerer: "#E0E0E8",
   magus: "#B8860B",

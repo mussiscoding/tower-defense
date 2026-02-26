@@ -1,9 +1,9 @@
 .skills-row {
   margin-bottom: 10px;
   padding: 12px;
-  background: #3a3a3a;
+  background: var(--element-bg, #3a3a3a);
   border-radius: 6px;
-  border: 1px solid #555;
+  border: 1px solid var(--element-color-dim, #555);
   box-sizing: border-box;
 }
 
@@ -66,6 +66,7 @@
 .skill-number {
   font-size: 14px;
   font-weight: bold;
+  color: var(--element-color, #ccc);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   user-select: none;
 }
@@ -106,6 +107,7 @@
 .skill-popup-icon {
   font-size: 20px;
   font-weight: bold;
+  color: var(--element-color, #ccc);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 

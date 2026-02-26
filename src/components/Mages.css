@@ -191,16 +191,18 @@
 }
 
 .element-nav-btn.active {
-  background: #ffd700;
-  color: #333;
+  background: var(--element-color, #ffd700);
+  color: #fff;
   cursor: default;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .element-nav-btn:disabled {
-  background: #ffd700;
-  color: #333;
+  background: var(--element-color, #ffd700);
+  color: #fff;
   cursor: default;
   opacity: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .element-detail-content {
@@ -210,8 +212,8 @@
 }
 
 .element-detail-card {
-  background: #3a3a3a;
-  border: 1px solid #555;
+  background: var(--element-bg, #3a3a3a);
+  border: 1px solid var(--element-color-dim, #555);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -341,8 +343,9 @@
 }
 
 .element-tab-button.active {
-  background: #ffd700;
-  color: #000;
+  background: var(--element-color, #ffd700);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .element-tab-button:hover {
@@ -350,7 +353,8 @@
 }
 
 .element-tab-button.active:hover {
-  background: #ffed4e;
+  background: var(--element-color, #ffed4e);
+  color: #fff;
 }
 
 /* Shop Item Styles */
@@ -359,8 +363,9 @@
 }
 
 .shop-item {
-  background: #3a3a3a;
-  border: 1px solid #555;
+  background: var(--element-bg, #3a3a3a);
+  border: 1px solid var(--element-color-dim, #555);
+  border-left: 3px solid var(--element-color-dim, #555);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 10px;
@@ -371,9 +376,10 @@
 
 .shop-item:hover {
   background: #444;
-  border-color: #ffd700;
+  border-color: var(--element-color, #ffd700);
+  border-left-color: var(--element-color, #ffd700);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px var(--element-color-dim, rgba(0, 0, 0, 0.3));
 }
 
 .shop-item.disabled {
@@ -382,10 +388,11 @@
 }
 
 .shop-item.disabled:hover {
-  background: #3a3a3a;
-  border-color: #555;
+  background: var(--element-bg, #3a3a3a);
+  border-color: var(--element-color-dim, #555);
+  border-left-color: var(--element-color-dim, #555);
   transform: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
 }
 
 .shop-item-name {

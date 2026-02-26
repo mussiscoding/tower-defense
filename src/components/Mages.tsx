@@ -66,14 +66,29 @@ const Mages: React.FC<MagesProps> = ({
       case "fire":
         return "#ff4444";
       case "ice":
-        return "#4444ff";
+        return "#6688ff";
       case "earth":
-        return "#8b4513";
+        return "#cd853f";
       case "air":
-        return "#cccccc";
+        return "#b8d4e8";
       default:
         return "#666666";
     }
+  };
+
+  const getElementThemeStyle = (elementType: ElementType): React.CSSProperties => {
+    const themes: Record<ElementType, { color: string; dim: string; bg: string }> = {
+      fire:  { color: "#ff4444", dim: "rgba(255, 68, 68, 0.3)",  bg: "rgba(255, 68, 68, 0.06)" },
+      ice:   { color: "#6688ff", dim: "rgba(102, 136, 255, 0.3)", bg: "rgba(102, 136, 255, 0.06)" },
+      earth: { color: "#cd853f", dim: "rgba(205, 133, 63, 0.3)",  bg: "rgba(205, 133, 63, 0.06)" },
+      air:   { color: "#b8d4e8", dim: "rgba(184, 212, 232, 0.3)", bg: "rgba(184, 212, 232, 0.06)" },
+    };
+    const t = themes[elementType];
+    return {
+      "--element-color": t.color,
+      "--element-color-dim": t.dim,
+      "--element-bg": t.bg,
+    } as React.CSSProperties;
   };
 
   const getElementName = (elementType: ElementType) => {
@@ -116,7 +131,7 @@ const Mages: React.FC<MagesProps> = ({
       }
     });
     return (
-      <div className="mages-container">
+      <div className="mages-container" style={getElementThemeStyle(selectedElement)}>
         <div className="element-detail-header">
           <div className="element-nav-buttons">
             <button
