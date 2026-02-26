@@ -33,7 +33,6 @@ import {
   updateVortexEffectsInGameLoop,
 } from "../utils/gameLogic";
 import { generateWave } from "../utils/gameLogic/waveGenerator";
-import { enemies } from "../data/enemies";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 import {
   GAME_TIMING,
@@ -81,21 +80,18 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       ) {
         if (gameAreaRef.current) {
           const rect = gameAreaRef.current.getBoundingClientRect();
-          const wave = generateWave(state.core.difficultyLevel, enemies);
+          const wave = generateWave(state.core.difficultyLevel);
 
           // Add enemies with staggered spawn times
           wave.waveEnemies.forEach((waveEnemy) => {
-            for (let i = 0; i < waveEnemy.count; i++) {
-              const spawnDelay = Math.random() * 3000;
-              const spawnX = rect.width;
-              const spawnY = Math.random() * (rect.height - 100) + 50;
-              const newEnemy = createEnemy(spawnX, spawnY, waveEnemy.enemyId, {
-                isGiant: waveEnemy.isGiant,
-                customHealth: waveEnemy.customHealth,
-              });
-              newEnemy.spawnTime = now + spawnDelay;
-              state.entities.pendingEnemies.push(newEnemy);
-            }
+            const spawnDelay = Math.random() * 3000;
+            const spawnX = rect.width;
+            const spawnY = Math.random() * (rect.height - 100) + 50;
+            const newEnemy = createEnemy(spawnX, spawnY, waveEnemy.health, waveEnemy.colorIndex, {
+              isGiant: waveEnemy.isGiant,
+            });
+            newEnemy.spawnTime = now + spawnDelay;
+            state.entities.pendingEnemies.push(newEnemy);
           });
         }
         meta.lastWaveSpawnTick = meta.tickCount;

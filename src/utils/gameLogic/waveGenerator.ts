@@ -1,77 +1,105 @@
-import type { EnemyData } from "../../data/enemies";
-
-interface WaveEnemy {
-  enemyId: string;
-  count: number;
+export interface WaveEnemy {
+  health: number;
+  colorIndex: number;
   isGiant?: boolean;
-  customHealth?: number; // For giants with custom HP
 }
 
-interface WaveComposition {
+export interface WaveComposition {
   totalDifficultyValue: number;
   waveEnemies: WaveEnemy[];
 }
 
+export type WaveMode = "fixed-budget" | "fixed-mean";
+
 const WAVE_BASE_HP = 50;
 const WAVE_GROWTH_RATE = 1.3;
+const MEAN_BASE_HP = 10;
+const MIN_ENEMIES = 4;
+const MAX_ENEMIES = 8;
+const SIGMA_RATIO = 0.33;
+
+/**
+ * Box-Muller transform: sample from a normal distribution.
+ * Returns a value clamped to [min, max], rounded to integer.
+ */
+function sampleHP(mean: number, stddev: number, min: number, max: number): number {
+  const u1 = Math.random() || 0.0001;
+  const u2 = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  const raw = mean + z * stddev;
+  return Math.round(Math.max(min, Math.min(max, raw)));
+}
+
+function randomEnemyCount(): number {
+  return MIN_ENEMIES + Math.floor(Math.random() * (MAX_ENEMIES - MIN_ENEMIES + 1));
+}
+
+function randomColorIndex(): number {
+  return Math.floor(Math.random() * 12);
+}
 
 export function generateWave(
   difficulty: number,
-  availableEnemies: EnemyData[] // Now takes enemy data objects directly
+  mode: WaveMode = "fixed-budget"
 ): WaveComposition {
-  const totalDifficultyValue = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
+  const budget = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
 
-  // Giants only spawn at difficulty 3+, then 10% chance per wave
+  // Giant wave: 10% chance at difficulty 3+
   if (difficulty >= 3 && Math.random() < 0.1) {
-    return generateGiantWave(totalDifficultyValue);
+    return generateGiantWave(budget);
   }
 
-  return generateValidComposition(totalDifficultyValue, availableEnemies);
+  if (mode === "fixed-budget") {
+    return generateFixedBudgetWave(budget);
+  } else {
+    return generateFixedMeanWave(difficulty, budget);
+  }
 }
 
-function generateGiantWave(totalDifficultyValue: number): WaveComposition {
-  // Single giant enemy with 1.5x HP budget
-  const giantHealth = Math.floor(totalDifficultyValue * 1.5);
+function generateGiantWave(budget: number): WaveComposition {
+  const giantHealth = Math.floor(budget * 1.5);
   return {
-    totalDifficultyValue,
+    totalDifficultyValue: budget,
     waveEnemies: [{
-      enemyId: "giant",
-      count: 1,
+      health: giantHealth,
+      colorIndex: randomColorIndex(),
       isGiant: true,
-      customHealth: giantHealth,
     }],
   };
 }
 
-function generateValidComposition(
-  totalDifficultyValue: number,
-  availableEnemies: EnemyData[]
-): WaveComposition {
-  const composition = [];
-  let remainingDifficultyValue = totalDifficultyValue;
+function generateFixedBudgetWave(budget: number): WaveComposition {
+  const enemyCount = randomEnemyCount();
+  const mean = budget / enemyCount;
+  const stddev = mean * SIGMA_RATIO;
+  const minHP = Math.max(10, Math.floor(mean * 0.3));
+  const maxHP = Math.floor(mean * 2);
 
-  while (remainingDifficultyValue > 0) {
-    // Calculate minimum based on remaining difficulty (at least 1/3 of what's left)
-    const minimumEnemyDifficulty = remainingDifficultyValue / 3;
-
-    // Get all enemies that fit within remaining difficulty and meet minimum threshold
-    const validEnemies = availableEnemies.filter(
-      (enemy) =>
-        enemy.difficultyValue <= remainingDifficultyValue &&
-        enemy.difficultyValue >= minimumEnemyDifficulty
-    );
-
-    if (validEnemies.length === 0) break;
-
-    // Randomly select one and add it to the wave
-    const selectedEnemy =
-      validEnemies[Math.floor(Math.random() * validEnemies.length)];
-
-    composition.push({ enemyId: selectedEnemy.id, count: 1 });
-
-    remainingDifficultyValue =
-      remainingDifficultyValue - selectedEnemy.difficultyValue;
+  const waveEnemies: WaveEnemy[] = [];
+  for (let i = 0; i < enemyCount; i++) {
+    waveEnemies.push({
+      health: sampleHP(mean, stddev, minHP, maxHP),
+      colorIndex: randomColorIndex(),
+    });
   }
 
-  return { totalDifficultyValue, waveEnemies: composition };
+  return { totalDifficultyValue: budget, waveEnemies };
+}
+
+function generateFixedMeanWave(difficulty: number, budget: number): WaveComposition {
+  const enemyCount = randomEnemyCount();
+  const mean = Math.floor(MEAN_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
+  const stddev = mean * SIGMA_RATIO;
+  const minHP = Math.max(10, Math.floor(mean * 0.3));
+  const maxHP = Math.floor(mean * 2);
+
+  const waveEnemies: WaveEnemy[] = [];
+  for (let i = 0; i < enemyCount; i++) {
+    waveEnemies.push({
+      health: sampleHP(mean, stddev, minHP, maxHP),
+      colorIndex: randomColorIndex(),
+    });
+  }
+
+  return { totalDifficultyValue: budget, waveEnemies };
 }

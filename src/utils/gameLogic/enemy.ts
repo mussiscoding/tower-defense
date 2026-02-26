@@ -1,5 +1,4 @@
 import type { Enemy, GoldPopup } from "../../types/GameState";
-import { getEnemyById } from "../../data/enemies";
 import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
 
 export const generateEnemyId = (): string => {
@@ -8,30 +7,26 @@ export const generateEnemyId = (): string => {
 
 interface CreateEnemyOptions {
   isGiant?: boolean;
-  customHealth?: number;
 }
 
 export const createEnemy = (
   x: number,
   y: number,
-  enemyId: string, // Now takes enemy ID (e.g., "enemy_1", "enemy_2") instead of enemy type
+  health: number,
+  colorIndex: number,
   options?: CreateEnemyOptions
 ): Enemy => {
-  // Get enemy data by ID (for giants, use enemy_1 as base)
-  const enemyData = getEnemyById(enemyId === "giant" ? "enemy_1" : enemyId);
-
-  const health = options?.customHealth ?? enemyData.health;
   const isGiant = options?.isGiant ?? false;
 
   return {
-    id: generateEnemyId(), // This is the instance ID (UUID)
+    id: generateEnemyId(),
     x,
     y,
     health,
     maxHealth: health,
-    speed: enemyData.speed,
-    goldValue: Math.ceil(health / 2), // Gold based on actual health
-    colorIndex: isGiant ? Math.floor(Math.random() * 12) : enemyData.colorIndex, // Random color for giants
+    speed: 1,
+    goldValue: Math.ceil(health / 2),
+    colorIndex,
     isGiant,
   };
 };
