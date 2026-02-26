@@ -85,7 +85,12 @@ export const getSkillStatesForElement = (
   purchases: Record<string, number>
 ): Array<{ skill: Skill; state: SkillState }> => {
   const skills = getSkillsForElement(elementType);
-  return skills.map((skill) => ({
+  const sorted = [...skills].sort(
+    (a, b) =>
+      (a.unlockRequirements[elementType] || 0) -
+      (b.unlockRequirements[elementType] || 0)
+  );
+  return sorted.map((skill) => ({
     skill,
     state: getSkillState(skill, elements, playerGold, purchases),
   }));

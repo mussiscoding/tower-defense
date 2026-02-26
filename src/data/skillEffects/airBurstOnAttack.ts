@@ -2,10 +2,11 @@ import type { Defender, Enemy, SkillContext } from "../../types/GameState";
 import { calculatePredictedEnemyPosition } from "../../utils/gameLogic/uiUtils";
 import { getActiveSkillsForElement } from "../../utils/skillUtils";
 import { createArrow } from "../../utils/gameLogic/arrow";
+import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
 import { SKILL_BASE_VALUES } from "../allSkills";
 import { calculateSkillValue } from "../../utils/skills";
 
-// Air Burst onAttack handler - fires multiple arrows at once
+// Air Burst onAttack handler - fires arrows at multiple enemies
 export const airBurstOnAttack = (
   defender: Defender,
   target: Enemy,
@@ -21,8 +22,6 @@ export const airBurstOnAttack = (
   const burstDelay = 50;
   const currentTime = Date.now();
 
-  const predictedPosition = calculatePredictedEnemyPosition(defender, target);
-
   const hitModifierSkills = getActiveSkillsForElement(
     defender.type,
     context.purchases,
@@ -30,17 +29,31 @@ export const airBurstOnAttack = (
   );
   const onHitEffects = hitModifierSkills.filter((skill) => skill.onHit);
 
-  for (let i = 0; i < burstShots; i++) {
-    const spreadOffset = (i - Math.floor(burstShots / 2)) * 10;
+  // Pick up to burstShots distinct enemies, sorted by proximity to castle
+  const enemiesInRange = context.enemies
+    .filter((e) => e.health > 0 && e.x - GAME_DIMENSIONS.CASTLE_WIDTH <= defender.range)
+    .sort((a, b) => a.x - b.x);
+
+  const targets: Enemy[] = [target];
+  for (const enemy of enemiesInRange) {
+    if (targets.length >= burstShots) break;
+    if (!targets.some((t) => t.id === enemy.id)) {
+      targets.push(enemy);
+    }
+  }
+
+  for (let i = 0; i < targets.length; i++) {
+    const t = targets[i];
+    const predictedPosition = calculatePredictedEnemyPosition(defender, t);
 
     const arrow = createArrow(
       defender.x + 20,
       defender.y + 20,
-      predictedPosition.x + spreadOffset,
+      predictedPosition.x,
       predictedPosition.y,
       currentTime + i * burstDelay,
       defender.type,
-      target.id,
+      t.id,
       onHitEffects
     );
 

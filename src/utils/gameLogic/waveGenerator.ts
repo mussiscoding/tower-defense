@@ -14,8 +14,8 @@ export type WaveMode = "fixed-budget" | "fixed-mean";
 const WAVE_BASE_HP = 50;
 const WAVE_GROWTH_RATE = 1.3;
 const MEAN_BASE_HP = 10;
-const MIN_ENEMIES = 4;
-const MAX_ENEMIES = 8;
+const MIN_ENEMIES = 2;
+const MAX_ENEMIES = 10;
 const SIGMA_RATIO = 0.33;
 
 /**

@@ -24,10 +24,12 @@ const createUpgrade = (config: {
 }): UpgradeShopItem => ({
   id: config.id,
   name: config.name,
-  description: `Increase ${config.name.toLowerCase()} +${config.upgradeAmount}${
-    config.unit || ""
-  }${config.descriptionSuffix || ""}`,
-  shortName: `+${config.upgradeAmount}${config.unit || "%"}`,
+  description: config.unit === "s"
+    ? `Increase ${config.name.toLowerCase()} +${config.upgradeAmount / 1000}s${config.descriptionSuffix || ""}`
+    : `Increase ${config.name.toLowerCase()} +${config.upgradeAmount}${config.unit || ""}${config.descriptionSuffix || ""}`,
+  shortName: config.unit === "s"
+    ? `+${config.upgradeAmount / 1000}s`
+    : `+${config.upgradeAmount}${config.unit || ""}`,
   cost: config.cost,
   type: "upgrade",
   costScalingFactor: config.costScalingFactor || 2.0,
@@ -96,7 +98,7 @@ export const allUpgrades: UpgradeShopItem[] = [
   createUpgrade({
     id: "earth_splash_radius_upgrade",
     name: "Splash Radius",
-    upgradeAmount: 10,
+    upgradeAmount: 1,
     cost: 10000,
     prerequisiteSkill: "earth_splash",
     unit: "",
@@ -116,7 +118,7 @@ export const allUpgrades: UpgradeShopItem[] = [
   createUpgrade({
     id: "air_burst_cooldown_upgrade",
     name: "Burst Cooldown",
-    upgradeAmount: 1,
+    upgradeAmount: 1000,
     cost: 10000,
     prerequisiteSkill: "air_burst",
     unit: "s",

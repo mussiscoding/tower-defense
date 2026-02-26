@@ -79,10 +79,11 @@ export function getStarDamageMultiplier(progress: MageProgress): number {
 }
 
 /**
- * Cost of next mage purchase: 100 * 3^(totalStars - 1).
+ * Cost of next mage purchase: 100 * 4^(totalStars - 1).
+ * Scales faster than damage (3^n) so each star takes progressively longer.
  */
 export function getNextMageCost(progress: MageProgress): number {
-  return Math.floor(100 * Math.pow(3, getTotalStars(progress) - 1));
+  return Math.floor(100 * Math.pow(4, getTotalStars(progress) - 1));
 }
 
 /**

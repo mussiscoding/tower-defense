@@ -1,3 +1,4 @@
+import { formatNumber } from "../utils/formatNumber";
 import "./GoldPopup.css";
 
 interface GoldPopupProps {
@@ -18,7 +19,7 @@ const GoldPopup: React.FC<GoldPopupProps> = ({ x, y, amount, onComplete }) => {
       }}
       onAnimationEnd={onComplete}
     >
-      +{amount} 💰
+      +{formatNumber(amount)} 💰
     </div>
   );
 };
