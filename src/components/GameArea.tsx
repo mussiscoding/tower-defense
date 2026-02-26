@@ -31,7 +31,15 @@ import {
   processBurnDamage,
   handleEnemyDeath,
   updateVortexEffectsInGameLoop,
+  getDamageMultiplier,
+  getGoldMultiplier,
+  getAttackSpeedMultiplier,
+  filterExpiredPowerUps,
+  trySpawnPowerUp,
 } from "../utils/gameLogic";
+import { getPowerUpDef, getGoldDropAmount } from "../data/powerups";
+import SpawnedPowerUpComponent from "./SpawnedPowerUp";
+import ActiveBuffsHUD from "./ActiveBuffsHUD";
 import { generateWave } from "../utils/gameLogic/waveGenerator";
 import { GAME_DIMENSIONS } from "../constants/gameDimensions";
 import {
@@ -63,6 +71,22 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       const now = Date.now();
 
       meta.tickCount++;
+
+      // POWER-UP MULTIPLIERS (compute once per tick; element-specific ones computed inside arrow/burn processing)
+      const goldMultiplier = getGoldMultiplier(state.core.activePowerUps, now);
+      const attackSpeedMultiplier = getAttackSpeedMultiplier(state.core.activePowerUps, now);
+
+      // POWER-UP EXPIRY
+      state.core.activePowerUps = filterExpiredPowerUps(state.core.activePowerUps, now);
+      if (state.entities.spawnedPowerUp && now > state.entities.spawnedPowerUp.despawnTime) {
+        state.entities.spawnedPowerUp = null;
+      }
+
+      // POWER-UP SPAWN
+      if (!state.entities.spawnedPowerUp) {
+        const spawned = trySpawnPowerUp(meta, now);
+        if (spawned) state.entities.spawnedPowerUp = spawned;
+      }
 
       // 1. TIME UPDATE (every second)
       if (
@@ -118,13 +142,13 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       const movedEnemies = moveEnemies(enemiesWithUpdatedVortexes, now);
 
       // 6. PROCESS BURN DAMAGE
-      const enemiesWithBurnDamage = processBurnDamage(movedEnemies, now);
+      const enemiesWithBurnDamage = processBurnDamage(movedEnemies, now, state.core.activePowerUps);
 
       // 7. HANDLE BURN KILLS + REMOVE DEAD ENEMIES
       const burnKilled = enemiesWithBurnDamage.filter((e) => e.health <= 0);
       burnKilled.forEach((enemy) => {
         state.core.totalEnemiesKilled++;
-        const { goldGained: burnGold, goldPopups: burnPopups } = handleEnemyDeath(enemy, now);
+        const { goldGained: burnGold, goldPopups: burnPopups } = handleEnemyDeath(enemy, now, goldMultiplier);
         state.core.gold += burnGold;
         state.core.totalGoldEarned += burnGold;
         state.visuals.goldPopups.push(...burnPopups);
@@ -148,7 +172,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.tracking.predictedArrowDamage,
         state.tracking.predictedBurnDamage,
         state.core.purchases,
-        state.core.elements
+        state.core.elements,
+        attackSpeedMultiplier
       );
 
       state.entities.defenders = updatedDefenders;
@@ -183,7 +208,9 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         updatedPredictedArrowDamage,
         updatedPredictedBurnDamage,
         state.core.elements,
-        state.core.purchases
+        state.core.purchases,
+        state.core.activePowerUps,
+        goldMultiplier
       );
 
       // 10. CHECK FOR LEVEL-UPS
@@ -248,7 +275,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       const splashKilled = enemiesAfterArrowImpacts.filter((e) => e.health <= 0);
       splashKilled.forEach((enemy) => {
         state.core.totalEnemiesKilled++;
-        const { goldGained: splashGold, goldPopups: splashPopups } = handleEnemyDeath(enemy, now);
+        const { goldGained: splashGold, goldPopups: splashPopups } = handleEnemyDeath(enemy, now, goldMultiplier);
         state.core.gold += splashGold;
         state.core.totalGoldEarned += splashGold;
         state.visuals.goldPopups.push(...splashPopups);
@@ -272,6 +299,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.entities.pendingEnemies = [];
         state.entities.arrows = [];
         state.entities.vortexes = [];
+        state.entities.spawnedPowerUp = null;
+        state.core.activePowerUps = [];
         state.tracking.predictedArrowDamage = new Map();
         state.tracking.predictedBurnDamage = new Map();
         state.visuals.goldPopups = [];
@@ -346,10 +375,12 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       const state = stateRef.current;
       if (state.core.isPaused) return;
 
-      const { enemy: damagedEnemy, isDead } = damageEnemy(
-        enemy,
-        state.core.clickDamage
-      );
+      const now = Date.now();
+      const clickDmgMultiplier = getDamageMultiplier(state.core.activePowerUps, now);
+      const clickGoldMultiplier = getGoldMultiplier(state.core.activePowerUps, now);
+      const clickDamage = Math.floor(state.core.clickDamage * clickDmgMultiplier);
+
+      const { enemy: damagedEnemy, isDead } = damageEnemy(enemy, clickDamage);
 
       state.entities.enemies = state.entities.enemies.map((e) =>
         e.id === enemy.id ? damagedEnemy : e
@@ -358,7 +389,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       if (isDead) {
         const { goldGained, goldPopups: deathPopups } = handleEnemyDeath(
           enemy,
-          Date.now()
+          now,
+          clickGoldMultiplier
         );
         state.entities.enemies = state.entities.enemies.filter(
           (e) => e.id !== enemy.id
@@ -374,6 +406,52 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
     },
     [stateRef, triggerRender]
   );
+
+  const handlePowerUpClick = useCallback(() => {
+    const state = stateRef.current;
+    const spawned = state.entities.spawnedPowerUp;
+    if (!spawned) return;
+
+    const def = getPowerUpDef(spawned.powerUpId);
+    if (!def) return;
+
+    const now = Date.now();
+
+    // Compute gold amount before applyEffect mutates totalGoldEarned
+    const goldAmount = getGoldDropAmount(state, def.id);
+
+    // Resolve element type for element-specific buffs (before applyEffect)
+    const elementType = def.resolveElementType?.(state);
+
+    // Apply the effect
+    def.applyEffect(state);
+
+    // If duration buff, add to active power-ups
+    if (def.duration > 0) {
+      state.core.activePowerUps.push({
+        id: `active_${now}_${Math.random().toString(36).substr(2, 9)}`,
+        powerUpId: def.id,
+        startTime: now,
+        duration: def.duration,
+        elementType,
+      });
+    }
+
+    // Instant gold power-ups show standard gold popup
+    if (goldAmount > 0) {
+      state.visuals.goldPopups.push({
+        id: `gold_${now}_${Math.random()}`,
+        x: spawned.x,
+        y: spawned.y,
+        amount: goldAmount,
+        startTime: now,
+      });
+    }
+
+    // Remove from battlefield
+    state.entities.spawnedPowerUp = null;
+    triggerRender();
+  }, [stateRef, triggerRender]);
 
   const handleGoldPopupComplete = useCallback(
     (id: string) => {
@@ -482,6 +560,15 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             isPaused={core.isPaused}
           />
         ))}
+
+        {entities.spawnedPowerUp && (
+          <SpawnedPowerUpComponent
+            powerUp={entities.spawnedPowerUp}
+            onClick={handlePowerUpClick}
+          />
+        )}
+
+        <ActiveBuffsHUD activePowerUps={core.activePowerUps} />
 
         {visuals.goldPopups.map((popup) => (
           <GoldPopup

@@ -111,15 +111,16 @@ export const damageCastle = (
 
 export const handleEnemyDeath = (
   enemy: Enemy,
-  currentTime: number
+  currentTime: number,
+  goldMultiplier: number = 1
 ): { goldGained: number; goldPopups: GoldPopup[] } => {
-  const goldGained = enemy.goldValue;
+  const goldGained = Math.floor(enemy.goldValue * goldMultiplier);
   const goldPopups = [
     {
       id: `gold_${currentTime}_${Math.random()}`,
       x: enemy.x,
       y: enemy.y,
-      amount: enemy.goldValue,
+      amount: goldGained,
       startTime: currentTime,
     },
   ];

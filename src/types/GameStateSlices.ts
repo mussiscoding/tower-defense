@@ -15,6 +15,36 @@ import type {
   MergeAnimation,
 } from "./GameState";
 
+// Power-up system types
+export interface PowerUpDef {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  duration: number; // 0 = instant, otherwise ms
+  applyEffect: (state: GameState) => void;
+  spawnWeight: number;
+  resolveElementType?: (state: GameState) => ElementType; // For element-specific buffs
+}
+
+export interface ActivePowerUp {
+  id: string;
+  powerUpId: string;
+  startTime: number;
+  duration: number;
+  elementType?: ElementType; // For element-specific buffs (e.g. Elemental Surge, Mentorship)
+}
+
+export interface SpawnedPowerUp {
+  id: string;
+  powerUpId: string;
+  x: number;
+  y: number;
+  spawnTime: number;
+  despawnTime: number;
+}
+
 // Core game state - persistent, saved
 export interface CoreState {
   gold: number;
@@ -32,6 +62,7 @@ export interface CoreState {
   totalGoldSpent: number;
   totalGoldEarned: number;
   totalMerges: number;
+  activePowerUps: ActivePowerUp[];
 }
 
 // Entity state - game objects
@@ -41,6 +72,7 @@ export interface EntityState {
   defenders: Defender[];
   arrows: Arrow[];
   vortexes: VortexData[];
+  spawnedPowerUp: SpawnedPowerUp | null;
 }
 
 // Tracking state - used for targeting logic

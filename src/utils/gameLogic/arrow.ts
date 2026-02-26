@@ -8,7 +8,9 @@ import type {
   SkillContext,
   Skill,
 } from "../../types/GameState";
+import type { ActivePowerUp } from "../../types/GameStateSlices";
 import type { ElementType } from "../../data/elements";
+import { getDamageMultiplier, getXPMultiplier } from "./powerups";
 
 export interface KilledEnemy {
   enemy: Enemy;
@@ -97,7 +99,9 @@ export const processArrowImpacts = (
   predictedArrowDamage: Map<string, number>,
   predictedBurnDamage: Map<string, number>,
   elements: Record<ElementType, ElementData>,
-  purchases: Record<string, number>
+  purchases: Record<string, number>,
+  activePowerUps: ActivePowerUp[] = [],
+  goldMultiplier: number = 1
 ): {
   arrows: Arrow[];
   enemies: Enemy[];
@@ -159,17 +163,19 @@ export const processArrowImpacts = (
       }
 
       if (targetEnemy) {
-        // Get damage from the element's current stats
+        // Get damage from the element's current stats (with element-aware power-up multiplier)
         const element = updatedElements[arrow.elementType];
-        const damage = element?.baseStats.damage || 1;
+        const dmgMult = getDamageMultiplier(activePowerUps, currentTime, arrow.elementType);
+        const damage = Math.floor((element?.baseStats.damage || 1) * dmgMult);
         const { enemy: damagedEnemy, isDead } = damageEnemy(
           targetEnemy,
           damage
         );
 
-        // Grant XP to elements based on damage dealt (1 damage = 1 XP)
+        // Grant XP to elements based on damage dealt (with element-aware power-up multiplier)
         if (element) {
-          grantElementXP(updatedElements, arrow.elementType, damage);
+          const xpMult = getXPMultiplier(activePowerUps, currentTime, arrow.elementType);
+          grantElementXP(updatedElements, arrow.elementType, Math.floor(damage * xpMult));
         }
 
         // Reduce predicted damage since this arrow has hit
@@ -267,7 +273,8 @@ export const processArrowImpacts = (
           updatedPredictedBurnDamage.delete(targetEnemy.id);
           const { goldGained, goldPopups: deathPopups } = handleEnemyDeath(
             targetEnemy,
-            currentTime
+            currentTime,
+            goldMultiplier
           );
           totalGoldGained += goldGained;
           newGoldPopups.push(...deathPopups);

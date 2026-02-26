@@ -1,8 +1,11 @@
 import type { Enemy } from "../../types/GameState";
+import type { ActivePowerUp } from "../../types/GameStateSlices";
+import { getDamageMultiplier } from "./powerups";
 
 export const processBurnDamage = (
   enemies: Enemy[],
-  currentTime: number
+  currentTime: number,
+  activePowerUps: ActivePowerUp[] = []
 ): Enemy[] => {
   return enemies.map((enemy) => {
     if (
@@ -26,7 +29,8 @@ export const processBurnDamage = (
 
     // Only apply damage if we're on a new tick
     if (currentTick > 0 && timeSinceBurnStart % burnTickInterval < 50) {
-      const newHealth = Math.max(0, enemy.health - enemy.burnDamage);
+      const dmgMult = getDamageMultiplier(activePowerUps, currentTime, "fire");
+      const newHealth = Math.max(0, enemy.health - Math.floor(enemy.burnDamage * dmgMult));
       return {
         ...enemy,
         health: newHealth,

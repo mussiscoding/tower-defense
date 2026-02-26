@@ -1,0 +1,77 @@
+.spawned-powerup {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 100;
+  animation: powerup-float 2s ease-in-out infinite, powerup-appear 0.3s ease-out;
+}
+
+.powerup-timer-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    transparent var(--timer-progress),
+    var(--glow-color) var(--timer-progress)
+  );
+  opacity: 0.6;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+}
+
+.powerup-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--glow-color);
+  box-shadow:
+    0 0 12px var(--glow-color),
+    0 0 24px color-mix(in srgb, var(--glow-color) 40%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--glow-color) 20%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  animation: powerup-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes powerup-float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-8px); }
+}
+
+@keyframes powerup-pulse {
+  0%, 100% { box-shadow: 0 0 12px var(--glow-color), 0 0 24px color-mix(in srgb, var(--glow-color) 40%, transparent); }
+  50% { box-shadow: 0 0 20px var(--glow-color), 0 0 40px color-mix(in srgb, var(--glow-color) 60%, transparent); }
+}
+
+.powerup-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid var(--glow-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #d1d5db;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.spawned-powerup:hover .powerup-tooltip {
+  opacity: 1;
+}
+
+@keyframes powerup-appear {
+  from { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}

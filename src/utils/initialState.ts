@@ -48,6 +48,7 @@ export const createInitialCoreState = (devMode: boolean = false): CoreState => (
   totalGoldSpent: 0,
   totalGoldEarned: 0,
   totalMerges: 0,
+  activePowerUps: [],
 });
 
 export const createInitialEntityState = (): EntityState => ({
@@ -56,6 +57,7 @@ export const createInitialEntityState = (): EntityState => ({
   defenders: [],
   arrows: [],
   vortexes: [],
+  spawnedPowerUp: null,
 });
 
 export const createInitialTrackingState = (): TrackingState => ({

@@ -40,3 +40,13 @@ export { processBurnDamage } from "./effects";
 // Game state functions
 export { handleCastleDestruction } from "./gameState";
 
+// Power-up functions
+export {
+  getDamageMultiplier,
+  getGoldMultiplier,
+  getXPMultiplier,
+  getAttackSpeedMultiplier,
+  filterExpiredPowerUps,
+  trySpawnPowerUp,
+} from "./powerups";
+

@@ -47,9 +47,10 @@ export const createDefender = (
 
 export const canDefenderAttack = (
   defender: Defender,
-  currentTime: number
+  currentTime: number,
+  attackSpeedMultiplier: number = 1
 ): boolean => {
-  return currentTime - defender.lastAttack > 1000 / defender.attackSpeed;
+  return currentTime - defender.lastAttack > 1000 / (defender.attackSpeed * attackSpeedMultiplier);
 };
 
 export const updateDefenders = (
@@ -59,7 +60,8 @@ export const updateDefenders = (
   predictedArrowDamage: Map<string, number>,
   predictedBurnDamage: Map<string, number>,
   purchases: Record<string, number> = {},
-  elements: Record<string, ElementData> = {}
+  elements: Record<string, ElementData> = {},
+  attackSpeedMultiplier: number = 1
 ): {
   defenders: Defender[];
   enemies: Enemy[];
@@ -78,7 +80,7 @@ export const updateDefenders = (
     // Calculate animation frame for all defenders
     const frame = calculateAnimationFrame(defender, currentTime);
 
-    if (!canDefenderAttack(defender, currentTime)) {
+    if (!canDefenderAttack(defender, currentTime, attackSpeedMultiplier)) {
       return {
         ...defender,
         currentAnimationFrame: frame,

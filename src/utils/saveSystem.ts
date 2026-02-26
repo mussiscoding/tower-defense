@@ -124,6 +124,9 @@ export const loadGame = (): GameState | null => {
         totalGoldSpent: parsed.core?.totalGoldSpent ?? defaultCore.totalGoldSpent,
         totalGoldEarned: parsed.core?.totalGoldEarned ?? defaultCore.totalGoldEarned,
         totalMerges: parsed.core?.totalMerges ?? defaultCore.totalMerges,
+        activePowerUps: (parsed.core?.activePowerUps ?? []).filter(
+          (p: { startTime: number; duration: number }) => Date.now() < p.startTime + p.duration
+        ),
       },
       entities: {
         enemies: parsed.entities?.enemies ?? defaultEntities.enemies,
@@ -131,6 +134,7 @@ export const loadGame = (): GameState | null => {
         defenders,
         arrows: [], // Always start fresh - arrows are transient
         vortexes: [], // Always start fresh - vortexes are transient
+        spawnedPowerUp: null, // Transient - not saved
       },
       tracking: {
         predictedArrowDamage: new Map(parsed.tracking?.predictedArrowDamage ?? []),
