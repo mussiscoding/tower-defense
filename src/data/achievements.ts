@@ -7,7 +7,13 @@ export interface AchievementDef {
   description: string;
   icon: string;
   reward: number;
-  category: "start" | "progression" | "combat" | "wealth" | "difficulty" | "hidden";
+  category:
+    | "start"
+    | "progression"
+    | "combat"
+    | "wealth"
+    | "difficulty"
+    | "hidden";
   hidden: boolean;
   tieredGroup?: string;
   tieredOrder?: number;
@@ -36,7 +42,10 @@ export const achievements: AchievementDef[] = [
     hidden: false,
     checkType: "state",
     check: (state) => state.core.totalEnemiesKilled >= 1,
-    getProgress: (state) => ({ current: Math.min(state.core.totalEnemiesKilled, 1), target: 1 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalEnemiesKilled, 1),
+      target: 1,
+    }),
   },
   {
     id: "first_mage",
@@ -75,7 +84,11 @@ export const achievements: AchievementDef[] = [
     check: (state) => {
       // Check if any skill ID is in purchases (skills have specific naming patterns)
       return Object.entries(state.core.purchases).some(
-        ([key, val]) => val > 0 && key.includes("_") && !ELEMENT_TYPES.includes(key as ElementType) && key !== "click_damage_upgrade"
+        ([key, val]) =>
+          val > 0 &&
+          key.includes("_") &&
+          !ELEMENT_TYPES.includes(key as ElementType) &&
+          key !== "click_damage_upgrade",
       );
     },
   },
@@ -97,15 +110,27 @@ export const achievements: AchievementDef[] = [
     name: "Apprentice Rank",
     description: "Reach Apprentice rank on any element",
     icon: "🎓",
-    reward: 1000,
+    reward: 5000,
     category: "progression",
     hidden: false,
     tieredGroup: "rank",
     tieredOrder: 1,
     checkType: "state",
     check: (state) => {
-      const tiers = ["apprentice", "journeyman", "adept", "mage", "sorcerer", "magus", "archmage", "grand_magus", "archon"];
-      return ELEMENT_TYPES.some((et) => tiers.includes(state.core.mageProgress[et]?.tier));
+      const tiers = [
+        "apprentice",
+        "journeyman",
+        "adept",
+        "mage",
+        "sorcerer",
+        "magus",
+        "archmage",
+        "grand_magus",
+        "archon",
+      ];
+      return ELEMENT_TYPES.some((et) =>
+        tiers.includes(state.core.mageProgress[et]?.tier),
+      );
     },
   },
   {
@@ -113,15 +138,26 @@ export const achievements: AchievementDef[] = [
     name: "Journeyman Rank",
     description: "Reach Journeyman rank on any element",
     icon: "🎓",
-    reward: 5000,
+    reward: 5000000,
     category: "progression",
     hidden: false,
     tieredGroup: "rank",
     tieredOrder: 2,
     checkType: "state",
     check: (state) => {
-      const tiers = ["journeyman", "adept", "mage", "sorcerer", "magus", "archmage", "grand_magus", "archon"];
-      return ELEMENT_TYPES.some((et) => tiers.includes(state.core.mageProgress[et]?.tier));
+      const tiers = [
+        "journeyman",
+        "adept",
+        "mage",
+        "sorcerer",
+        "magus",
+        "archmage",
+        "grand_magus",
+        "archon",
+      ];
+      return ELEMENT_TYPES.some((et) =>
+        tiers.includes(state.core.mageProgress[et]?.tier),
+      );
     },
   },
   {
@@ -129,15 +165,25 @@ export const achievements: AchievementDef[] = [
     name: "Adept Rank",
     description: "Reach Adept rank on any element",
     icon: "🎓",
-    reward: 25000,
+    reward: 2500000000,
     category: "progression",
     hidden: false,
     tieredGroup: "rank",
     tieredOrder: 3,
     checkType: "state",
     check: (state) => {
-      const tiers = ["adept", "mage", "sorcerer", "magus", "archmage", "grand_magus", "archon"];
-      return ELEMENT_TYPES.some((et) => tiers.includes(state.core.mageProgress[et]?.tier));
+      const tiers = [
+        "adept",
+        "mage",
+        "sorcerer",
+        "magus",
+        "archmage",
+        "grand_magus",
+        "archon",
+      ];
+      return ELEMENT_TYPES.some((et) =>
+        tiers.includes(state.core.mageProgress[et]?.tier),
+      );
     },
   },
   {
@@ -152,8 +198,17 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 4,
     checkType: "state",
     check: (state) => {
-      const tiers = ["mage", "sorcerer", "magus", "archmage", "grand_magus", "archon"];
-      return ELEMENT_TYPES.some((et) => tiers.includes(state.core.mageProgress[et]?.tier));
+      const tiers = [
+        "mage",
+        "sorcerer",
+        "magus",
+        "archmage",
+        "grand_magus",
+        "archon",
+      ];
+      return ELEMENT_TYPES.some((et) =>
+        tiers.includes(state.core.mageProgress[et]?.tier),
+      );
     },
   },
   {
@@ -168,7 +223,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => anyElementAtLevel(state, 10),
-    getProgress: (state) => ({ current: Math.min(maxElementLevel(state), 10), target: 10 }),
+    getProgress: (state) => ({
+      current: Math.min(maxElementLevel(state), 10),
+      target: 10,
+    }),
   },
   {
     id: "level_25",
@@ -182,7 +240,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 2,
     checkType: "state",
     check: (state) => anyElementAtLevel(state, 25),
-    getProgress: (state) => ({ current: Math.min(maxElementLevel(state), 25), target: 25 }),
+    getProgress: (state) => ({
+      current: Math.min(maxElementLevel(state), 25),
+      target: 25,
+    }),
   },
   {
     id: "level_50",
@@ -196,7 +257,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 3,
     checkType: "state",
     check: (state) => anyElementAtLevel(state, 50),
-    getProgress: (state) => ({ current: Math.min(maxElementLevel(state), 50), target: 50 }),
+    getProgress: (state) => ({
+      current: Math.min(maxElementLevel(state), 50),
+      target: 50,
+    }),
   },
 
   // === Combat (8) ===
@@ -212,21 +276,27 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => state.core.totalEnemiesKilled >= 100,
-    getProgress: (state) => ({ current: Math.min(state.core.totalEnemiesKilled, 100), target: 100 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalEnemiesKilled, 100),
+      target: 100,
+    }),
   },
   {
     id: "kills_1000",
     name: "Slayer",
     description: "Kill 1,000 enemies",
     icon: "💀",
-    reward: 1000,
+    reward: 10000,
     category: "combat",
     hidden: false,
     tieredGroup: "kills",
     tieredOrder: 2,
     checkType: "state",
     check: (state) => state.core.totalEnemiesKilled >= 1000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalEnemiesKilled, 1000), target: 1000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalEnemiesKilled, 1000),
+      target: 1000,
+    }),
   },
   {
     id: "kills_10000",
@@ -240,7 +310,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 3,
     checkType: "state",
     check: (state) => state.core.totalEnemiesKilled >= 10000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalEnemiesKilled, 10000), target: 10000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalEnemiesKilled, 10000),
+      target: 10000,
+    }),
   },
   {
     id: "giant_killer",
@@ -291,7 +364,7 @@ export const achievements: AchievementDef[] = [
     name: "Critical Strike",
     description: "Land a critical hit",
     icon: "⚡",
-    reward: 200,
+    reward: 2000,
     category: "combat",
     hidden: false,
     checkType: "event",
@@ -311,7 +384,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => state.core.totalGoldEarned >= 1000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalGoldEarned, 1000), target: 1000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalGoldEarned, 1000),
+      target: 1000,
+    }),
   },
   {
     id: "earned_10000",
@@ -325,7 +401,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 2,
     checkType: "state",
     check: (state) => state.core.totalGoldEarned >= 10000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalGoldEarned, 10000), target: 10000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalGoldEarned, 10000),
+      target: 10000,
+    }),
   },
   {
     id: "earned_100000",
@@ -339,7 +418,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 3,
     checkType: "state",
     check: (state) => state.core.totalGoldEarned >= 100000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalGoldEarned, 100000), target: 100000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalGoldEarned, 100000),
+      target: 100000,
+    }),
   },
   {
     id: "gold_1000",
@@ -353,7 +435,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => state.core.gold >= 1000,
-    getProgress: (state) => ({ current: Math.min(state.core.gold, 1000), target: 1000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.gold, 1000),
+      target: 1000,
+    }),
   },
   {
     id: "gold_10000",
@@ -367,7 +452,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 2,
     checkType: "state",
     check: (state) => state.core.gold >= 10000,
-    getProgress: (state) => ({ current: Math.min(state.core.gold, 10000), target: 10000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.gold, 10000),
+      target: 10000,
+    }),
   },
   {
     id: "gold_100000",
@@ -381,7 +469,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 3,
     checkType: "state",
     check: (state) => state.core.gold >= 100000,
-    getProgress: (state) => ({ current: Math.min(state.core.gold, 100000), target: 100000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.gold, 100000),
+      target: 100000,
+    }),
   },
   {
     id: "spend_10000",
@@ -393,7 +484,10 @@ export const achievements: AchievementDef[] = [
     hidden: false,
     checkType: "state",
     check: (state) => state.core.totalGoldSpent >= 10000,
-    getProgress: (state) => ({ current: Math.min(state.core.totalGoldSpent, 10000), target: 10000 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalGoldSpent, 10000),
+      target: 10000,
+    }),
   },
 
   // === Difficulty & Survival (5) ===
@@ -409,7 +503,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => state.core.difficultyLevel >= 5,
-    getProgress: (state) => ({ current: Math.min(state.core.difficultyLevel, 5), target: 5 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.difficultyLevel, 5),
+      target: 5,
+    }),
   },
   {
     id: "diff_10",
@@ -423,21 +520,27 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 2,
     checkType: "state",
     check: (state) => state.core.difficultyLevel >= 10,
-    getProgress: (state) => ({ current: Math.min(state.core.difficultyLevel, 10), target: 10 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.difficultyLevel, 10),
+      target: 10,
+    }),
   },
   {
     id: "diff_50",
     name: "Legendary",
     description: "Reach difficulty 50",
     icon: "🛡️",
-    reward: 10000,
+    reward: 1000000,
     category: "difficulty",
     hidden: false,
     tieredGroup: "diff",
     tieredOrder: 3,
     checkType: "state",
     check: (state) => state.core.difficultyLevel >= 50,
-    getProgress: (state) => ({ current: Math.min(state.core.difficultyLevel, 50), target: 50 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.difficultyLevel, 50),
+      target: 50,
+    }),
   },
   {
     id: "survive_10m",
@@ -451,7 +554,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 1,
     checkType: "state",
     check: (state) => state.core.timeSurvived >= 600,
-    getProgress: (state) => ({ current: Math.min(state.core.timeSurvived, 600), target: 600 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.timeSurvived, 600),
+      target: 600,
+    }),
   },
   {
     id: "survive_30m",
@@ -465,7 +571,10 @@ export const achievements: AchievementDef[] = [
     tieredOrder: 2,
     checkType: "state",
     check: (state) => state.core.timeSurvived >= 1800,
-    getProgress: (state) => ({ current: Math.min(state.core.timeSurvived, 1800), target: 1800 }),
+    getProgress: (state) => ({
+      current: Math.min(state.core.timeSurvived, 1800),
+      target: 1800,
+    }),
   },
 
   // === Hidden (3) ===
@@ -511,4 +620,6 @@ achievements.forEach((a) => {
 });
 
 // Pre-filtered list of state-based achievements
-export const stateAchievements = achievements.filter((a) => a.checkType === "state");
+export const stateAchievements = achievements.filter(
+  (a) => a.checkType === "state",
+);

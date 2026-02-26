@@ -3,6 +3,7 @@ import "./SkillsRow.css";
 import type { ElementData, Skill, SkillState } from "../types/GameState";
 import type { ElementType } from "../data/elements";
 import { getSkillStatesForElement } from "../utils/skillUtils";
+import { formatNumber } from "../utils/formatNumber";
 
 interface SkillsRowProps {
   elementType: ElementType;
@@ -127,7 +128,7 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
 
                     {state !== "purchased" && (
                       <div className="skill-popup-cost">
-                        💰 {skill.cost.toLocaleString()}
+                        💰 {formatNumber(skill.cost)}
                       </div>
                     )}
 

@@ -5,6 +5,7 @@ import type { ElementType } from "../data/elements";
 import { getXPForLevel } from "../data/elements";
 import { allSkills } from "../data/allSkills";
 import { getCurrentPrice } from "../data/shopItems";
+import { formatNumber } from "../utils/formatNumber";
 import { allUpgrades } from "../data/upgrades";
 import {
   getNextMageCost,
@@ -248,7 +249,7 @@ const Mages: React.FC<MagesProps> = ({
                   <div className="stat-item">
                     <span className="stat-label">Star Multiplier:</span>
                     <span className="stat-value">
-                      {getStarDamageMultiplier(mageProgress?.[selectedElement] ?? defaultProgress).toLocaleString()}x
+                      {formatNumber(getStarDamageMultiplier(mageProgress?.[selectedElement] ?? defaultProgress))}x
                     </span>
                   </div>
                   <div className="stat-item">
@@ -290,18 +291,18 @@ const Mages: React.FC<MagesProps> = ({
 
                   <div className="stat-item">
                     <span className="stat-label">Total XP:</span>
-                    <span className="stat-value">{elementData.xp.toLocaleString()}</span>
+                    <span className="stat-value">{formatNumber(elementData.xp)}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Next Level At:</span>
                     <span className="stat-value">
-                      {getXPForLevel(elementData.level + 1).toLocaleString()}
+                      {formatNumber(getXPForLevel(elementData.level + 1))}
                     </span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Remaining XP:</span>
                     <span className="stat-value">
-                      {(getXPForLevel(elementData.level + 1) - elementData.xp).toLocaleString()}
+                      {formatNumber(getXPForLevel(elementData.level + 1) - elementData.xp)}
                     </span>
                   </div>
                 </div>
@@ -362,7 +363,7 @@ const Mages: React.FC<MagesProps> = ({
                         <h5 className="shop-item-name">
                           {isMerge ? `Become ${nextRank} ${nextStars}` : "Train Mage"}
                         </h5>
-                        <span className="shop-item-cost">💰{cost}</span>
+                        <span className="shop-item-cost">💰{formatNumber(cost)}</span>
                       </div>
                     </div>
                     {!canBuyMore && (
@@ -393,7 +394,7 @@ const Mages: React.FC<MagesProps> = ({
                       onClick={() => canAfford && onPurchaseUpgrade?.(item.id)}
                     >
                       <h5 className="shop-item-name">
-                        {item.name} - 💰{cost}
+                        {item.name} - 💰{formatNumber(cost)}
                       </h5>
                       <p className="shop-item-description">
                         {item.description}

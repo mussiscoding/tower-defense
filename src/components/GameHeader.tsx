@@ -1,4 +1,5 @@
 import type { GameState } from "../types/GameStateSlices";
+import { formatNumber } from "../utils/formatNumber";
 import "./GameHeader.css";
 
 interface GameHeaderProps {
@@ -18,13 +19,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 }) => {
   const core = stateRef.current.core;
 
-  const formatNumber = (num: number): string => {
-    if (num >= 100000000) return `${Math.floor(num / 1000000)}M`;
-    if (num >= 100000) return `${Math.floor(num / 1000)}K`;
-    return Math.floor(num).toString();
-  };
 
-  const waveHP = Math.floor(50 * Math.pow(1.3, core.difficultyLevel - 1));
+  const waveBudget = Math.floor(50 * Math.pow(1.3, core.difficultyLevel - 1));
+  const avgEnemyHP = Math.floor(waveBudget / 6);
 
   return (
     <header className="game-header">
@@ -56,7 +53,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         >
           +
         </button>
-        <span className="wave-hp">({formatNumber(waveHP)} wave HP)</span>
+        <span className="wave-hp">({formatNumber(avgEnemyHP)} avg HP)</span>
       </div>
 
       <button className="pause-button" onClick={onPauseToggle}>
