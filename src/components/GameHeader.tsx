@@ -24,6 +24,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
     return Math.floor(num).toString();
   };
 
+  const waveHP = Math.floor(50 * Math.pow(1.3, core.difficultyLevel - 1));
+
   return (
     <header className="game-header">
       <div className="header-stat">
@@ -41,9 +43,20 @@ const GameHeader: React.FC<GameHeaderProps> = ({
       <div className="header-stat difficulty-stat">
         <span className="stat-icon">⚔️</span>
         <span className="stat-label">Difficulty:</span>
-        <button className="difficulty-btn" onClick={() => onDifficultyChange(-1)}>-</button>
+        <button
+          className="difficulty-btn"
+          onClick={() => onDifficultyChange(-1)}
+        >
+          -
+        </button>
         <span className="stat-value">{core.difficultyLevel}</span>
-        <button className="difficulty-btn" onClick={() => onDifficultyChange(1)}>+</button>
+        <button
+          className="difficulty-btn"
+          onClick={() => onDifficultyChange(1)}
+        >
+          +
+        </button>
+        <span className="wave-hp">({formatNumber(waveHP)} wave HP)</span>
       </div>
 
       <button className="pause-button" onClick={onPauseToggle}>

@@ -293,7 +293,13 @@ const Mages: React.FC<MagesProps> = ({
                     <span className="stat-value">{elementData.xp}</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">XP to Level:</span>
+                    <span className="stat-label">Next Level At:</span>
+                    <span className="stat-value">
+                      {getXPForLevel(elementData.level + 1)}
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Remaining XP:</span>
                     <span className="stat-value">
                       {getXPForLevel(elementData.level + 1) - elementData.xp}
                     </span>

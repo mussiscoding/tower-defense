@@ -37,21 +37,6 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
     paddedSkillStates.push(null);
   }
 
-  const getSkillStateColor = (state: string) => {
-    switch (state) {
-      case "purchaseable":
-        return "#22c55e"; // Green
-      case "insufficient_gold":
-        return "#d1d5db"; // Light gray
-      case "locked":
-        return "#374151"; // Dark gray
-      case "purchased":
-        return "#eab308"; // Yellow
-      default:
-        return "#374151"; // Dark gray for empty slots
-    }
-  };
-
   const handleSkillClick = (skillId: string, state: string) => {
     if (state === "purchaseable" && onPurchaseSkill) {
       onPurchaseSkill(skillId);
@@ -75,14 +60,12 @@ const SkillsRow: React.FC<SkillsRowProps> = ({
           }
 
           const { skill, state } = skillState;
-          const stateColor = getSkillStateColor(state);
           return (
             <div
               key={skill.id}
               className={`skill-icon ${state} ${
                 state === "purchaseable" ? "clickable" : ""
               }`}
-              style={{ backgroundColor: stateColor }}
               onClick={() => handleSkillClick(skill.id, state)}
               onMouseEnter={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();

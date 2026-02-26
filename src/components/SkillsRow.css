@@ -41,6 +41,27 @@
   border-bottom: 2px solid rgba(0, 0, 0, 0.3);
 }
 
+.skill-icon.locked {
+  background-color: var(--element-color-dim, #374151);
+}
+
+.skill-icon.insufficient_gold {
+  background-color: var(--element-color-dim, #555);
+}
+
+.skill-icon.purchaseable {
+  background-color: color-mix(in srgb, var(--element-color, #22c55e) 70%, white);
+}
+
+.skill-icon.purchased {
+  background-color: var(--element-color, #eab308);
+  /* Pressed in effect - reversed borders */
+  border-top: 2px solid rgba(0, 0, 0, 0.4);
+  border-left: 2px solid rgba(0, 0, 0, 0.4);
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
 .skill-icon.empty {
   background-color: #374151;
   /* Empty slots have minimal border effect */
@@ -55,20 +76,16 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.skill-icon.purchased {
-  /* Pressed in effect - reversed borders */
-  border-top: 2px solid rgba(0, 0, 0, 0.4);
-  border-left: 2px solid rgba(0, 0, 0, 0.4);
-  border-right: 2px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-}
-
 .skill-number {
   font-size: 14px;
   font-weight: bold;
-  color: var(--element-color, #ccc);
+  color: #fff;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   user-select: none;
+}
+
+.skill-icon.purchased .skill-number {
+  color: #fff;
 }
 
 .skill-icon.empty .skill-number {

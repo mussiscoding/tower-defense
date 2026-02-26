@@ -120,3 +120,9 @@
 .difficulty-btn:active {
   transform: scale(0.95);
 }
+
+.wave-hp {
+  color: #ccc;
+  font-size: 0.8em;
+  margin-left: 4px;
+}
