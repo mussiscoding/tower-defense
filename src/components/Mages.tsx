@@ -8,7 +8,8 @@ import { getCurrentPrice } from "../data/shopItems";
 import { formatNumber } from "../utils/formatNumber";
 import { allUpgrades } from "../data/upgrades";
 import {
-  getNextMageCost,
+  getStarUpgradeCost,
+  getTrainMageCost,
   canPurchaseMoreStars,
   getStarDamageMultiplier,
   getTotalStars,
@@ -324,15 +325,14 @@ const Mages: React.FC<MagesProps> = ({
               {/* Mage Purchase / Merge */}
               {(() => {
                 const progress = mageProgress?.[selectedElement] ?? defaultProgress;
-                const cost = getNextMageCost(progress);
-                const canAfford = currentGold >= cost;
-                const canBuyMore = canPurchaseMoreStars(progress);
                 const magesOnField = defenders.filter(
                   (d) => d.type === selectedElement
                 ).length;
-                const canPurchase = canAfford && canBuyMore;
-
                 const isMerge = magesOnField >= 2;
+                const cost = isMerge ? getStarUpgradeCost(progress) : getTrainMageCost(progress);
+                const canAfford = currentGold >= cost;
+                const canBuyMore = canPurchaseMoreStars(progress);
+                const canPurchase = canAfford && canBuyMore;
                 const nextTotal = getTotalStars(progress) + 1;
                 const nextStars = ((nextTotal - 1) % 5) + 1;
                 const nextRank = getNextRankName(nextTotal);

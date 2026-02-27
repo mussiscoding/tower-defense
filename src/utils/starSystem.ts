@@ -79,10 +79,19 @@ export function getStarDamageMultiplier(progress: MageProgress): number {
 }
 
 /**
- * Cost of next mage purchase: 100 * 4^(totalStars - 1).
+ * Cost of star upgrade (merge): 100 * 4^totalStars.
  * Scales faster than damage (3^n) so each star takes progressively longer.
  */
-export function getNextMageCost(progress: MageProgress): number {
+export function getStarUpgradeCost(progress: MageProgress): number {
+  return Math.floor(100 * Math.pow(4, getTotalStars(progress)));
+}
+
+/**
+ * Cost to train (buy) a mage: same as the previous star's upgrade cost.
+ * This keeps the 2nd mage affordable after a merge, so players don't
+ * get stuck at one mage. Formula: 100 * 4^(totalStars - 1).
+ */
+export function getTrainMageCost(progress: MageProgress): number {
   return Math.floor(100 * Math.pow(4, getTotalStars(progress) - 1));
 }
 

@@ -11,7 +11,7 @@ import {
 } from "../utils/gameLogic/uiUtils";
 import { GAME_DIMENSIONS, MAGE_POSITIONS } from "../constants/gameDimensions";
 import { purchaseSkillSliced } from "../utils/skillUtils";
-import { advanceStar, getNextMageCost } from "../utils/starSystem";
+import { advanceStar, getStarUpgradeCost, getTrainMageCost } from "../utils/starSystem";
 import { recalculateElementDamage } from "../utils/gameLogic/mutations";
 
 import { tryUnlockAchievement } from "../utils/achievementUtils";
@@ -119,16 +119,16 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
   const handlePurchaseMage = (elementType: ElementType) => {
     const state = stateRef.current;
     const progress = state.core.mageProgress[elementType];
-    const cost = getNextMageCost(progress);
+    const magesOfType = state.entities.defenders.filter(
+      (d) => d.type === elementType
+    );
+    const count = magesOfType.length;
+    const cost = count >= 2 ? getStarUpgradeCost(progress) : getTrainMageCost(progress);
 
     if (state.core.gold < cost) return;
 
     const positions = MAGE_POSITIONS[elementType];
     const spawnX = GAME_DIMENSIONS.DEFENDER_SPAWN_X;
-    const magesOfType = state.entities.defenders.filter(
-      (d) => d.type === elementType
-    );
-    const count = magesOfType.length;
 
     state.core.gold -= cost;
     state.core.totalGoldSpent += cost;
