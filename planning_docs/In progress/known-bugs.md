@@ -7,102 +7,9 @@
 **Major bug.**
 Fire gets most of its damage from burn, but only exp from the initial hit.
 
-**Status**: Known issue, investigation needed  
-**Priority**: Critical  
+**Status**: Known issue, investigation needed
+**Priority**: Critical
 **Impact**: Game balance (fire severely underpowered)
-
----
-
-### Defender Over-Targeting Bug
-
-**Description**
-
-Defenders sometimes fire extra arrows at enemies that are already predicted to die from arrows in flight. This creates inefficient targeting where defenders waste attacks on enemies that will already be killed.
-
-**Symptoms**
-
-- Defenders fire third arrows at enemies that will die from two arrows
-- Single arrow kills work correctly (defender switches to new target)
-- Two arrow kills cause defender to fire unnecessary third arrow
-- Inefficient use of defender attacks
-- Wasted damage potential
-
-**Root Cause**
-
-The defender targeting logic correctly predicts enemy death in single-arrow scenarios but fails to properly account for cumulative predicted damage in multi-arrow scenarios. The `findNearestEnemy` function should exclude enemies that are predicted to die, but there may be a timing or calculation issue specific to multi-arrow scenarios.
-
-**Technical Details**
-
-- Single arrow kill: Enemy predicted to die → defender correctly switches to new target
-- Two arrow kill: Enemy predicted to die → defender incorrectly fires third arrow
-- `findNearestEnemy` logic appears correct for single-arrow scenarios
-- Issue may be related to predicted damage calculation timing or accuracy
-- Could be related to multiple defenders or arrow creation timing
-
-**Potential Solutions**
-
-1. **Investigate predicted damage timing** - Ensure predicted damage is updated before targeting decisions
-2. **Debug multi-defender scenarios** - Check if issue occurs with single vs multiple defenders
-3. **Improve targeting logic** - Better handling of cumulative predicted damage
-4. **Add targeting validation** - Double-check that enemies predicted to die are excluded
-
-**Status**
-
-- **Status**: Known issue, investigation needed
-- **Priority**: Critical
-- **Impact**: Game efficiency (wasted defender attacks)
-- **Workaround**: None currently implemented
-
----
-
-### Multiple Arrows bug
-
-**Description**
-
-The same arrow is being processed multiple times, causing duplicate XP grants.
-
-**Symptoms**
-
-- Fire defenders grant 20 XP per shot (should be 10)
-- Console logs show different arrow IDs being created
-- Two arrows are created per attack cycle instead of one
-- Arrow creation logs show duplicate defender attacks
-- Air towers clearly show two arrows being fired one after another because of their higher AS
-
-**Root Cause**
-
-React state batching issue in the game loop. The defender's `lastAttack` is not being updated immediately, so the defender thinks it can attack again in the next game loop cycle before the state update takes effect.
-
-**Technical Details**
-
-- Game loop runs every 50ms
-- Defender attack logic checks `canDefenderAttack` based on `lastAttack`
-- `lastAttack` is updated in `setGameState` but not immediately available
-- Defender is processed twice with the same `lastAttack` value
-- Two arrows are created instead of one
-- Each arrow grants XP, resulting in double XP
-
-**Investigation Findings**
-
-- Arrow ID generation is working correctly (unique IDs)
-- Defender attack logic is working correctly
-- Issue is in defender state management, not arrow processing
-- React state updates are batched, causing timing issues
-- Defender's `lastAttack` is not updated immediately in the next cycle
-
-**Potential Solutions**
-
-1. **useRef for immediate state access** - Store arrow state in ref to avoid batching delays
-2. **Arrow deduplication** - Track processed arrows to prevent duplicate processing
-3. **Separate game loops** - Different update frequencies for different systems
-4. **Arrow lifecycle management** - Better arrow removal from active arrays
-
-**Status**
-
-- **Status**: Known issue, not blocking
-- **Priority**: Critical
-- **Impact**: Game balance (players progress faster than intended)
-- **Workaround**: None currently implemented
 
 ---
 
@@ -114,212 +21,21 @@ React state batching issue in the game loop. The defender's `lastAttack` is not 
 
 The Lightning Bolt skill appears to be hitting multiple enemies simultaneously, even though it should only target the highest HP enemy. Visual observation shows a second enemy (often nearby) also being killed at the same time as the primary target.
 
-**Symptoms**
-
-- Lightning Bolt visually affects multiple enemies at once
-- Secondary enemy is usually close to the primary target
-- Logs only show one enemy ID being targeted (suggesting the targeting logic is correct)
-- Multiple enemies appear to die simultaneously when Lightning Bolt fires
-
 **Root Cause**
 
-Unknown - the targeting logic in `fireLightningBoltOnAttack.ts` correctly identifies and targets only the highest HP enemy. The issue may be:
+The skill directly mutates `enemy.health = 0` on the shared array reference, which can cause downstream issues with kill detection and gold rewards.
 
-- Multiple enemies with the same id
-- Splash damage or other effects incorrectly triggering
-- Visual rendering issue making it appear multiple enemies are hit
-- Race condition with other skills/effects
-- Unintended side effects from the instant-kill logic
-
-**Investigation Needed**
-
-- Check if other skills (splash, burn, etc.) are triggering simultaneously
-- Verify that only the targeted enemy's health is being set to 0
-- Review enemy update/render cycle for timing issues
-
-**Workaround**
-
-None currently - skill appears to function correctly in logs but visually shows unexpected behavior.
-
----
-
-### Upgrade Shop Purchases State Bug
-
-**Description**
-
-In the `handlePurchase` function in `GameSidebar.tsx`, when handling upgrade shop items, the code should use `updatedState.purchases` instead of `prev.purchases` to ensure we're working with the updated state from the upgrade effect.
-
-**Symptoms**
-
-- Upgrade items may not properly update the purchases state
-- Potential state inconsistency when upgrade effects modify purchases
-
-**Root Cause**
-
-The code uses `prev.purchases` instead of `updatedState.purchases` when updating the purchases object for upgrade items.
-
-**Technical Details**
-
-```typescript
-// Current (buggy):
-purchases: {
-  ...prev.purchases,
-  [itemId]: (prev.purchases[itemId] || 0) + 1,
-}
-
-// Should be:
-purchases: {
-  ...updatedState.purchases,
-  [itemId]: (prev.purchases[itemId] || 0) + 1,
-}
-```
-
-**Status**
-
-- **Status**: Known issue, not blocking
-- **Priority**: Medium
-- **Impact**: Potential state inconsistency
-- **Workaround**: None currently implemented
+**Status**: Known issue, investigation needed
 
 ---
 
 ## 🎨 Priority 3 (Low - Polish)
 
-### Mage sprites attack timing
-
-Attacks come out about 3 frames after the attack is back in idle
-Potential cause: Mages are now on the castle, attacks come from behind the castle, so are live but not showing?
-
-**Status**: Known issue, low priority  
-**Priority**: Low  
-**Impact**: Visual polish
-
----
-
-### Arrow Targeting Bug
-
-**Description**
-
-All arrows are landing slightly behind the enemy they are targeting, making it appear as if they don't connect properly. This creates a visual disconnect between the arrow and the enemy.
-
-**Symptoms**
-
-- Arrows visually miss their targets
-- Arrows land behind moving enemies
-- Visual feedback doesn't match actual hit detection
-- Arrows appear to pass through enemies without connecting
-
-**Root Cause**
-
-Likely an enemy movement prediction issue. The arrow targeting system may not be accounting for enemy movement during the arrow's flight time, causing arrows to aim at where the enemy was rather than where they will be.
-
-**Technical Details**
-
-- Arrows are created with a target position
-- Enemies continue moving while arrows are in flight
-- Arrow targeting doesn't predict enemy movement
-- Visual disconnect between arrow trajectory and enemy position
-
-**Potential Solutions**
-
-1. **Movement prediction** - Calculate where enemy will be when arrow arrives
-2. **Leading shots** - Aim ahead of moving enemies
-3. **Adjust arrow speed** - Make arrows faster to reduce prediction errors
-4. **Visual feedback adjustment** - Make arrows appear to connect better
-
-**Status**
-
-- **Status**: Known issue, low priority
-- **Priority**: Low
-- **Impact**: Visual polish (doesn't affect gameplay mechanics)
-- **Workaround**: None currently implemented
-
----
-
-### Earth Splash Effect Visual Scaling Issue
-
-**Description**
-
-The Earth splash effect visual radius appears much larger than the actual splash damage radius. The visual effect shows arrows shooting to the full 50px radius, but this creates an overly large visual indicator that doesn't match player expectations.
-
-**Symptoms**
-
-- Splash effect arrows shoot much further than expected
-- Visual effect appears to indicate a much larger splash area than actual damage
-- Players may expect splash damage to reach the visual arrows' endpoints
-- Visual feedback doesn't match actual gameplay mechanics
-
-**Root Cause**
-
-The visual splash effect uses the same radius as the actual splash damage calculation (50px), but 50 pixels is quite large on screen and creates an unrealistic visual expectation.
-
-**Technical Details**
-
-- Actual splash radius: 50px (correct for gameplay)
-- Visual effect radius: 50px (too large for visual feedback)
-- Current workaround: Visual radius scaled to 1/3 (17px) for better appearance
-- Splash damage calculation unaffected by visual scaling
-
-**Potential Solutions**
-
-1. **Investigate game scale** - Determine if 50px is actually the correct visual scale
-2. **Adjust base splash radius** - Reduce the actual splash radius if 50px is too large
-3. **Improve visual scaling** - Better algorithm for visual radius scaling
-4. **Add visual indicators** - Show actual splash damage area more clearly
-
-**Status**
-
-- **Status**: Known issue, workaround implemented
-- **Priority**: Low
-- **Impact**: Visual polish and player expectations
-- **Workaround**: Visual radius scaled to 1/3 of actual radius
-
----
-
 ### Enemy Overlay Positioning Inconsistency
 
-**Description**
+Different visual effects require different manual positioning offsets to appear correctly centered on enemies. Each new overlay effect requires manual trial-and-error positioning.
 
-Different visual effects (ice blocks, fire particles, burn effects) require different manual positioning offsets to appear correctly centered on enemies. The `enemy.x + 0, enemy.y + 0` coordinates are far off from the visual center of the enemy sprite.
-
-**Symptoms**
-
-- Ice block effect needs `enemy.x + 9, enemy.y + 31` to appear centered
-- Fire particles and other effects need different offset values
-- `enemy.x + 0, enemy.y + 0` appears at top-left corner instead of center
-- Each new overlay effect requires manual trial-and-error positioning
-- Inconsistent positioning system across different visual components
-
-**Root Cause**
-
-Multiple positioning issues combined:
-
-1. **Different transform origins** - Some effects use `transform: translate(-50%, -50%)` while others don't
-2. **Inconsistent coordinate systems** - `enemy.x, enemy.y` represents top-left corner, not sprite center
-3. **Nested element structure** - Enemy has health bar, sprite container, and text that affect visual center
-4. **Incremental development** - Each effect was added separately with its own positioning workarounds
-
-**Technical Details**
-
-- Enemy base position uses top-left corner coordinates
-- IceBlockEffect uses `transform: translate(-50%, -50%)` for centering
-- FireParticles and other effects may position from top-left without centering
-- CSS z-index and positioning context varies between effects
-- Each overlay component has its own positioning logic
-
-**Potential Solutions**
-
-1. **Standardize enemy positioning** - Make `enemy.x, enemy.y` represent the center of the sprite
-2. **Create consistent overlay system** - All effects use the same positioning logic and transform origins
-3. **Add helper functions** - `getEnemyCenter(enemy)` or `getEnemySpritePosition(enemy)` for consistent positioning
-4. **Refactor overlay components** - Standardize how all visual effects handle positioning and centering
-
-**Status**
-
-- **Status**: Known issue, workarounds implemented
-- **Priority**: Low
-- **Impact**: Development efficiency and code maintainability
-- **Workaround**: Manual offset adjustments for each effect (ice: +9, +31, etc.)
+**Status**: Known issue, workarounds in place (hardcoded per-effect offsets)
 
 ---
 
@@ -327,18 +43,57 @@ Multiple positioning issues combined:
 
 ### Earth does not explode if enemy dies first
 
-**Status: ✅ FIXED**
+**Status: FIXED**
 
-**Major bug.**
-Earth arrows don't explode if the enemy they were targeting dies before impact
-This means that earth loses not just impact damage but also splash damage.
+Earth arrows now create splash effects even when their target is already dead. Uses target position if available, otherwise uses arrow end position for splash center.
 
-**Fix Applied**
+---
 
-- Moved Earth splash damage logic outside the `if (targetEnemy)` block
-- Earth arrows now create splash effects even when their target is already dead
-- Uses target position if available, otherwise uses arrow end position for splash center
-- Splash damage and visual effects work regardless of target status
+### Defender Over-Targeting Bug
+
+**Status: FIXED**
+
+Defenders were firing extra arrows at enemies predicted to die. Fixed with predicted damage tracking - `getEnemiesInRange` now filters out enemies where predicted arrow + burn damage >= health. Predicted damage is correctly reduced on hit and cleaned up on miss/death.
+
+---
+
+### Multiple Arrows Bug
+
+**Status: FIXED**
+
+Same arrow was being processed multiple times due to React state batching. Fixed with a `processedArrowIds` Set in `arrow.ts` that prevents duplicate processing within the same tick.
+
+---
+
+### Upgrade Shop Purchases State Bug
+
+**Status: FIXED**
+
+Was using `prev.purchases` instead of `updatedState.purchases` when handling upgrade shop items. No longer an issue - state management refactored to use ref-based approach that reads directly from `state.core.purchases`.
+
+---
+
+### Mage Sprites Attack Timing
+
+**Status: FIXED**
+
+Attacks appeared 3 frames late. Animation system rebuilt with explicit wind-up/post-attack frame system using `timeUntilNextAttack` and `timeSinceLastAttack`.
+
+---
+
+### Arrow Targeting Visuals
+
+**Status: FIXED**
+
+Arrows were landing behind enemies. Added `calculatePredictedEnemyPosition` in `uiUtils.ts` with movement prediction for arrow targets.
+
+---
+
+### Earth Splash Effect Visual Scaling
+
+**Status: FIXED**
+
+Visual splash radius was much larger than actual damage radius. Visual now uses the same radius as the game mechanic.
 
 ---
 

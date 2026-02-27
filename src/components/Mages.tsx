@@ -361,7 +361,7 @@ const Mages: React.FC<MagesProps> = ({
                       )}
                       <div className="shop-item-text">
                         <h5 className="shop-item-name">
-                          {isMerge ? `Become ${nextRank} ${nextStars}` : "Train Mage"}
+                          {isMerge ? `Become ${nextRank} ${nextStars}` : `Train ${getRankName(progress.tier)} ${progress.stars}`}
                         </h5>
                         <span className="shop-item-cost">💰{formatNumber(cost)}</span>
                       </div>

@@ -19,7 +19,7 @@ const XpPopup: React.FC<XpPopupProps> = ({ x, y, amount, onComplete }) => {
       }}
       onAnimationEnd={onComplete}
     >
-      +{formatNumber(amount)} ⭐
+      +{formatNumber(amount)} XP
     </div>
   );
 };
