@@ -124,6 +124,8 @@ export const loadGame = (): GameState | null => {
         totalGoldSpent: parsed.core?.totalGoldSpent ?? defaultCore.totalGoldSpent,
         totalGoldEarned: parsed.core?.totalGoldEarned ?? defaultCore.totalGoldEarned,
         totalMerges: parsed.core?.totalMerges ?? defaultCore.totalMerges,
+        totalPowerUpsCollected: parsed.core?.totalPowerUpsCollected ?? defaultCore.totalPowerUpsCollected,
+        collectedPowerUpTypes: parsed.core?.collectedPowerUpTypes ?? defaultCore.collectedPowerUpTypes,
         activePowerUps: (parsed.core?.activePowerUps ?? []).filter(
           (p: { startTime: number; duration: number }) => Date.now() < p.startTime + p.duration
         ),

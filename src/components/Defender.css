@@ -55,12 +55,19 @@
   font-weight: bold;
 }
 
-.defender-stars {
-  font-size: 8px;
-  text-align: center;
+.defender-stars-arc {
+  position: relative;
+  width: 40px;
+  height: 16px;
+  margin-top: -6px;
+}
+
+.defender-star {
+  position: absolute;
+  font-size: 11px;
   line-height: 1;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
-  margin-top: -4px;
+  transform: translateX(-50%);
 }
 
 /* Element-specific styling can be added here if needed */

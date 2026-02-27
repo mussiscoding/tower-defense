@@ -43,12 +43,32 @@ const Defender: React.FC<DefenderProps> = ({
   // For now, only implement fire mage sprites
   const shouldUseSprites = type === "fire";
 
-  const starIndicator = mageProgress && (
-    <div
-      className="defender-stars"
-      style={{ color: getRankColor(mageProgress.tier) }}
-    >
-      {"★".repeat(mageProgress.stars)}
+  const starIndicator = mageProgress && mageProgress.stars > 0 && (
+    <div className="defender-stars-arc">
+      {Array.from({ length: mageProgress.stars }, (_, i) => {
+        const n = mageProgress.stars;
+        const radius = 16;
+        // Spread stars along an arc from 30° to 150° (bottom semicircle)
+        const startAngle = 30;
+        const endAngle = 150;
+        const angleDeg = n === 1 ? 90 : startAngle + i * (endAngle - startAngle) / (n - 1);
+        const angleRad = (angleDeg * Math.PI) / 180;
+        const offsetX = radius * Math.cos(angleRad);
+        const offsetY = radius * Math.sin(angleRad) - 6;
+        return (
+          <span
+            key={i}
+            className="defender-star"
+            style={{
+              color: getRankColor(mageProgress.tier),
+              left: `calc(50% + ${-offsetX}px)`,
+              top: `${offsetY}px`,
+            }}
+          >
+            ★
+          </span>
+        );
+      })}
     </div>
   );
 

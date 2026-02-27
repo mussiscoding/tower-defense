@@ -1,5 +1,6 @@
 import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "./elements";
+import { POWER_UP_DEFS } from "./powerups";
 
 export interface AchievementDef {
   id: string;
@@ -696,7 +697,94 @@ export const achievements: AchievementDef[] = [
     }),
   },
 
-  // === Hidden (3) ===
+  // === Power-Ups (5) ===
+  {
+    id: "powerup_1",
+    name: "Power Trip",
+    description: "Collect your first power-up",
+    icon: "⚡",
+    reward: 100,
+    category: "combat",
+    hidden: false,
+    tieredGroup: "powerup",
+    tieredOrder: 1,
+    checkType: "state",
+    check: (state) => state.core.totalPowerUpsCollected >= 1,
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalPowerUpsCollected, 1),
+      target: 1,
+    }),
+  },
+  {
+    id: "powerup_7",
+    name: "Lucky Seven",
+    description: "Collect 7 power-ups",
+    icon: "⚡",
+    reward: 500,
+    category: "combat",
+    hidden: false,
+    tieredGroup: "powerup",
+    tieredOrder: 2,
+    checkType: "state",
+    check: (state) => state.core.totalPowerUpsCollected >= 7,
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalPowerUpsCollected, 7),
+      target: 7,
+    }),
+  },
+  {
+    id: "powerup_49",
+    name: "Power Surge",
+    description: "Collect 49 power-ups",
+    icon: "⚡",
+    reward: 5000,
+    category: "combat",
+    hidden: false,
+    tieredGroup: "powerup",
+    tieredOrder: 3,
+    checkType: "state",
+    check: (state) => state.core.totalPowerUpsCollected >= 49,
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalPowerUpsCollected, 49),
+      target: 49,
+    }),
+  },
+  {
+    id: "powerup_343",
+    name: "Power Overwhelming",
+    description: "Collect 343 power-ups",
+    icon: "⚡",
+    reward: 50000,
+    category: "combat",
+    hidden: false,
+    tieredGroup: "powerup",
+    tieredOrder: 4,
+    checkType: "state",
+    check: (state) => state.core.totalPowerUpsCollected >= 343,
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalPowerUpsCollected, 343),
+      target: 343,
+    }),
+  },
+  {
+    id: "powerup_2401",
+    name: "Unlimited Power",
+    description: "Collect 2,401 power-ups",
+    icon: "⚡",
+    reward: 500000,
+    category: "combat",
+    hidden: false,
+    tieredGroup: "powerup",
+    tieredOrder: 5,
+    checkType: "state",
+    check: (state) => state.core.totalPowerUpsCollected >= 2401,
+    getProgress: (state) => ({
+      current: Math.min(state.core.totalPowerUpsCollected, 2401),
+      target: 2401,
+    }),
+  },
+
+  // === Hidden (4) ===
   {
     id: "overkill",
     name: "Overkill",
@@ -729,6 +817,18 @@ export const achievements: AchievementDef[] = [
     hidden: true,
     checkType: "state",
     check: (state) => state.entities.defenders.length >= 8,
+  },
+  {
+    id: "gotta_catch_em_all",
+    name: "Gotta Catch 'Em All",
+    description: "Collect every type of power-up at least once",
+    icon: "🎯",
+    reward: 10000,
+    category: "hidden",
+    hidden: true,
+    checkType: "state",
+    check: (state) =>
+      state.core.collectedPowerUpTypes.length >= POWER_UP_DEFS.length,
   },
 ];
 

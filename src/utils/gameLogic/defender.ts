@@ -11,6 +11,7 @@ import { createArrow } from "./arrow";
 
 import type { ElementData } from "../../types/GameState";
 import { calculateAnimationFrame } from "./animationUtils";
+import { ANIMATION_CONFIG } from "../../assets/mages/mage-sprites";
 import {
   getBestActiveSkill,
   setSkillCooldown,
@@ -111,6 +112,32 @@ export const updateDefenders = (
       return {
         ...defender,
         currentAnimationFrame: frame,
+      };
+    }
+
+    // If the defender was idle (cooldown expired long ago), start the wind-up
+    // animation instead of attacking instantly. Set lastAttack so the cooldown
+    // expires after the wind-up plays, then the next tick will fire normally.
+    const attackCooldown = 1000 / (defender.attackSpeed * attackSpeedMultiplier);
+    const timeSinceLastAttack = currentTime - defender.lastAttack;
+    const postAttackWindow =
+      ANIMATION_CONFIG.FRAME_DURATION *
+      (ANIMATION_CONFIG.POST_ATTACK_FRAMES + 1);
+
+    if (timeSinceLastAttack > attackCooldown + postAttackWindow) {
+      const windUpDuration = Math.min(
+        ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES,
+        attackCooldown
+      );
+      const adjustedLastAttack = currentTime - (attackCooldown - windUpDuration);
+      const windUpFrame = calculateAnimationFrame(
+        { ...defender, lastAttack: adjustedLastAttack },
+        currentTime
+      );
+      return {
+        ...defender,
+        lastAttack: adjustedLastAttack,
+        currentAnimationFrame: windUpFrame,
       };
     }
 

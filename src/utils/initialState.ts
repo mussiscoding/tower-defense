@@ -48,6 +48,8 @@ export const createInitialCoreState = (devMode: boolean = false): CoreState => (
   totalGoldSpent: 0,
   totalGoldEarned: 0,
   totalMerges: 0,
+  totalPowerUpsCollected: 0,
+  collectedPowerUpTypes: [],
   activePowerUps: [],
 });
 

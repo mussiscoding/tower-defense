@@ -423,6 +423,12 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
     // Resolve element type for element-specific buffs (before applyEffect)
     const elementType = def.resolveElementType?.(state);
 
+    // Track power-up collection
+    state.core.totalPowerUpsCollected += 1;
+    if (!state.core.collectedPowerUpTypes.includes(def.id)) {
+      state.core.collectedPowerUpTypes.push(def.id);
+    }
+
     // Apply the effect
     def.applyEffect(state);
 

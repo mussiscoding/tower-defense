@@ -9,40 +9,46 @@ export const calculateAnimationFrame = (
   const attackCooldown = 1000 / defender.attackSpeed;
   const timeUntilNextAttack = attackCooldown - timeSinceLastAttack;
 
-  // If we haven't attacked yet or we're in the idle period
-  if (
-    timeUntilNextAttack >
-    ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES
-  ) {
-    return 0; // Use idle sprite
-  }
+  const postAttackWindow =
+    ANIMATION_CONFIG.FRAME_DURATION *
+    (ANIMATION_CONFIG.POST_ATTACK_FRAMES + 1); // +1 for the attack frame itself
 
-  // Calculate how many frames into the attack animation we are
-  // Start animation when we're within the pre-attack window
-  const framesIntoAttack = Math.floor(
-    (ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES -
-      timeUntilNextAttack) /
-      ANIMATION_CONFIG.FRAME_DURATION
-  );
-
-  // Attack animation sequence: frames 0 (idle) -> 1 -> 2 -> 3 -> 4 -> 5 (attack) -> 6 -> 7 -> 8 -> 0 (idle)
+  // Post-attack follow-through (frames 5-8): use timeSinceLastAttack
+  // Right after attack fires, lastAttack resets so timeSinceLastAttack is small
   if (
-    framesIntoAttack >= 0 &&
-    framesIntoAttack < ANIMATION_CONFIG.PRE_ATTACK_FRAMES
+    defender.lastAttack > 0 &&
+    timeSinceLastAttack < postAttackWindow
   ) {
-    // Pre-attack frames (1-4)
-    return framesIntoAttack + 1;
-  } else if (
-    framesIntoAttack >= ANIMATION_CONFIG.PRE_ATTACK_FRAMES &&
-    framesIntoAttack <
-      ANIMATION_CONFIG.PRE_ATTACK_FRAMES + ANIMATION_CONFIG.POST_ATTACK_FRAMES
-  ) {
-    // Post-attack frames (6-7-8)
-    return framesIntoAttack + 1;
-  } else {
-    // Back to idle
+    const postFrame = Math.floor(
+      timeSinceLastAttack / ANIMATION_CONFIG.FRAME_DURATION
+    );
+    // Frame 5 (attack), 6, 7, 8
+    const frame = ANIMATION_CONFIG.PRE_ATTACK_FRAMES + 1 + postFrame;
+    if (frame <= ANIMATION_CONFIG.TOTAL_FRAMES) {
+      return frame;
+    }
     return 0;
   }
+
+  // Pre-attack wind-up (frames 1-4): use timeUntilNextAttack
+  if (
+    timeUntilNextAttack <=
+    ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES
+  ) {
+    const framesIntoAttack = Math.floor(
+      (ANIMATION_CONFIG.FRAME_DURATION * ANIMATION_CONFIG.PRE_ATTACK_FRAMES -
+        timeUntilNextAttack) /
+        ANIMATION_CONFIG.FRAME_DURATION
+    );
+    if (
+      framesIntoAttack >= 0 &&
+      framesIntoAttack < ANIMATION_CONFIG.PRE_ATTACK_FRAMES
+    ) {
+      return framesIntoAttack + 1;
+    }
+  }
+
+  return 0; // Idle
 };
 
 export const getMageSprite = (frame: number): string => {

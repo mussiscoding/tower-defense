@@ -62,6 +62,8 @@ export interface CoreState {
   totalGoldSpent: number;
   totalGoldEarned: number;
   totalMerges: number;
+  totalPowerUpsCollected: number;
+  collectedPowerUpTypes: string[];
   activePowerUps: ActivePowerUp[];
 }
 
