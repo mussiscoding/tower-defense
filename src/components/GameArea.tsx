@@ -11,6 +11,7 @@ import Castle from "./Castle";
 import Defender from "./Defender";
 import Arrow from "./Arrow";
 import GoldPopup from "./GoldPopup";
+import XpPopup from "./XpPopup";
 import SplashEffectComponent from "./SplashEffect";
 import LevelUpAnimationComponent from "./LevelUpAnimation";
 import FloatingText from "./FloatingText";
@@ -37,7 +38,7 @@ import {
   filterExpiredPowerUps,
   trySpawnPowerUp,
 } from "../utils/gameLogic";
-import { getPowerUpDef, getGoldDropAmount } from "../data/powerups";
+import { getPowerUpDef, getGoldDropAmount, getXpDropAmount } from "../data/powerups";
 import SpawnedPowerUpComponent from "./SpawnedPowerUp";
 import ActiveBuffsHUD from "./ActiveBuffsHUD";
 import { generateWave } from "../utils/gameLogic/waveGenerator";
@@ -304,6 +305,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.tracking.predictedArrowDamage = new Map();
         state.tracking.predictedBurnDamage = new Map();
         state.visuals.goldPopups = [];
+        state.visuals.xpPopups = [];
         state.visuals.damageNumbers = [];
         triggerRender();
         return;
@@ -417,8 +419,9 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
 
     const now = Date.now();
 
-    // Compute gold amount before applyEffect mutates totalGoldEarned
+    // Compute amounts before applyEffect mutates state
     const goldAmount = getGoldDropAmount(state, def.id);
+    const xpAmount = getXpDropAmount(state, def.id);
 
     // Resolve element type for element-specific buffs (before applyEffect)
     const elementType = def.resolveElementType?.(state);
@@ -454,6 +457,17 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       });
     }
 
+    // Instant XP power-ups show XP popup
+    if (xpAmount > 0) {
+      state.visuals.xpPopups.push({
+        id: `xp_${now}_${Math.random()}`,
+        x: spawned.x,
+        y: spawned.y,
+        amount: xpAmount,
+        startTime: now,
+      });
+    }
+
     // Remove from battlefield
     state.entities.spawnedPowerUp = null;
     triggerRender();
@@ -463,6 +477,15 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
     (id: string) => {
       stateRef.current.visuals.goldPopups =
         stateRef.current.visuals.goldPopups.filter((p) => p.id !== id);
+      triggerRender();
+    },
+    [stateRef, triggerRender]
+  );
+
+  const handleXpPopupComplete = useCallback(
+    (id: string) => {
+      stateRef.current.visuals.xpPopups =
+        stateRef.current.visuals.xpPopups.filter((p) => p.id !== id);
       triggerRender();
     },
     [stateRef, triggerRender]
@@ -584,6 +607,17 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             y={popup.y}
             amount={popup.amount}
             onComplete={() => handleGoldPopupComplete(popup.id)}
+          />
+        ))}
+
+        {visuals.xpPopups.map((popup) => (
+          <XpPopup
+            key={popup.id}
+            id={popup.id}
+            x={popup.x}
+            y={popup.y}
+            amount={popup.amount}
+            onComplete={() => handleXpPopupComplete(popup.id)}
           />
         ))}
 

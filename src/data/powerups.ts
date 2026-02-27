@@ -164,3 +164,14 @@ export const getGoldDropAmount = (state: GameState, powerUpId: string): number =
   if (powerUpId === "treasure_chest") return goldRushAmount(state) * 5;
   return 0;
 };
+
+/** Get XP amount for display (before applyEffect mutates state) */
+export const getXpDropAmount = (state: GameState, powerUpId: string): number => {
+  if (powerUpId === "study_session") {
+    const et = getLowestLevelElement(state);
+    const element = state.core.elements[et];
+    if (!element) return 0;
+    return Math.floor(getXPForNextLevel(element.level) * 0.3);
+  }
+  return 0;
+};

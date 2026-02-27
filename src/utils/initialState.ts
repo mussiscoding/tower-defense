@@ -69,6 +69,7 @@ export const createInitialTrackingState = (): TrackingState => ({
 
 export const createInitialVisuals = (): VisualEffects => ({
   goldPopups: [],
+  xpPopups: [],
   floatingTexts: [],
   damageNumbers: [],
   splashEffects: [],

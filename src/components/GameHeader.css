@@ -37,6 +37,12 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+.gold-value {
+  display: inline-block;
+  width: 5.5ch;
+  text-align: right;
+}
+
 .pause-button {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid #8b4513;

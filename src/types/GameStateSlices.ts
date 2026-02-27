@@ -6,6 +6,7 @@ import type {
   ElementData,
   VortexData,
   GoldPopup,
+  XpPopup,
   FloatingText,
   DamageNumber,
   SplashEffect,
@@ -86,6 +87,7 @@ export interface TrackingState {
 // Visual effects - ephemeral, NOT saved
 export interface VisualEffects {
   goldPopups: GoldPopup[];
+  xpPopups: XpPopup[];
   floatingTexts: FloatingText[];
   damageNumbers: DamageNumber[];
   splashEffects: SplashEffect[];

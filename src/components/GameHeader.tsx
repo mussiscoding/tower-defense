@@ -28,7 +28,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
       <div className="header-stat">
         <span className="stat-icon">💰</span>
         <span className="stat-label">Gold:</span>
-        <span className="stat-value">{formatNumber(core.gold)}</span>
+        <span className="stat-value gold-value">{formatNumber(core.gold)}</span>
       </div>
 
       <div className="header-stat">

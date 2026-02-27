@@ -177,6 +177,14 @@ export interface GoldPopup {
   startTime: number;
 }
 
+export interface XpPopup {
+  id: string;
+  x: number;
+  y: number;
+  amount: number;
+  startTime: number;
+}
+
 export interface SplashEffect {
   id: string;
   centerX: number;
