@@ -154,6 +154,8 @@ export const updateDefenders = (
       splashEffects: [], // Not used in defender context
       bonusDamage: [], // Not used in defender context
       vortexes: [],
+      predictedArrowDamage: updatedPredictedArrowDamage,
+      predictedBurnDamage: updatedPredictedBurnDamage,
     };
 
     // Check for available active skills first (highest priority)

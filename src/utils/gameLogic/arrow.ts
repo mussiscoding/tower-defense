@@ -203,6 +203,8 @@ export const processArrowImpacts = (
             splashEffects: [],
             bonusDamage: [],
             vortexes: [],
+            predictedArrowDamage: updatedPredictedArrowDamage,
+            predictedBurnDamage: updatedPredictedBurnDamage,
             achievementEvents: collectedAchievementEvents,
           };
 

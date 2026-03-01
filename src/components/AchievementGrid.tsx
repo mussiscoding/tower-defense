@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import type { GameState } from "../types/GameStateSlices";
 import { achievements, type AchievementDef } from "../data/achievements";
+import { formatNumber } from "../utils/formatNumber";
 import "./AchievementGrid.css";
 
 interface AchievementGridProps {
@@ -94,11 +95,7 @@ const getDisplaySlots = (state: GameState): DisplaySlot[] => {
 };
 
 const formatProgress = (current: number, target: number): string => {
-  if (target >= 1000) {
-    const formatK = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
-    return `${formatK(current)} / ${formatK(target)}`;
-  }
-  return `${current} / ${target}`;
+  return `${formatNumber(current)} / ${formatNumber(target)}`;
 };
 
 const AchievementGrid: React.FC<AchievementGridProps> = ({ state }) => {
@@ -206,12 +203,12 @@ const AchievementGrid: React.FC<AchievementGridProps> = ({ state }) => {
             )}
             {unlocked && (
               <div className="achievement-tooltip-reward">
-                Earned: +{def.reward}g
+                Earned: +{formatNumber(def.reward)}g
               </div>
             )}
             {!unlocked && !isHidden && (
               <div className="achievement-tooltip-reward">
-                Reward: {def.reward}g
+                Reward: {formatNumber(def.reward)}g
               </div>
             )}
             {progress && progress.current > 0 && !unlocked && (

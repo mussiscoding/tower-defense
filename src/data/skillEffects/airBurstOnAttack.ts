@@ -29,12 +29,32 @@ export const airBurstOnAttack = (
   );
   const onHitEffects = hitModifierSkills.filter((skill) => skill.onHit);
 
+  // Get current damage for predicted damage tracking
+  const element = context.elements[defender.type];
+  const currentDamage = element?.baseStats.damage || 1;
+
   // Pick up to burstShots distinct enemies, sorted by proximity to castle
+  // Filter out enemies predicted to die from existing damage
   const enemiesInRange = context.enemies
-    .filter((e) => e.health > 0 && e.x - GAME_DIMENSIONS.CASTLE_WIDTH <= defender.range)
+    .filter((e) => {
+      if (e.health <= 0) return false;
+      if (e.x - GAME_DIMENSIONS.CASTLE_WIDTH > defender.range) return false;
+      const predictedDmg =
+        (context.predictedArrowDamage.get(e.id) || 0) +
+        (context.predictedBurnDamage.get(e.id) || 0);
+      return e.health - predictedDmg > 0;
+    })
     .sort((a, b) => a.x - b.x);
 
-  const targets: Enemy[] = [target];
+  // Start with original target if it's still worth shooting
+  const targets: Enemy[] = [];
+  const targetPredictedDmg =
+    (context.predictedArrowDamage.get(target.id) || 0) +
+    (context.predictedBurnDamage.get(target.id) || 0);
+  if (target.health - targetPredictedDmg > 0) {
+    targets.push(target);
+  }
+
   for (const enemy of enemiesInRange) {
     if (targets.length >= burstShots) break;
     if (!targets.some((t) => t.id === enemy.id)) {
@@ -44,6 +64,11 @@ export const airBurstOnAttack = (
 
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
+
+    // Update predicted damage so other defenders/burst arrows don't overkill
+    const current = context.predictedArrowDamage.get(t.id) || 0;
+    context.predictedArrowDamage.set(t.id, current + currentDamage);
+
     const predictedPosition = calculatePredictedEnemyPosition(defender, t);
 
     const arrow = createArrow(

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { achievementMap } from "../data/achievements";
+import { formatNumber } from "../utils/formatNumber";
 import "./AchievementPopup.css";
 
 interface AchievementPopupProps {
@@ -35,7 +36,7 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({
           <div className="achievement-popup-name">{def.name}</div>
           <div className="achievement-popup-desc">{def.description}</div>
         </div>
-        <div className="achievement-popup-reward">+{def.reward}g</div>
+        <div className="achievement-popup-reward">+{formatNumber(def.reward)}g</div>
       </div>
     </div>
   );

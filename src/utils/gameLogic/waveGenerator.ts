@@ -11,8 +11,8 @@ export interface WaveComposition {
 
 export type WaveMode = "fixed-budget" | "fixed-mean";
 
-const WAVE_BASE_HP = 50;
-const WAVE_GROWTH_RATE = 1.365;
+export const WAVE_BASE_HP = 50;
+export const WAVE_GROWTH_RATE = 1.365;
 const MEAN_BASE_HP = 10;
 const MIN_ENEMIES = 2;
 const MAX_ENEMIES = 10;

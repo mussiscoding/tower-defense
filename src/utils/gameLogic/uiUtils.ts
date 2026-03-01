@@ -117,7 +117,7 @@ export const calculatePredictedEnemyPosition = (
   const predictedX = target.x + (target.speed * flightTime) / 1000;
   const predictedY = target.y; // Enemies only move horizontally
 
-  const centreOfPredictedX = predictedX - 15;
+  const centreOfPredictedX = predictedX;
   const centreOfPredictedY = predictedY + 15;
 
   return {

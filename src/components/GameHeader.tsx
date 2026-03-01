@@ -1,5 +1,6 @@
 import type { GameState } from "../types/GameStateSlices";
 import { formatNumber } from "../utils/formatNumber";
+import { WAVE_BASE_HP, WAVE_GROWTH_RATE } from "../utils/gameLogic/waveGenerator";
 import "./GameHeader.css";
 
 interface GameHeaderProps {
@@ -20,7 +21,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   const core = stateRef.current.core;
 
 
-  const waveBudget = Math.floor(50 * Math.pow(1.3, core.difficultyLevel - 1));
+  const waveBudget = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, core.difficultyLevel - 1));
   const avgEnemyHP = Math.floor(waveBudget / 6);
 
   return (
