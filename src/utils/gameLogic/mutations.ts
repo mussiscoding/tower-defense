@@ -12,14 +12,15 @@ import { getStarDamageMultiplier } from "../starSystem";
 
 /**
  * Grant XP to an element and handle level-ups.
- * Level-ups no longer change damage (damage scaling comes from stars only).
+ * On level-up, damage is recalculated if mageProgress is provided.
  *
- * @mutates elements[type].xp, elements[type].totalDamage, elements[type].level
+ * @mutates elements[type].xp, elements[type].totalDamage, elements[type].level, elements[type].baseStats
  */
 export function grantElementXP(
   elements: Record<ElementType, ElementData>,
   type: ElementType,
-  xp: number
+  xp: number,
+  mageProgress?: MageProgress
 ): { leveledUp: boolean; newLevel: number } {
   const element = elements[type];
   const oldLevel = element.level;
@@ -30,7 +31,9 @@ export function grantElementXP(
   const newLevel = getLevelFromXP(element.xp);
   if (newLevel > oldLevel) {
     element.level = newLevel;
-    // Level no longer affects damage - star system handles all damage scaling
+    if (mageProgress) {
+      recalculateElementDamage(elements, type, mageProgress);
+    }
     return { leveledUp: true, newLevel };
   }
 

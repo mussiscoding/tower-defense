@@ -1,6 +1,6 @@
 .game-header {
-  background: linear-gradient(90deg, #4a2c2a 0%, #6b3e3a 50%, #4a2c2a 100%);
-  border-bottom: 3px solid #8b4513;
+  background: linear-gradient(90deg, #1a2e1a 0%, #2a4a2a 50%, #1a2e1a 100%);
+  border-bottom: 3px solid #3d6b3d;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -17,7 +17,7 @@
   background: rgba(0, 0, 0, 0.3);
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #8b4513;
+  border: 1px solid #3d6b3d;
 }
 
 .stat-icon {
@@ -45,7 +45,7 @@
 
 .pause-button {
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #8b4513;
+  border: 1px solid #3d6b3d;
   border-radius: 8px;
   padding: 8px 12px;
   color: white;
@@ -108,7 +108,7 @@
 
 .difficulty-btn {
   background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #8b4513;
+  border: 1px solid #3d6b3d;
   border-radius: 4px;
   padding: 4px 10px;
   color: #ffd700;

@@ -88,15 +88,27 @@ export const getLevelFromXP = (xp: number): number => {
   return level - 1;
 };
 
+/**
+ * Iteratively calculates base damage including per-level bonus.
+ * Each level adds max(1, floor(currentBase * 0.05)) to the running base.
+ */
+export function getBaseDamageWithLevelBonus(elementType: ElementType, level: number): number {
+  let base = elements[elementType].baseStats.damage;
+  for (let l = 2; l <= level; l++) {
+    base += Math.max(1, Math.floor(base * 0.05));
+  }
+  return base;
+}
+
 export const calculateElementStats = (
   elementType: ElementType,
-  _level: number,
+  level: number,
   starMultiplier: number = 1
 ): ElementBaseStats => {
   const baseStats = elements[elementType].baseStats;
 
   return {
-    damage: Math.floor(baseStats.damage * starMultiplier),
+    damage: Math.floor(getBaseDamageWithLevelBonus(elementType, level) * starMultiplier),
     attackSpeed: baseStats.attackSpeed,
     range: baseStats.range,
   };

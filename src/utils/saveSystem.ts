@@ -1,7 +1,7 @@
 import type { GameState } from "../types/GameStateSlices";
 import type { MageProgress } from "../types/GameState";
 import type { ElementType } from "../data/elements";
-import { elements as elementConfigs } from "../data/elements";
+import { getBaseDamageWithLevelBonus } from "../data/elements";
 import {
   createInitialCoreState,
   createInitialEntityState,
@@ -83,8 +83,8 @@ export const loadGame = (): GameState | null => {
     elementTypes.forEach((et) => {
       if (loadedElements[et]) {
         const starMult = getStarDamageMultiplier(mageProgress[et]);
-        const rawDamage = elementConfigs[et].baseStats.damage;
-        loadedElements[et].baseStats.damage = Math.floor(rawDamage * starMult);
+        const baseDamage = getBaseDamageWithLevelBonus(et, loadedElements[et].level);
+        loadedElements[et].baseStats.damage = Math.floor(baseDamage * starMult);
       }
     });
 
@@ -125,6 +125,7 @@ export const loadGame = (): GameState | null => {
         totalGoldEarned: parsed.core?.totalGoldEarned ?? defaultCore.totalGoldEarned,
         totalMerges: parsed.core?.totalMerges ?? defaultCore.totalMerges,
         totalPowerUpsCollected: parsed.core?.totalPowerUpsCollected ?? defaultCore.totalPowerUpsCollected,
+        totalCriticalHits: parsed.core?.totalCriticalHits ?? defaultCore.totalCriticalHits,
         collectedPowerUpTypes: parsed.core?.collectedPowerUpTypes ?? defaultCore.collectedPowerUpTypes,
         activePowerUps: (parsed.core?.activePowerUps ?? []).filter(
           (p: { startTime: number; duration: number }) => Date.now() < p.startTime + p.duration

@@ -1,6 +1,6 @@
 .mages-container {
   padding: 15px;
-  background: #2a2a2a;
+  background: #1a2e1a;
   color: white;
   height: 100%;
   overflow-y: auto;
@@ -22,8 +22,8 @@
 }
 
 .element-card {
-  background: #3a3a3a;
-  border: 1px solid #555;
+  background: #243d24;
+  border: 1px solid #3d6b3d;
   border-radius: 6px;
   padding: 12px 15px;
   transition: all 0.2s ease;
@@ -39,7 +39,7 @@
 }
 
 .element-card.clickable:hover {
-  background: #4a4a4a;
+  background: #2e4d2e;
   border-color: #ffd700;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
@@ -102,7 +102,7 @@
 .element-xp-bar {
   width: 100%;
   height: 4px;
-  background: #444;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 2px;
   margin-top: 6px;
   overflow: hidden;
@@ -128,7 +128,7 @@
 .xp-bar {
   width: 100%;
   height: 6px;
-  background: #555;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -174,7 +174,7 @@
 }
 
 .element-nav-btn {
-  background: #555;
+  background: #3d6b3d;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -187,7 +187,7 @@
 }
 
 .element-nav-btn:hover:not(:disabled) {
-  background: #666;
+  background: #4a7a4a;
 }
 
 .element-nav-btn.active {
@@ -212,8 +212,8 @@
 }
 
 .element-detail-card {
-  background: var(--element-bg, #3a3a3a);
-  border: 1px solid var(--element-color-dim, #555);
+  background: var(--element-bg, #243d24);
+  border: 1px solid var(--element-color-dim, #3d6b3d);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -232,7 +232,7 @@
   margin: 0 0 15px 0;
   font-size: 16px;
   color: #ffd700;
-  border-bottom: 1px solid #555;
+  border-bottom: 1px solid #3d6b3d;
   padding-bottom: 8px;
 }
 
@@ -247,7 +247,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 0;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #2a4a2a;
 }
 
 .stat-item-last {
@@ -267,7 +267,7 @@
 
 .stat-separator {
   height: 1px;
-  background: #555;
+  background: #3d6b3d;
   margin: 8px 0;
   width: 100%;
 }
@@ -287,7 +287,7 @@
 .element-actions {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #555;
+  border-top: 1px solid #3d6b3d;
 }
 
 .purchase-button {
@@ -311,14 +311,14 @@
 }
 
 .purchase-button.disabled {
-  background: #666;
+  background: #4a7a4a;
   color: #999;
   cursor: not-allowed;
   transform: none;
 }
 
 .purchase-button.disabled:hover {
-  background: #666;
+  background: #4a7a4a;
   transform: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -331,7 +331,7 @@
 }
 
 .element-tab-button {
-  background: #555;
+  background: #3d6b3d;
   border: none;
   color: white;
   padding: 6px 12px;
@@ -349,7 +349,7 @@
 }
 
 .element-tab-button:hover {
-  background: #666;
+  background: #4a7a4a;
 }
 
 .element-tab-button.active:hover {
@@ -363,9 +363,9 @@
 }
 
 .shop-item {
-  background: var(--element-bg, #3a3a3a);
-  border: 1px solid var(--element-color-dim, #555);
-  border-left: 3px solid var(--element-color-dim, #555);
+  background: var(--element-bg, #243d24);
+  border: 1px solid var(--element-color-dim, #3d6b3d);
+  border-left: 3px solid var(--element-color-dim, #3d6b3d);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 10px;
@@ -375,7 +375,7 @@
 }
 
 .shop-item:hover {
-  background: #444;
+  background: #2a4a2a;
   border-color: var(--element-color, #ffd700);
   border-left-color: var(--element-color, #ffd700);
   transform: translateY(-1px);
@@ -388,9 +388,9 @@
 }
 
 .shop-item.disabled:hover {
-  background: var(--element-bg, #3a3a3a);
-  border-color: var(--element-color-dim, #555);
-  border-left-color: var(--element-color-dim, #555);
+  background: var(--element-bg, #243d24);
+  border-color: var(--element-color-dim, #3d6b3d);
+  border-left-color: var(--element-color-dim, #3d6b3d);
   transform: none;
   box-shadow: none;
 }

@@ -4,6 +4,7 @@ import type {
   GoldPopup,
   SplashEffect,
   ElementData,
+  MageProgress,
   DamageNumber,
   SkillContext,
   Skill,
@@ -19,7 +20,7 @@ export interface KilledEnemy {
 }
 
 export interface AchievementEvents {
-  criticalHitLanded?: boolean;
+  criticalHitCount: number;
   splashHitCounts?: number[];
 }
 import { damageEnemy, handleEnemyDeath } from "./enemy";
@@ -101,7 +102,8 @@ export const processArrowImpacts = (
   elements: Record<ElementType, ElementData>,
   purchases: Record<string, number>,
   activePowerUps: ActivePowerUp[] = [],
-  goldMultiplier: number = 1
+  goldMultiplier: number = 1,
+  mageProgress?: Record<ElementType, MageProgress>
 ): {
   arrows: Arrow[];
   enemies: Enemy[];
@@ -131,7 +133,7 @@ export const processArrowImpacts = (
   const processedArrowIds = new Set<string>();
   const newDamageNumbers: DamageNumber[] = [];
   const killedEnemies: KilledEnemy[] = [];
-  const collectedAchievementEvents: AchievementEvents = {};
+  const collectedAchievementEvents: AchievementEvents = { criticalHitCount: 0 };
 
   arrows.forEach((arrow) => {
     // Skip if this arrow has already been processed
@@ -175,7 +177,7 @@ export const processArrowImpacts = (
         // Grant XP to elements based on damage dealt (with element-aware power-up multiplier)
         if (element) {
           const xpMult = getXPMultiplier(activePowerUps, currentTime, arrow.elementType);
-          grantElementXP(updatedElements, arrow.elementType, Math.floor(damage * xpMult));
+          grantElementXP(updatedElements, arrow.elementType, Math.floor(damage * xpMult), mageProgress?.[arrow.elementType]);
         }
 
         // Reduce predicted damage since this arrow has hit

@@ -244,7 +244,7 @@ export interface SkillContext {
   vortexes: VortexData[]; // For skills that create vortex effects
   bonusDamage: BonusDamage[];
   achievementEvents?: {
-    criticalHitLanded?: boolean;
+    criticalHitCount: number;
     splashHitCounts?: number[];
   };
 }

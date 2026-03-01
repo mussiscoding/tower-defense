@@ -211,7 +211,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.elements,
         state.core.purchases,
         state.core.activePowerUps,
-        goldMultiplier
+        goldMultiplier,
+        state.core.mageProgress
       );
 
       // 10. CHECK FOR LEVEL-UPS
@@ -263,8 +264,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       });
 
       // Check achievement events from skills
-      if (achievementEvents.criticalHitLanded) {
-        tryUnlockAchievement("critical_hit", state);
+      if (achievementEvents.criticalHitCount > 0) {
+        state.core.totalCriticalHits += achievementEvents.criticalHitCount;
       }
       if (achievementEvents.splashHitCounts) {
         if (achievementEvents.splashHitCounts.some((count) => count >= 3)) {

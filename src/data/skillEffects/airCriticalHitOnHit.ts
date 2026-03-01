@@ -34,7 +34,7 @@ export const airCriticalHitOnHit = (
       });
 
       if (context.achievementEvents) {
-        context.achievementEvents.criticalHitLanded = true;
+        context.achievementEvents.criticalHitCount++;
       }
     }
   }

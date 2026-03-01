@@ -18,7 +18,7 @@ import {
   getNextRankName,
   progressFromTotalStars,
 } from "../utils/starSystem";
-import { elements as elementConfigs } from "../data/elements";
+import { getBaseDamageWithLevelBonus } from "../data/elements";
 import SkillsRow from "./SkillsRow";
 
 interface MagesProps {
@@ -244,7 +244,7 @@ const Mages: React.FC<MagesProps> = ({
                   <div className="stat-item">
                     <span className="stat-label">Base Damage:</span>
                     <span className="stat-value">
-                      {elementConfigs[selectedElement].baseStats.damage}
+                      {getBaseDamageWithLevelBonus(selectedElement, elementData.level)}
                     </span>
                   </div>
                   <div className="stat-item">
