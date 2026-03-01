@@ -25,24 +25,6 @@ const Defender: React.FC<DefenderProps> = ({
   currentAnimationFrame = 0,
   mageProgress,
 }) => {
-  const getElementColor = (elementType: ElementType) => {
-    switch (elementType) {
-      case "fire":
-        return "#ff4444";
-      case "ice":
-        return "#4444ff";
-      case "earth":
-        return "#8b4513";
-      case "air":
-        return "#cccccc";
-      default:
-        return "#666666";
-    }
-  };
-
-  // For now, only implement fire mage sprites
-  const shouldUseSprites = type === "fire";
-
   const starIndicator = mageProgress && mageProgress.stars > 0 && (
     <div className="defender-stars-arc">
       {Array.from({ length: mageProgress.stars }, (_, i) => {
@@ -72,34 +54,12 @@ const Defender: React.FC<DefenderProps> = ({
     </div>
   );
 
-  if (shouldUseSprites) {
-    const spriteKey =
-      currentAnimationFrame === 0
-        ? "idle"
-        : (`attack${currentAnimationFrame}` as keyof typeof mageAttackSprites);
-    const spriteSrc = mageAttackSprites[spriteKey];
+  const spriteKey =
+    currentAnimationFrame === 0
+      ? "idle"
+      : (`attack${currentAnimationFrame}` as keyof typeof mageAttackSprites);
+  const spriteSrc = mageAttackSprites[spriteKey];
 
-    return (
-      <div
-        className={`defender defender-${type}`}
-        style={{
-          left: `${x}px`,
-          top: `${y}px`,
-        }}
-      >
-        <div className="defender-sprite-container">
-          <img
-            src={spriteSrc}
-            alt={`Fire mage attack frame ${currentAnimationFrame}`}
-            className="defender-sprite-image"
-          />
-        </div>
-        {starIndicator}
-      </div>
-    );
-  }
-
-  // Fallback to original colored circle for other elements
   return (
     <div
       className={`defender defender-${type}`}
@@ -108,10 +68,13 @@ const Defender: React.FC<DefenderProps> = ({
         top: `${y}px`,
       }}
     >
-      <div
-        className="defender-sprite"
-        style={{ backgroundColor: getElementColor(type) }}
-      ></div>
+      <div className="defender-sprite-container">
+        <img
+          src={spriteSrc}
+          alt={`${type} mage attack frame ${currentAnimationFrame}`}
+          className={`defender-sprite-image defender-sprite-${type}`}
+        />
+      </div>
       {starIndicator}
     </div>
   );

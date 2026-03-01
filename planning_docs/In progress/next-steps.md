@@ -39,37 +39,9 @@ Current upgrades are tied to skills but feel disconnected from the star/leveling
 
 ---
 
-## Mage Sprites
+## ~~Mage Sprites~~ DONE
 
-Visual polish that makes elements feel distinct.
-
-### Current State
-
-- One sprite set in `src/assets/mages/` (8 frames: Idle + Attack1-7).
-- All four elements use the same fire-themed sprite.
-- The sprite has a warm/fire color palette.
-
-### Options
-
-**Option A: Four unique sprite sets**
-
-- Commission or find 4 distinct mage sprites (fire, ice, earth, air).
-- Most visually distinct but most work.
-
-**Option B: Tint/recolor the existing sprite**
-
-- Apply CSS/canvas color filters per element.
-- Fire = red/orange (current), Ice = blue/cyan, Earth = brown/green, Air = white/grey.
-- Least effort, might look decent or might look cheap.
-
-**Option C: Same sprite + elemental accessories/effects**
-
-- Keep base sprite, add element-colored particles, aura, or weapon glow.
-- Middle ground — recognizable but distinct.
-
-### Recommendation
-
-Start with Option B (tinting) as a quick win. If it looks bad, invest in Option A later.
+Implemented Option B (CSS filter tinting). All four elements now use the same sprite set with per-element color filters. Fire = red/orange, Ice = blue/cyan, Earth = green/brown, Air = bright white/grey. Can revisit with unique sprites later if desired.
 
 ---
 
