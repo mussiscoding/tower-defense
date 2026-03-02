@@ -114,7 +114,8 @@ export const calculatePredictedEnemyPosition = (
   const flightTime = (distance / GAME_MECHANICS.ARROW_SPEED) * 1000;
 
   // Predict where the enemy will be when the arrow arrives
-  const predictedX = target.x + (target.speed * flightTime) / 1000;
+  // Enemy moves left by `speed` px per 50ms tick, so speed in px/ms is speed/50
+  const predictedX = target.x - (target.speed * flightTime) / 50;
   const predictedY = target.y; // Enemies only move horizontally
 
   const centreOfPredictedX = predictedX;
