@@ -16,25 +16,25 @@ export interface ElementDefinition {
 export const elements: Record<ElementType, ElementDefinition> = {
   fire: {
     name: "Fire",
-    baseStats: { damage: 9, attackSpeed: 0.9, range: 700 },
+    baseStats: { damage: 9, attackSpeed: 0.45, range: 700 },
     abilities: { burnDamagePercent: 20, burnDuration: 2 },
     upgradeFactors: { burnDamagePercent: 1 },
   },
   ice: {
     name: "Ice",
-    baseStats: { damage: 8, attackSpeed: 1.0, range: 700 },
+    baseStats: { damage: 8, attackSpeed: 0.5, range: 700 },
     abilities: { slowEffect: 5, slowDuration: 3 },
     upgradeFactors: { slowEffect: 1.2 },
   },
   earth: {
     name: "Earth",
-    baseStats: { damage: 15, attackSpeed: 0.5, range: 700 },
+    baseStats: { damage: 15, attackSpeed: 0.25, range: 700 },
     abilities: { splashDamage: 20, splashRadius: 50 },
     upgradeFactors: { splashDamage: 1.4, splashRadius: 1.2 },
   },
   air: {
     name: "Air",
-    baseStats: { damage: 5, attackSpeed: 1.5, range: 700 },
+    baseStats: { damage: 5, attackSpeed: 0.75, range: 700 },
     abilities: {
       burstShots: 2,
       burstCooldown: 8,

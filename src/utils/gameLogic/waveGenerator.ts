@@ -69,7 +69,7 @@ function applyTypeSubstitutions(enemies: WaveEnemy[], difficulty: number): WaveE
       case "giant":
         return {
           ...enemy,
-          health: Math.floor(enemy.health * 1.5),
+          health: Math.floor(enemy.health * 3.0),
           speed: 0.7,
           enemyType: "giant",
           isGiant: true,

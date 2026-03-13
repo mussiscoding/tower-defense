@@ -20,18 +20,11 @@ Current upgrades are tied to skills but feel disconnected from the star/leveling
 
 ### Problems
 
-- Upgrades only exist for skills you've unlocked — feels like skill tax.
-- No "exciting" upgrades that change gameplay.
 - Costs don't align well with gold income at different stages.
-- No upgrades for general stats (click damage, gold earn rate, mage count, etc.).
-
-### Ideas to Explore
-
-- **General upgrades:** Global damage %, gold multiplier, attack speed, click damage.
-- **Milestone upgrades:** Unlocked at certain wave/level thresholds rather than purchased.
-- **Prestige-style upgrades:** Permanent bonuses that persist across resets (if we add prestige).
-- **Upgrade tiers:** Instead of infinitely scaling one upgrade, have distinct tiers with meaningful jumps.
-- Review costs relative to actual gold income curves at different difficulty levels.
+- Some increases are very imbalanced, for example more arrows for the air mage, and splash radius on earth.
+- Many abilities don't have upgrades
+- If every ability has an upgrade, does the shop get messy?
+- Are most of the upgrades just "does more damage"? How do we make them feel unique?
 
 ### Action
 
@@ -58,7 +51,7 @@ The game currently starts with mages already present. Instead, the player should
 - **No mages at start.** Player clicks enemies to damage them.
 - **Click damage:** ~1/5 to 1/10 of first enemy's HP per click (so 5-10 clicks to kill wave 1 enemies).
 - **First mage costs ~20 gold** (4-5 kills to afford).
-- **Click damage scaling:** Scales with your strongest mage's damage so it stays relevant.
+- **Click damage scaling:** Scales with your strongest mage's damage so it stays relevant - maybe not, maybe this comes from upgrades
 - **Future:** Add elemental effects to clicks (e.g. click applies burn if you have a fire mage). Cool stretch goal, park for now.
 
 ### Implementation Notes
@@ -71,7 +64,7 @@ The game currently starts with mages already present. Instead, the player should
 
 ### Open Questions
 
-- Does clicking pause while game is paused?
+- Does clicking pause while game is paused? Yes
 - Should there be a click speed limit (prevent auto-clickers)?
 - Visual: cursor change on hover over enemies?
 
@@ -158,8 +151,8 @@ Contextual tooltip popups that guide new players through the first few minutes.
 2. "Earn gold by defeating enemies." — On first kill.
 3. "Buy your first mage in the shop!" — When player has enough gold.
 4. "Mages attack automatically. Level them up for more damage!" — After first mage purchase.
-5. "Unlock skills in the mage panel to power up your defenders." — When first skill is available.
-6. "Difficulty increases over time. Upgrade to keep up!" — After a few waves.
+5. "You control the pace. Increase enemy difficulty for more rewards." - After second mage purchase / upgrade
+6. "Unlock skills in the mage panel to power up your defenders." — When first skill is available.
 
 ### Implementation Notes
 
