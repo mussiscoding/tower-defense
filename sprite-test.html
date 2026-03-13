@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Enemy Sprite Test</title>
+  <style>
+    body {
+      background: #2a2a2a;
+      color: white;
+      font-family: monospace;
+      padding: 20px;
+    }
+    .row {
+      display: flex;
+      align-items: flex-end;
+      gap: 40px;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: #3a3a3a;
+      border-radius: 8px;
+    }
+    .frame {
+      text-align: center;
+    }
+    .frame label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa;
+      font-size: 12px;
+    }
+    .sprite-container {
+      border: 1px dashed #555;
+      display: inline-block;
+      background: #4a6a3a;
+    }
+    h2 { color: #8f8; margin-top: 40px; }
+    h3 { color: #aaa; }
+
+    /* Size comparison section */
+    .size-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      padding: 20px;
+      background: #3a3a3a;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .size-row .frame label { font-size: 10px; }
+
+    /* Animation preview */
+    .animated {
+      display: inline-block;
+    }
+    .animated .frame-img { display: none; }
+    .animated .frame-img.active { display: block; }
+  </style>
+</head>
+<body>
+
+<h2>Existing Goblin (reference)</h2>
+<div class="row">
+  <div class="frame">
+    <label>Left</label>
+    <div class="sprite-container" style="width:20px;height:30px;">
+      <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+        <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M31 51H22V55H31V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+        <path d="M24 44V36H32.5V44H24Z" fill="#2F9D50" stroke="black"/>
+        <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+        <path d="M3 43V35H11.5V38.5H7V43H3Z" fill="#2F9D50" stroke="black"/>
+        <path d="M2 55.5V51H9.5V55.5H13V59.5H6V55.5H2Z" fill="#762F08" stroke="black"/>
+        <path d="M38 55.5V51H30.5V55.5H27V59.5H34V55.5H38Z" fill="#762F08" stroke="black"/>
+      </svg>
+    </div>
+  </div>
+  <div class="frame">
+    <label>Middle</label>
+    <div class="sprite-container" style="width:20px;height:30px;">
+      <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+        <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M34.5 55H22.5V58H34.5V55Z" fill="#762F08" stroke="black"/>
+        <path d="M19 55H7V58H19V55Z" fill="#762F08" stroke="black"/>
+        <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M34 51H25V55H34V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+        <path d="M13.5 51V43H22V51H13.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+      </svg>
+    </div>
+  </div>
+  <div class="frame">
+    <label>Right</label>
+    <div class="sprite-container" style="width:20px;height:30px;">
+      <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M34.5 44V36H26V39.5H30.5V44H34.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+        <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M31 51H22V55H31V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+        <path d="M3 44V36H11.5V44H3Z" fill="#2F9D50" stroke="black"/>
+        <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+        <path d="M2 55.5V51H9.5V55.5H13V59.5H6V55.5H2Z" fill="#762F08" stroke="black"/>
+        <path d="M38 55.5V51H30.5V55.5H27V59.5H34V55.5H38Z" fill="#762F08" stroke="black"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<h2>Beast / Wolf (new)</h2>
+<h3>Rendered at game size (20x30)</h3>
+<div class="row">
+  <div class="frame">
+    <label>Left stride</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-left-small"></div>
+  </div>
+  <div class="frame">
+    <label>Middle</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-middle-small"></div>
+  </div>
+  <div class="frame">
+    <label>Right stride</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-right-small"></div>
+  </div>
+</div>
+
+<h3>Rendered at 4x (80x120) for detail inspection</h3>
+<div class="row">
+  <div class="frame">
+    <label>Left stride</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="beast-left-big"></div>
+  </div>
+  <div class="frame">
+    <label>Middle</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="beast-middle-big"></div>
+  </div>
+  <div class="frame">
+    <label>Right stride</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="beast-right-big"></div>
+  </div>
+</div>
+
+<h3>Animated (game speed, 200ms - faster than goblin to feel quick)</h3>
+<div class="row">
+  <div class="frame">
+    <label>Game size</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-anim-small"></div>
+  </div>
+  <div class="frame">
+    <label>2x size</label>
+    <div class="sprite-container" style="width:40px;height:60px;" id="beast-anim-med"></div>
+  </div>
+  <div class="frame">
+    <label>4x size</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="beast-anim-big"></div>
+  </div>
+</div>
+
+<h2>Slime (new)</h2>
+<h3>Rendered at game size (20x30)</h3>
+<div class="row">
+  <div class="frame">
+    <label>Stretched up</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-left-small"></div>
+  </div>
+  <div class="frame">
+    <label>Neutral</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-middle-small"></div>
+  </div>
+  <div class="frame">
+    <label>Squished</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-right-small"></div>
+  </div>
+</div>
+
+<h3>Rendered at 4x (80x120) for detail inspection</h3>
+<div class="row">
+  <div class="frame">
+    <label>Stretched up</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="slime-left-big"></div>
+  </div>
+  <div class="frame">
+    <label>Neutral</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="slime-middle-big"></div>
+  </div>
+  <div class="frame">
+    <label>Squished</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="slime-right-big"></div>
+  </div>
+</div>
+
+<h3>Animated (game speed, 300ms)</h3>
+<div class="row">
+  <div class="frame">
+    <label>Game size</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-anim-small"></div>
+  </div>
+  <div class="frame">
+    <label>2x size</label>
+    <div class="sprite-container" style="width:40px;height:60px;" id="slime-anim-med"></div>
+  </div>
+  <div class="frame">
+    <label>4x size</label>
+    <div class="sprite-container" style="width:80px;height:120px;" id="slime-anim-big"></div>
+  </div>
+</div>
+
+<h2>Side-by-side comparison (game size)</h2>
+<div class="row">
+  <div class="frame">
+    <label>Goblin</label>
+    <div class="sprite-container" style="width:20px;height:30px;">
+      <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+        <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M34.5 55H22.5V58H34.5V55Z" fill="#762F08" stroke="black"/>
+        <path d="M19 55H7V58H19V55Z" fill="#762F08" stroke="black"/>
+        <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M34 51H25V55H34V51Z" fill="#37BAEA" stroke="black"/>
+        <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+        <path d="M13.5 51V43H22V51H13.5Z" fill="#2F9D50" stroke="black"/>
+        <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+      </svg>
+    </div>
+  </div>
+  <div class="frame">
+    <label>Beast</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-compare"></div>
+  </div>
+  <div class="frame">
+    <label>Slime</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-compare"></div>
+  </div>
+</div>
+
+<h2>All enemies animated (game size)</h2>
+<div class="row">
+  <div class="frame">
+    <label>Goblin</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="goblin-anim"></div>
+  </div>
+  <div class="frame">
+    <label>Beast</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="beast-anim-compare"></div>
+  </div>
+  <div class="frame">
+    <label>Slime</label>
+    <div class="sprite-container" style="width:20px;height:30px;" id="slime-anim-compare"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// BEAST SPRITE - Edit these SVGs to iterate on the design
+// Same viewBox as goblin (39x60), rendered at 20x30
+// The beast sits lower in the frame (legs at bottom, body in middle)
+// ============================================================
+
+const BEAST_COLOR = {
+  body: "#3D2B1F",      // Very dark brown fur
+  back: "#2A1A10",       // Even darker spine/back
+  belly: "#5C4033",     // Slightly lighter underside
+  eye: "#CCFF00",       // Yellow-green glowing eye
+  nose: "#111",         // Dark nose
+  claws: "#222",        // Near-black claws
+};
+
+// Shadow color for far-side legs (darker to show depth)
+const BEAST_FAR = {
+  leg: "#1A0F08",
+  claw: "#111",
+};
+
+// Creature faces LEFT. "Forward" = lower x (toward head). "Back" = higher x (toward tail).
+// Front hip ~x=9, Back hip ~x=29. Paws must shift x significantly between frames.
+
+const beastSprites = {
+  // LEFT STRIDE:
+  //   Near front leg: reaching forward (paw ahead of hip, ~x=1)
+  //   Near back leg: pushing off behind (paw behind hip, ~x=35)
+  //   Far legs: opposite
+  left: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- === FAR SIDE LEGS (behind body) === -->
+      <!-- Far front leg - pushing off: paw behind hip at ~x=16 -->
+      <path d="M11 42H14V46H14Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M14 44H17V48H14Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M16 48H19V50H16Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+      <!-- Far back leg - reaching forward: paw ahead of hip at ~x=22 -->
+      <path d="M27 42H30V46H30Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M24 46H27V50H24Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M21 50H24V52H21Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M20 52H25V54H20Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+
+      <!-- Tail - rigid, horizontal -->
+      <path d="M34 30H39V34H34Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Back ridge -->
+      <path d="M6 32H34V36H6Z" fill="${BEAST_COLOR.back}" stroke="black" stroke-width="0.5"/>
+      <!-- Body -->
+      <path d="M6 34H34V42H6Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Belly -->
+      <path d="M10 40H30V42H10Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Head -->
+      <path d="M1 30H10V42H1Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Snout -->
+      <path d="M-2 36H2V42H-2Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M-2 40H1V42H-2Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Ear -->
+      <path d="M3 26H7V30H3Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M4 27H6V30H4Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Eye -->
+      <path d="M3 34H5V36H3Z" fill="${BEAST_COLOR.eye}"/>
+      <!-- Teeth -->
+      <path d="M-1 40H1V42H-1Z" fill="white" stroke="black" stroke-width="0.3"/>
+
+      <!-- === NEAR SIDE LEGS (in front of body) === -->
+      <!-- Near front leg - reaching forward: paw way ahead at ~x=1 -->
+      <path d="M7 42H10V46H10Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M4 46H7V50H4Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M1 50H4V52H1Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M0 52H5V54H0Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+      <!-- Near back leg - pushing off behind: paw behind hip at ~x=35 -->
+      <path d="M29 42H32V46H32Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M32 44H35V48H32Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M34 48H37V50H34Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+    </svg>
+  `,
+
+  // MIDDLE - legs straight down under hips
+  middle: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- === FAR SIDE LEGS (behind) === -->
+      <!-- Far front leg - straight under hip -->
+      <path d="M11 42H14V52H11Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M10 52H15V54H10Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+      <!-- Far back leg - straight under hip -->
+      <path d="M28 42H31V52H28Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M27 52H32V54H27Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+
+      <!-- Tail - rigid, horizontal -->
+      <path d="M34 30H39V34H34Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Back ridge -->
+      <path d="M6 32H34V36H6Z" fill="${BEAST_COLOR.back}" stroke="black" stroke-width="0.5"/>
+      <!-- Body -->
+      <path d="M6 34H34V42H6Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Belly -->
+      <path d="M10 40H30V42H10Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Head -->
+      <path d="M1 30H10V42H1Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Snout -->
+      <path d="M-2 36H2V42H-2Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M-2 40H1V42H-2Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Ear -->
+      <path d="M3 26H7V30H3Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M4 27H6V30H4Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Eye -->
+      <path d="M3 34H5V36H3Z" fill="${BEAST_COLOR.eye}"/>
+      <!-- Teeth -->
+      <path d="M-1 40H1V42H-1Z" fill="white" stroke="black" stroke-width="0.3"/>
+
+      <!-- === NEAR SIDE LEGS (in front) === -->
+      <!-- Near front leg - straight under hip -->
+      <path d="M7 42H10V52H7Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M6 52H11V54H6Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+      <!-- Near back leg - straight under hip -->
+      <path d="M25 42H28V52H25Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M24 52H29V54H24Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+    </svg>
+  `,
+
+  // RIGHT STRIDE - opposite of left
+  //   Near front leg: pushing off behind (paw at ~x=16)
+  //   Near back leg: reaching forward (paw at ~x=20)
+  //   Far legs: opposite
+  right: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- === FAR SIDE LEGS (behind body) === -->
+      <!-- Far front leg - reaching forward: paw ahead at ~x=1 -->
+      <path d="M11 42H14V46H14Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M8 46H11V50H8Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M5 50H8V52H5Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M4 52H9V54H4Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+      <!-- Far back leg - pushing off behind: paw behind at ~x=35 -->
+      <path d="M27 42H30V46H30Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M30 44H33V48H30Z" fill="${BEAST_FAR.leg}" stroke="black" stroke-width="0.5"/>
+      <path d="M32 48H35V50H32Z" fill="${BEAST_FAR.claw}" stroke="black" stroke-width="0.5"/>
+
+      <!-- Tail - rigid, horizontal -->
+      <path d="M34 30H39V34H34Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Back ridge -->
+      <path d="M6 32H34V36H6Z" fill="${BEAST_COLOR.back}" stroke="black" stroke-width="0.5"/>
+      <!-- Body -->
+      <path d="M6 34H34V42H6Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Belly -->
+      <path d="M10 40H30V42H10Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Head -->
+      <path d="M1 30H10V42H1Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Snout -->
+      <path d="M-2 36H2V42H-2Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M-2 40H1V42H-2Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Ear -->
+      <path d="M3 26H7V30H3Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M4 27H6V30H4Z" fill="${BEAST_COLOR.belly}" stroke="black" stroke-width="0.5"/>
+      <!-- Eye -->
+      <path d="M3 34H5V36H3Z" fill="${BEAST_COLOR.eye}"/>
+      <!-- Teeth -->
+      <path d="M-1 40H1V42H-1Z" fill="white" stroke="black" stroke-width="0.3"/>
+
+      <!-- === NEAR SIDE LEGS (in front of body) === -->
+      <!-- Near front leg - pushing off: paw behind hip at ~x=16 -->
+      <path d="M7 42H10V46H10Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M10 44H13V48H10Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M13 46H16V48H13Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M14 48H17V50H14Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+      <!-- Near back leg - reaching forward: paw ahead of hip at ~x=20 -->
+      <path d="M27 42H30V46H30Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M24 46H27V50H24Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M21 50H24V52H21Z" fill="${BEAST_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M20 52H25V54H20Z" fill="${BEAST_COLOR.claws}" stroke="black" stroke-width="0.5"/>
+    </svg>
+  `,
+};
+
+// ============================================================
+// SLIME SPRITE
+// Blobby, no legs. Animation = squish/stretch bounce.
+// Same viewBox (39x60), sits at bottom of frame.
+// ============================================================
+
+const SLIME_COLOR = {
+  body: "#4A8F29",       // Murky green
+  highlight: "#6BBF3B",  // Lighter green top highlight
+  dark: "#2D5A14",       // Darker green underside
+  eye: "#FFEE00",        // Yellow eyes
+  pupil: "#111",         // Dark pupil
+  mouth: "#1A3D0A",      // Dark green mouth
+};
+
+const slimeSprites = {
+  // LEFT = stretched up tall (rising phase of bounce)
+  // Side profile facing left. Fills the viewBox - big chunky blob.
+  left: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- Base/shadow on ground -->
+      <path d="M3 56H36V60H3Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Main body - tall, fills width -->
+      <path d="M4 12H35V56H4Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Rounded top - stepped pixels -->
+      <path d="M7 8H32V12H7Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M11 4H28V8H11Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Top highlight - on the back/right side -->
+      <path d="M22 5H28V10H22Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <path d="M28 10H33V16H28Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <!-- Dark underside -->
+      <path d="M4 44H35V56H4Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Single eye - on left/front side -->
+      <path d="M6 18H14V27H6Z" fill="${SLIME_COLOR.eye}"/>
+      <path d="M7 20H12V26H7Z" fill="${SLIME_COLOR.pupil}"/>
+      <!-- Mouth - on left/front side -->
+      <path d="M5 32H15V35H5Z" fill="${SLIME_COLOR.mouth}" stroke="black" stroke-width="0.3"/>
+    </svg>
+  `,
+
+  // MIDDLE = neutral blob shape, side profile
+  middle: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- Base/shadow on ground -->
+      <path d="M1 56H38V60H1Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Main body - wide blob -->
+      <path d="M2 18H37V56H2Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Rounded top -->
+      <path d="M5 14H34V18H5Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M9 10H30V14H9Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Top highlight - on the back/right side -->
+      <path d="M24 11H30V16H24Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <path d="M30 16H35V22H30Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <!-- Dark underside -->
+      <path d="M2 44H37V56H2Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Single eye - on left/front side -->
+      <path d="M4 24H13V33H4Z" fill="${SLIME_COLOR.eye}"/>
+      <path d="M5 26H11V32H5Z" fill="${SLIME_COLOR.pupil}"/>
+      <!-- Mouth - on left/front side -->
+      <path d="M3 37H14V40H3Z" fill="${SLIME_COLOR.mouth}" stroke="black" stroke-width="0.3"/>
+    </svg>
+  `,
+
+  // RIGHT = squished flat and wide (landing phase of bounce), side profile
+  right: `
+    <svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- Base/shadow on ground - full width -->
+      <path d="M0 56H39V60H0Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Main body - flat and max wide -->
+      <path d="M0 28H39V56H0Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Rounded top - flatter -->
+      <path d="M3 24H36V28H3Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <path d="M7 20H33V24H7Z" fill="${SLIME_COLOR.body}" stroke="black" stroke-width="0.5"/>
+      <!-- Top highlight - on the back/right side -->
+      <path d="M26 21H33V26H26Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <path d="M32 26H37V32H32Z" fill="${SLIME_COLOR.highlight}" stroke="black" stroke-width="0.3"/>
+      <!-- Dark underside -->
+      <path d="M0 46H39V56H0Z" fill="${SLIME_COLOR.dark}" stroke="black" stroke-width="0.5"/>
+      <!-- Single eye - on left/front side, squished -->
+      <path d="M2 30H11V37H2Z" fill="${SLIME_COLOR.eye}"/>
+      <path d="M3 31H10V36H3Z" fill="${SLIME_COLOR.pupil}"/>
+      <!-- Mouth - on left/front side, wider when squished -->
+      <path d="M1 40H13V43H1Z" fill="${SLIME_COLOR.mouth}" stroke="black" stroke-width="0.3"/>
+    </svg>
+  `,
+};
+
+// ============================================================
+// RENDER ALL SPRITES
+// ============================================================
+
+function setSprite(id, svg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = svg;
+}
+
+function scaleSvg(svg, w, h) {
+  return svg.replace(/width="\d+"/, `width="${w}"`).replace(/height="\d+"/, `height="${h}"`);
+}
+
+// Beast - small
+setSprite('beast-left-small', beastSprites.left);
+setSprite('beast-middle-small', beastSprites.middle);
+setSprite('beast-right-small', beastSprites.right);
+
+// Beast - big
+setSprite('beast-left-big', scaleSvg(beastSprites.left, 80, 120));
+setSprite('beast-middle-big', scaleSvg(beastSprites.middle, 80, 120));
+setSprite('beast-right-big', scaleSvg(beastSprites.right, 80, 120));
+
+// Beast - compare
+setSprite('beast-compare', beastSprites.middle);
+
+// Slime - small
+setSprite('slime-left-small', slimeSprites.left);
+setSprite('slime-middle-small', slimeSprites.middle);
+setSprite('slime-right-small', slimeSprites.right);
+
+// Slime - big
+setSprite('slime-left-big', scaleSvg(slimeSprites.left, 80, 120));
+setSprite('slime-middle-big', scaleSvg(slimeSprites.middle, 80, 120));
+setSprite('slime-right-big', scaleSvg(slimeSprites.right, 80, 120));
+
+// Slime - compare
+setSprite('slime-compare', slimeSprites.middle);
+
+// Beast animation (200ms - fast)
+const beastFrames = ['left', 'middle', 'right', 'middle'];
+let beastIdx = 0;
+setInterval(() => {
+  beastIdx = (beastIdx + 1) % beastFrames.length;
+  const frame = beastSprites[beastFrames[beastIdx]];
+  setSprite('beast-anim-small', frame);
+  setSprite('beast-anim-med', scaleSvg(frame, 40, 60));
+  setSprite('beast-anim-big', scaleSvg(frame, 80, 120));
+}, 200);
+
+// Slime animation (300ms - slower bouncy feel)
+const slimeFrames = ['left', 'middle', 'right', 'middle'];
+let slimeIdx = 0;
+setInterval(() => {
+  slimeIdx = (slimeIdx + 1) % slimeFrames.length;
+  const frame = slimeSprites[slimeFrames[slimeIdx]];
+  setSprite('slime-anim-small', frame);
+  setSprite('slime-anim-med', scaleSvg(frame, 40, 60));
+  setSprite('slime-anim-big', scaleSvg(frame, 80, 120));
+  setSprite('slime-anim-compare', frame);
+}, 300);
+
+// Goblin sprites for comparison animation
+const goblinSprites = {
+  left: `<svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+    <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+    <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M31 51H22V55H31V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+    <path d="M24 44V36H32.5V44H24Z" fill="#2F9D50" stroke="black"/>
+    <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+    <path d="M3 43V35H11.5V38.5H7V43H3Z" fill="#2F9D50" stroke="black"/>
+    <path d="M2 55.5V51H9.5V55.5H13V59.5H6V55.5H2Z" fill="#762F08" stroke="black"/>
+    <path d="M38 55.5V51H30.5V55.5H27V59.5H34V55.5H38Z" fill="#762F08" stroke="black"/>
+  </svg>`,
+  middle: `<svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+    <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+    <path d="M34.5 55H22.5V58H34.5V55Z" fill="#762F08" stroke="black"/>
+    <path d="M19 55H7V58H19V55Z" fill="#762F08" stroke="black"/>
+    <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M34 51H25V55H34V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+    <path d="M13.5 51V43H22V51H13.5Z" fill="#2F9D50" stroke="black"/>
+    <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+  </svg>`,
+  right: `<svg width="20" height="30" viewBox="0 0 39 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M34.5 44V36H26V39.5H30.5V44H34.5Z" fill="#2F9D50" stroke="black"/>
+    <path d="M4.5 13H1V5H8.5V1H24V5H32.5V13H37V29.5H28.5V25.5H24V21.5H20.5V25.5H13V20.5H8.5V17H4.5V13Z" fill="#8B4513" stroke="black"/>
+    <path d="M2.5 28.5V13.5H4.5V17H8.5V20.5H13V25.5H20.5V21.5H24V25.5H28.5V30H33V33.5H28.5V35H9.5V32.5H6V28.5H2.5Z" fill="#2F9D50" stroke="black"/>
+    <path d="M18.5 51H9.5V55H18.5V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M31 51H22V55H31V51Z" fill="#37BAEA" stroke="black"/>
+    <path d="M27 35H7V39V47V51H31.5L31 39H27V35Z" fill="#FF0000" stroke="black"/>
+    <path d="M3 44V36H11.5V44H3Z" fill="#2F9D50" stroke="black"/>
+    <path d="M5 26.5V22H7V26.5H5Z" fill="#120F0F" stroke="black"/>
+    <path d="M2 55.5V51H9.5V55.5H13V59.5H6V55.5H2Z" fill="#762F08" stroke="black"/>
+    <path d="M38 55.5V51H30.5V55.5H27V59.5H34V55.5H38Z" fill="#762F08" stroke="black"/>
+  </svg>`,
+};
+
+// Goblin animation (300ms - normal speed)
+const goblinFrames = ['left', 'middle', 'right', 'middle'];
+let goblinIdx = 0;
+setInterval(() => {
+  goblinIdx = (goblinIdx + 1) % goblinFrames.length;
+  setSprite('goblin-anim', goblinSprites[goblinFrames[goblinIdx]]);
+}, 300);
+
+// Also update beast comparison row
+setInterval(() => {
+  beastIdx = (beastIdx + 1) % beastFrames.length;
+  setSprite('beast-anim-compare', beastSprites[beastFrames[beastIdx]]);
+}, 200);
+</script>
+
+</body>
+</html>
