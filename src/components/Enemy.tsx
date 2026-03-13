@@ -64,7 +64,8 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
   );
 
   const isGiant = enemy.isGiant ?? false;
-  const scale = isGiant ? 2 : 1;
+  const scaleMap: Record<string, number> = { giant: 2, slime: 1.3, slime_child: 0.7 };
+  const scale = scaleMap[enemy.enemyType ?? "goblin"] ?? 1;
 
   return (
     <>
@@ -85,7 +86,7 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
           ></div>
         </div>
         <div className="enemy-sprite">
-          <EnemySprite colorIndex={enemy.colorIndex} isPaused={isPaused} />
+          <EnemySprite colorIndex={enemy.colorIndex} enemyType={enemy.enemyType} isPaused={isPaused} />
         </div>
         <div className="enemy-health-text">
           {enemy.health}/{enemy.maxHealth}

@@ -132,7 +132,12 @@ export const loadGame = (): GameState | null => {
         ),
       },
       entities: {
-        enemies: parsed.entities?.enemies ?? defaultEntities.enemies,
+        enemies: (parsed.entities?.enemies ?? defaultEntities.enemies).map(
+          (e: { enemyType?: string; isGiant?: boolean }) => ({
+            ...e,
+            enemyType: e.enemyType ?? (e.isGiant ? "giant" : "goblin"),
+          })
+        ),
         pendingEnemies: [], // Always start fresh - pending enemies are transient
         defenders,
         arrows: [], // Always start fresh - arrows are transient

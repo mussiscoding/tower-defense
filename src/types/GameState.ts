@@ -1,5 +1,7 @@
 import type { ElementType } from "../data/elements";
 
+export type EnemyType = "goblin" | "giant" | "beast" | "slime" | "slime_child";
+
 export type MageTier =
   | "initiate"
   | "apprentice"
@@ -37,7 +39,8 @@ export interface Enemy {
   speed: number;
   goldValue: number;
   colorIndex: number; // Add color index for shirt color variations
-  isGiant?: boolean; // Giant enemies are 2x size
+  enemyType?: EnemyType; // Enemy type for sprite/behavior selection
+  isGiant?: boolean; // Giant enemies are 2x size (legacy, derived from enemyType)
   spawnTime?: number; // When this enemy should spawn (for pending enemies)
   burnDamage?: number;
   burnEndTime?: number;

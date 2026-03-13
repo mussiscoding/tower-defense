@@ -26,6 +26,7 @@ import {
   removeDeadEnemies,
   damageEnemy,
   damageCastle,
+  spawnSplitterChildren,
   updateDefenders,
   getArrowProgress,
   processArrowImpacts,
@@ -114,6 +115,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             const spawnY = Math.random() * (rect.height - 100) + 50;
             const newEnemy = createEnemy(spawnX, spawnY, waveEnemy.health, waveEnemy.colorIndex, {
               isGiant: waveEnemy.isGiant,
+              enemyType: waveEnemy.enemyType,
+              speed: waveEnemy.speed,
             });
             newEnemy.spawnTime = now + spawnDelay;
             state.entities.pendingEnemies.push(newEnemy);
@@ -147,6 +150,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
 
       // 7. HANDLE BURN KILLS + REMOVE DEAD ENEMIES
       const burnKilled = enemiesWithBurnDamage.filter((e) => e.health <= 0);
+      const burnSlimeChildren: typeof enemiesWithBurnDamage = [];
       burnKilled.forEach((enemy) => {
         state.core.totalEnemiesKilled++;
         const { goldGained: burnGold, goldPopups: burnPopups } = handleEnemyDeath(enemy, now, goldMultiplier);
@@ -155,8 +159,9 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.visuals.goldPopups.push(...burnPopups);
         tryUnlockAchievement("burn_kill", state);
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        burnSlimeChildren.push(...spawnSplitterChildren(enemy));
       });
-      const aliveEnemies = removeDeadEnemies(enemiesWithBurnDamage);
+      const aliveEnemies = [...removeDeadEnemies(enemiesWithBurnDamage), ...burnSlimeChildren];
 
       // 8. DEFENDER ATTACKS
       const {
@@ -252,7 +257,8 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         }
       });
 
-      // 10b. TRACK ARROW KILLS + ACHIEVEMENTS
+      // 10b. TRACK ARROW KILLS + ACHIEVEMENTS + SPLITTER CHILDREN
+      const arrowSlimeChildren: EnemyType[] = [];
       state.core.totalEnemiesKilled += killedEnemies.length;
       state.core.totalGoldEarned += goldGained;
       killedEnemies.forEach(({ enemy, damage }) => {
@@ -261,6 +267,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         if (enemy.slowEffect && enemy.slowEndTime && now < enemy.slowEndTime) {
           tryUnlockAchievement("slow_kill", state);
         }
+        arrowSlimeChildren.push(...spawnSplitterChildren(enemy));
       });
 
       // Check achievement events from skills
@@ -275,6 +282,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
 
       // 10c. HANDLE SPLASH KILLS (enemies killed by splash damage mutation)
       const splashKilled = enemiesAfterArrowImpacts.filter((e) => e.health <= 0);
+      const splashSlimeChildren: EnemyType[] = [];
       splashKilled.forEach((enemy) => {
         state.core.totalEnemiesKilled++;
         const { goldGained: splashGold, goldPopups: splashPopups } = handleEnemyDeath(enemy, now, goldMultiplier);
@@ -282,10 +290,15 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.totalGoldEarned += splashGold;
         state.visuals.goldPopups.push(...splashPopups);
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        splashSlimeChildren.push(...spawnSplitterChildren(enemy));
       });
 
-      // 11. REMOVE DEAD ENEMIES (after arrow impacts)
-      const finalEnemies = removeDeadEnemies(enemiesAfterArrowImpacts);
+      // 11. REMOVE DEAD ENEMIES (after arrow impacts) + ADD SLIME CHILDREN
+      const finalEnemies = [
+        ...removeDeadEnemies(enemiesAfterArrowImpacts),
+        ...arrowSlimeChildren,
+        ...splashSlimeChildren,
+      ];
 
       // 12. CASTLE DAMAGE CHECK
       const {
@@ -398,6 +411,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.entities.enemies = state.entities.enemies.filter(
           (e) => e.id !== enemy.id
         );
+        state.entities.enemies.push(...spawnSplitterChildren(enemy));
         state.core.gold += goldGained;
         state.core.totalGoldEarned += goldGained;
         state.core.totalEnemiesKilled++;

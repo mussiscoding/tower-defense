@@ -1,4 +1,4 @@
-import type { Enemy, GoldPopup } from "../../types/GameState";
+import type { Enemy, EnemyType, GoldPopup } from "../../types/GameState";
 import { GAME_DIMENSIONS } from "../../constants/gameDimensions";
 
 export const generateEnemyId = (): string => {
@@ -7,6 +7,8 @@ export const generateEnemyId = (): string => {
 
 interface CreateEnemyOptions {
   isGiant?: boolean;
+  enemyType?: EnemyType;
+  speed?: number;
 }
 
 export const createEnemy = (
@@ -16,7 +18,8 @@ export const createEnemy = (
   colorIndex: number,
   options?: CreateEnemyOptions
 ): Enemy => {
-  const isGiant = options?.isGiant ?? false;
+  const enemyType = options?.enemyType ?? "goblin";
+  const isGiant = options?.isGiant ?? (enemyType === "giant");
 
   return {
     id: generateEnemyId(),
@@ -24,9 +27,10 @@ export const createEnemy = (
     y,
     health,
     maxHealth: health,
-    speed: 1,
+    speed: options?.speed ?? 1,
     goldValue: Math.ceil(health / 2),
     colorIndex,
+    enemyType,
     isGiant,
   };
 };
@@ -126,6 +130,18 @@ export const handleEnemyDeath = (
   ];
 
   return { goldGained, goldPopups };
+};
+
+export const spawnSplitterChildren = (parent: Enemy): Enemy[] => {
+  if (parent.enemyType !== "slime") return [];
+
+  const childHealth = Math.max(1, Math.floor(parent.maxHealth / 2));
+  return [-15, 15].map((yOffset) =>
+    createEnemy(parent.x, parent.y + yOffset, childHealth, parent.colorIndex, {
+      enemyType: "slime_child",
+      speed: parent.speed,
+    })
+  );
 };
 
 // Helper function to update vortex effects and clean up expired ones

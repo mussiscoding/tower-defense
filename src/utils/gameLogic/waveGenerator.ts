@@ -1,7 +1,11 @@
+import type { EnemyType } from "../../types/GameState";
+
 export interface WaveEnemy {
   health: number;
   colorIndex: number;
   isGiant?: boolean;
+  enemyType?: EnemyType;
+  speed?: number;
 }
 
 export interface WaveComposition {
@@ -17,6 +21,14 @@ const MEAN_BASE_HP = 10;
 const MIN_ENEMIES = 2;
 const MAX_ENEMIES = 10;
 const SIGMA_RATIO = 0.33;
+
+// Weighted type table: { type, weight, minDifficulty }
+const ENEMY_TYPE_TABLE: { type: EnemyType; weight: number; minDifficulty: number }[] = [
+  { type: "goblin", weight: 20, minDifficulty: 1 },
+  { type: "beast",  weight: 5,  minDifficulty: 2 },
+  { type: "giant",  weight: 1,  minDifficulty: 5 },
+  { type: "slime",  weight: 2,  minDifficulty: 10 },
+];
 
 /**
  * Box-Muller transform: sample from a normal distribution.
@@ -38,34 +50,65 @@ function randomColorIndex(): number {
   return Math.floor(Math.random() * 12);
 }
 
+function pickEnemyType(difficulty: number): EnemyType {
+  const available = ENEMY_TYPE_TABLE.filter((e) => difficulty >= e.minDifficulty);
+  const totalWeight = available.reduce((sum, e) => sum + e.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const entry of available) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.type;
+  }
+  return "goblin";
+}
+
+function applyTypeSubstitutions(enemies: WaveEnemy[], difficulty: number): WaveEnemy[] {
+  return enemies.map((enemy) => {
+    const type = pickEnemyType(difficulty);
+
+    switch (type) {
+      case "giant":
+        return {
+          ...enemy,
+          health: Math.floor(enemy.health * 1.5),
+          speed: 0.7,
+          enemyType: "giant",
+          isGiant: true,
+        };
+      case "beast":
+        return {
+          ...enemy,
+          health: Math.max(10, Math.floor(enemy.health * 0.5)),
+          speed: 2,
+          enemyType: "beast",
+        };
+      case "slime":
+        return {
+          ...enemy,
+          health: Math.max(10, Math.floor(enemy.health * 0.5)),
+          speed: 0.9,
+          enemyType: "slime",
+        };
+      default:
+        return { ...enemy, enemyType: "goblin" };
+    }
+  });
+}
+
 export function generateWave(
   difficulty: number,
   mode: WaveMode = "fixed-budget"
 ): WaveComposition {
   const budget = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
 
-  // Giant wave: 10% chance at difficulty 3+
-  if (difficulty >= 3 && Math.random() < 0.1) {
-    return generateGiantWave(budget);
-  }
-
+  let composition: WaveComposition;
   if (mode === "fixed-budget") {
-    return generateFixedBudgetWave(budget);
+    composition = generateFixedBudgetWave(budget);
   } else {
-    return generateFixedMeanWave(difficulty, budget);
+    composition = generateFixedMeanWave(difficulty, budget);
   }
-}
 
-function generateGiantWave(budget: number): WaveComposition {
-  const giantHealth = Math.floor(budget * 1.5);
-  return {
-    totalDifficultyValue: budget,
-    waveEnemies: [{
-      health: giantHealth,
-      colorIndex: randomColorIndex(),
-      isGiant: true,
-    }],
-  };
+  composition.waveEnemies = applyTypeSubstitutions(composition.waveEnemies, difficulty);
+  return composition;
 }
 
 function generateFixedBudgetWave(budget: number): WaveComposition {

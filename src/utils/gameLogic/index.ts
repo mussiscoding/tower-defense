@@ -8,6 +8,7 @@ export {
   damageEnemy,
   damageCastle,
   handleEnemyDeath,
+  spawnSplitterChildren,
   updateVortexEffectsInGameLoop,
 } from "./enemy";
 
