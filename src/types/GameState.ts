@@ -46,6 +46,11 @@ export interface Enemy {
   burnEndTime?: number;
   slowEffect?: number;
   slowEndTime?: number;
+  spawnAnimation?: {
+    originY: number;    // parent's Y (center)
+    startTime: number;  // Date.now() at spawn
+    duration: number;   // ~300ms
+  };
   vortexEffect?: {
     vortexId: string;
     pullDirectionX: number;

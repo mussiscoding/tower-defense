@@ -22,7 +22,6 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 
 
   const waveBudget = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, core.difficultyLevel - 1));
-  const avgEnemyHP = Math.floor(waveBudget / 6);
 
   return (
     <header className="game-header">
@@ -54,7 +53,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         >
           +
         </button>
-        <span className="wave-hp">({formatNumber(avgEnemyHP)} avg HP)</span>
+        <span className="wave-hp">({formatNumber(waveBudget)} total HP)</span>
       </div>
 
       <button className="pause-button" onClick={onPauseToggle}>

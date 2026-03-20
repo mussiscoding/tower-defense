@@ -136,12 +136,18 @@ export const spawnSplitterChildren = (parent: Enemy): Enemy[] => {
   if (parent.enemyType !== "slime") return [];
 
   const childHealth = Math.max(1, Math.floor(parent.maxHealth / 2));
-  return [-15, 15].map((yOffset) =>
-    createEnemy(parent.x, parent.y + yOffset, childHealth, parent.colorIndex, {
+  const now = Date.now();
+  return [-15, 15].map((yOffset) => ({
+    ...createEnemy(parent.x, parent.y + yOffset, childHealth, parent.colorIndex, {
       enemyType: "slime_child",
       speed: parent.speed,
-    })
-  );
+    }),
+    spawnAnimation: {
+      originY: parent.y,
+      startTime: now,
+      duration: 300,
+    },
+  }));
 };
 
 // Helper function to update vortex effects and clean up expired ones

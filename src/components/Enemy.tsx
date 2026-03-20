@@ -67,6 +67,14 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
   const scaleMap: Record<string, number> = { giant: 2, slime: 1.3, slime_child: 0.7 };
   const scale = scaleMap[enemy.enemyType ?? "goblin"] ?? 1;
 
+  // Spawn animation: visual-only arc from parent center to final position
+  let spawnOffsetY = 0;
+  if (enemy.spawnAnimation) {
+    const t = Math.min(1, (Date.now() - enemy.spawnAnimation.startTime) / enemy.spawnAnimation.duration);
+    const baseOffset = enemy.spawnAnimation.originY - enemy.y; // distance from final pos to parent center
+    spawnOffsetY = baseOffset * (1 - t) + Math.sin(t * Math.PI) * -10; // lerp + arc
+  }
+
   return (
     <>
       <div
@@ -74,7 +82,7 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
         style={{
           left: `${enemy.x}px`,
           top: `${enemy.y}px`,
-          transform: `scale(${scale})`,
+          transform: `translateY(${spawnOffsetY}px) scale(${scale})`,
           transformOrigin: "center center",
         }}
         onClick={() => onClick(enemy)}

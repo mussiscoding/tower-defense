@@ -23,18 +23,27 @@ const MAX_ENEMIES = 10;
 const SIGMA_RATIO = 0.33;
 
 // Weighted type table: { type, weight, minDifficulty }
-const ENEMY_TYPE_TABLE: { type: EnemyType; weight: number; minDifficulty: number }[] = [
+const ENEMY_TYPE_TABLE: {
+  type: EnemyType;
+  weight: number;
+  minDifficulty: number;
+}[] = [
   { type: "goblin", weight: 20, minDifficulty: 1 },
-  { type: "beast",  weight: 5,  minDifficulty: 2 },
-  { type: "giant",  weight: 1,  minDifficulty: 5 },
-  { type: "slime",  weight: 2,  minDifficulty: 10 },
+  { type: "beast", weight: 5, minDifficulty: 2 },
+  { type: "giant", weight: 1, minDifficulty: 5 },
+  { type: "slime", weight: 2, minDifficulty: 10 },
 ];
 
 /**
  * Box-Muller transform: sample from a normal distribution.
  * Returns a value clamped to [min, max], rounded to integer.
  */
-function sampleHP(mean: number, stddev: number, min: number, max: number): number {
+function sampleHP(
+  mean: number,
+  stddev: number,
+  min: number,
+  max: number,
+): number {
   const u1 = Math.random() || 0.0001;
   const u2 = Math.random();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
@@ -43,7 +52,9 @@ function sampleHP(mean: number, stddev: number, min: number, max: number): numbe
 }
 
 function randomEnemyCount(): number {
-  return MIN_ENEMIES + Math.floor(Math.random() * (MAX_ENEMIES - MIN_ENEMIES + 1));
+  return (
+    MIN_ENEMIES + Math.floor(Math.random() * (MAX_ENEMIES - MIN_ENEMIES + 1))
+  );
 }
 
 function randomColorIndex(): number {
@@ -51,7 +62,9 @@ function randomColorIndex(): number {
 }
 
 function pickEnemyType(difficulty: number): EnemyType {
-  const available = ENEMY_TYPE_TABLE.filter((e) => difficulty >= e.minDifficulty);
+  const available = ENEMY_TYPE_TABLE.filter(
+    (e) => difficulty >= e.minDifficulty,
+  );
   const totalWeight = available.reduce((sum, e) => sum + e.weight, 0);
   let roll = Math.random() * totalWeight;
   for (const entry of available) {
@@ -61,7 +74,10 @@ function pickEnemyType(difficulty: number): EnemyType {
   return "goblin";
 }
 
-function applyTypeSubstitutions(enemies: WaveEnemy[], difficulty: number): WaveEnemy[] {
+function applyTypeSubstitutions(
+  enemies: WaveEnemy[],
+  difficulty: number,
+): WaveEnemy[] {
   return enemies.map((enemy) => {
     const type = pickEnemyType(difficulty);
 
@@ -77,14 +93,14 @@ function applyTypeSubstitutions(enemies: WaveEnemy[], difficulty: number): WaveE
       case "beast":
         return {
           ...enemy,
-          health: Math.max(10, Math.floor(enemy.health * 0.5)),
+          health: Math.max(5, Math.floor(enemy.health * 0.5)),
           speed: 2,
           enemyType: "beast",
         };
       case "slime":
         return {
           ...enemy,
-          health: Math.max(10, Math.floor(enemy.health * 0.5)),
+          health: Math.max(5, Math.floor(enemy.health * 0.5)),
           speed: 0.9,
           enemyType: "slime",
         };
@@ -96,9 +112,11 @@ function applyTypeSubstitutions(enemies: WaveEnemy[], difficulty: number): WaveE
 
 export function generateWave(
   difficulty: number,
-  mode: WaveMode = "fixed-budget"
+  mode: WaveMode = "fixed-budget",
 ): WaveComposition {
-  const budget = Math.floor(WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
+  const budget = Math.floor(
+    WAVE_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1),
+  );
 
   let composition: WaveComposition;
   if (mode === "fixed-budget") {
@@ -107,7 +125,10 @@ export function generateWave(
     composition = generateFixedMeanWave(difficulty, budget);
   }
 
-  composition.waveEnemies = applyTypeSubstitutions(composition.waveEnemies, difficulty);
+  composition.waveEnemies = applyTypeSubstitutions(
+    composition.waveEnemies,
+    difficulty,
+  );
   return composition;
 }
 
@@ -115,7 +136,7 @@ function generateFixedBudgetWave(budget: number): WaveComposition {
   const enemyCount = randomEnemyCount();
   const mean = budget / enemyCount;
   const stddev = mean * SIGMA_RATIO;
-  const minHP = Math.max(10, Math.floor(mean * 0.3));
+  const minHP = Math.max(5, Math.floor(mean * 0.3));
   const maxHP = Math.floor(mean * 2);
 
   const waveEnemies: WaveEnemy[] = [];
@@ -129,11 +150,16 @@ function generateFixedBudgetWave(budget: number): WaveComposition {
   return { totalDifficultyValue: budget, waveEnemies };
 }
 
-function generateFixedMeanWave(difficulty: number, budget: number): WaveComposition {
+function generateFixedMeanWave(
+  difficulty: number,
+  budget: number,
+): WaveComposition {
   const enemyCount = randomEnemyCount();
-  const mean = Math.floor(MEAN_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1));
+  const mean = Math.floor(
+    MEAN_BASE_HP * Math.pow(WAVE_GROWTH_RATE, difficulty - 1),
+  );
   const stddev = mean * SIGMA_RATIO;
-  const minHP = Math.max(10, Math.floor(mean * 0.3));
+  const minHP = Math.max(5, Math.floor(mean * 0.3));
   const maxHP = Math.floor(mean * 2);
 
   const waveEnemies: WaveEnemy[] = [];
