@@ -3,7 +3,7 @@ import type { GameState } from "../types/GameStateSlices";
 import type { ElementType } from "../data/elements";
 import type { MergeAnimation } from "../types/GameState";
 import { shopItems, getCurrentPrice } from "../data/shopItems";
-import { allUpgrades } from "../data/upgrades";
+import { allUpgrades, getStrongestMageDamage } from "../data/upgrades";
 import { createDefender } from "../utils/gameLogic/defender";
 import {
   createUpgradeAnimation,
@@ -52,11 +52,13 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
     const currentPrice = getCurrentPrice(item!, state.core.purchases);
     if (!item || state.core.gold < currentPrice) return;
 
-    // Handle click damage upgrade (special case)
-    if (itemId === "click_damage_upgrade") {
+    // Handle Empower Click upgrade
+    if (itemId === "empower_click") {
+      const strongestDamage = getStrongestMageDamage(state.core.elements, state.core.mageProgress);
+      if (strongestDamage <= 0) return; // No mages yet
       state.core.gold -= currentPrice;
       state.core.totalGoldSpent += currentPrice;
-      state.core.clickDamage += 1;
+      state.core.clickDamage = Math.floor(strongestDamage / 2);
       state.core.purchases = {
         ...state.core.purchases,
         [itemId]: (state.core.purchases[itemId] || 0) + 1,
@@ -250,6 +252,11 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
               <span className="stat-value">
                 {new Date(core.lastSave).toLocaleTimeString()}
               </span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-icon">🖱️</span>
+              <span className="stat-label">Click Damage:</span>
+              <span className="stat-value">{core.clickDamage}</span>
             </div>
           </div>
 

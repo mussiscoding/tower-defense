@@ -6,7 +6,7 @@ import { getXPForLevel } from "../data/elements";
 import { allSkills } from "../data/allSkills";
 import { getCurrentPrice } from "../data/shopItems";
 import { formatNumber } from "../utils/formatNumber";
-import { allUpgrades } from "../data/upgrades";
+import { allUpgrades, empowerClickUpgrade, getStrongestMageDamage } from "../data/upgrades";
 import {
   getStarUpgradeCost,
   getTrainMageCost,
@@ -20,6 +20,20 @@ import {
 } from "../utils/starSystem";
 import { getBaseDamageWithLevelBonus } from "../data/elements";
 import SkillsRow from "./SkillsRow";
+
+const toRoman = (num: number): string => {
+  const numerals: [number, string][] = [
+    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+  ];
+  let result = "";
+  for (const [value, symbol] of numerals) {
+    while (num >= value) {
+      result += symbol;
+      num -= value;
+    }
+  }
+  return result;
+};
 
 interface MagesProps {
   elements: Record<ElementType, ElementData>;
@@ -402,6 +416,29 @@ const Mages: React.FC<MagesProps> = ({
                     </div>
                   );
                 })}
+
+              {/* General upgrades */}
+              {(() => {
+                const strongestDamage = mageProgress
+                  ? getStrongestMageDamage(elements, mageProgress)
+                  : 0;
+                const empowerCost = getCurrentPrice(empowerClickUpgrade, purchases);
+                const empowerCount = purchases[empowerClickUpgrade.id] || 0;
+                const canAfford = currentGold >= empowerCost;
+                return (
+                  <div
+                    className={`shop-item ${!canAfford ? "disabled" : ""}`}
+                    onClick={() => canAfford && onPurchaseUpgrade?.(empowerClickUpgrade.id)}
+                  >
+                    <h5 className="shop-item-name">
+                      Empower Click {toRoman(empowerCount + 1)} - 💰{formatNumber(empowerCost)}
+                    </h5>
+                    <p className="shop-item-description">
+                      Click damage → {formatNumber(Math.floor(strongestDamage / 2))}
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

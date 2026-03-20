@@ -52,7 +52,18 @@ The game currently starts with mages already present. Instead, the player should
 - **Click damage:** ~1/5 to 1/10 of first enemy's HP per click (so 5-10 clicks to kill wave 1 enemies).
 - **First mage costs ~20 gold** (4-5 kills to afford).
 - **Click damage scaling:** Scales with your strongest mage's damage so it stays relevant - maybe not, maybe this comes from upgrades
-- **Future:** Add elemental effects to clicks (e.g. click applies burn if you have a fire mage). Cool stretch goal, park for now.
+- **Future: Element-Linked Clicks** — Let the player choose which mage element their clicks represent. Ideas / musings:
+  - If linked to Fire: clicks apply burn DoT (player can set loads of enemies alight)
+  - If linked to Ice: clicks apply slow/permafrost (crowd control by clicking)
+  - If linked to Earth: clicks deal splash damage
+  - If linked to Air: clicks crit
+  - **Open question: how to unlock this.** Options considered:
+    - As a powerup — bad, because it dilutes the powerup pool and reduces other powerup chances
+    - As a purchasable ability/upgrade — probably better
+    - As part of a "Player Spells" system (not yet implemented) — could be a spell with a cooldown
+    - As a skill tree unlock per element — each element has a "click attunement" skill
+  - Balance consideration: element-linked clicks add *utility* (burn spread, CC) not just raw damage, which is more interesting than flat damage boosts
+  - This is a separate feature from click damage upgrades — park for after base click scaling is working
 
 ### Implementation Notes
 

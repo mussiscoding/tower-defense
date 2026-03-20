@@ -1,7 +1,7 @@
 import type { ShopItem } from "../types/GameState";
-import { allUpgrades } from "./upgrades";
+import { allUpgrades, empowerClickUpgrade } from "./upgrades";
 
-export const shopItems: ShopItem[] = [...allUpgrades];
+export const shopItems: ShopItem[] = [...allUpgrades, empowerClickUpgrade];
 
 export const getCurrentPrice = (
   item: ShopItem,

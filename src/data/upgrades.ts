@@ -1,5 +1,8 @@
-import type { ShopItem } from "../types/GameState";
+import type { ShopItem, ElementData, MageProgress } from "../types/GameState";
 import type { GameState } from "../types/GameState";
+import type { ElementType } from "./elements";
+import { getAvailableElements, getBaseDamageWithLevelBonus } from "./elements";
+import { getStarDamageMultiplier } from "../utils/starSystem";
 
 export interface UpgradeEffect {
   (state: GameState): GameState;
@@ -134,3 +137,33 @@ export const allUpgrades: UpgradeShopItem[] = [
     descriptionSuffix: " critical hit damage",
   }),
 ];
+
+/**
+ * Get the strongest mage's effective damage (base + level + star multiplier).
+ */
+export function getStrongestMageDamage(
+  elements: Record<ElementType, ElementData>,
+  mageProgress: Record<ElementType, MageProgress>
+): number {
+  let strongest = 0;
+  for (const elementType of getAvailableElements()) {
+    const elementData = elements[elementType];
+    if (!elementData) continue;
+    const progress = mageProgress[elementType];
+    const baseDmg = getBaseDamageWithLevelBonus(elementType, elementData.level);
+    const starMult = getStarDamageMultiplier(progress);
+    strongest = Math.max(strongest, Math.floor(baseDmg * starMult));
+  }
+  return strongest;
+}
+
+export const empowerClickUpgrade: UpgradeShopItem = {
+  id: "empower_click",
+  name: "Empower Click",
+  description: "Set click damage to your strongest mage's damage",
+  shortName: "Empower",
+  cost: 1000,
+  type: "upgrade",
+  costScalingFactor: 10,
+  effect: (state: GameState) => state, // Handled specially in purchase handler
+};
