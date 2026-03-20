@@ -6,10 +6,15 @@ interface XpPopupProps {
   x: number;
   y: number;
   amount: number;
+  elementType?: string;
   onComplete: () => void;
 }
 
-const XpPopup: React.FC<XpPopupProps> = ({ x, y, amount, onComplete }) => {
+const XpPopup: React.FC<XpPopupProps> = ({ x, y, amount, elementType, onComplete }) => {
+  const label = elementType
+    ? `+${formatNumber(amount)} ${elementType} XP`
+    : `+${formatNumber(amount)} XP`;
+
   return (
     <div
       className="xp-popup"
@@ -19,7 +24,7 @@ const XpPopup: React.FC<XpPopupProps> = ({ x, y, amount, onComplete }) => {
       }}
       onAnimationEnd={onComplete}
     >
-      +{formatNumber(amount)} XP
+      {label}
     </div>
   );
 };

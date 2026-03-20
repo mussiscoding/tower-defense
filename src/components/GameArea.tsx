@@ -484,6 +484,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         y: spawned.y,
         amount: xpAmount,
         startTime: now,
+        elementType,
       });
     }
 
@@ -636,6 +637,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
             x={popup.x}
             y={popup.y}
             amount={popup.amount}
+            elementType={popup.elementType}
             onComplete={() => handleXpPopupComplete(popup.id)}
           />
         ))}

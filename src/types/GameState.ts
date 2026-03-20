@@ -191,6 +191,7 @@ export interface XpPopup {
   y: number;
   amount: number;
   startTime: number;
+  elementType?: string;
 }
 
 export interface SplashEffect {

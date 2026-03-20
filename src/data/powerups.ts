@@ -134,6 +134,7 @@ export const POWER_UP_DEFS: PowerUpDef[] = [
       element.totalDamage += xpGrant;
       // Level recalc happens next tick via normal XP processing
     },
+    resolveElementType: (state) => getLowestLevelElement(state),
   },
 ];
 
