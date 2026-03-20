@@ -29,9 +29,9 @@ const ENEMY_TYPE_TABLE: {
   minDifficulty: number;
 }[] = [
   { type: "goblin", weight: 20, minDifficulty: 1 },
-  { type: "beast", weight: 5, minDifficulty: 2 },
-  { type: "giant", weight: 1, minDifficulty: 5 },
-  { type: "slime", weight: 2, minDifficulty: 10 },
+  { type: "beast", weight: 5, minDifficulty: 5 },
+  { type: "giant", weight: 1, minDifficulty: 10 },
+  { type: "slime", weight: 2, minDifficulty: 15 },
 ];
 
 /**

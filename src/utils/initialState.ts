@@ -18,22 +18,25 @@ export const createInitialElements = (): Record<ElementType, ElementData> => {
       acc[elementType] = createInitialElementData(elementType);
       return acc;
     },
-    {} as Record<ElementType, ElementData>
+    {} as Record<ElementType, ElementData>,
   );
 };
 
-export const createInitialMageProgress = (): Record<ElementType, MageProgress> => {
+export const createInitialMageProgress = (): Record<
+  ElementType,
+  MageProgress
+> => {
   return getAvailableElements().reduce(
     (acc, elementType) => {
       acc[elementType] = { stars: 1, tier: "initiate" };
       return acc;
     },
-    {} as Record<ElementType, MageProgress>
+    {} as Record<ElementType, MageProgress>,
   );
 };
 
-export const createInitialCoreState = (devMode: boolean = false): CoreState => ({
-  gold: devMode ? 500 : 0,
+export const createInitialCoreState = (): CoreState => ({
+  gold: 50,
   castleHealth: 100,
   timeSurvived: 0,
   clickDamage: 1,
@@ -80,8 +83,8 @@ export const createInitialVisuals = (): VisualEffects => ({
   achievementQueue: [],
 });
 
-export const createInitialGameState = (devMode: boolean = false): GameState => ({
-  core: createInitialCoreState(devMode),
+export const createInitialGameState = (): GameState => ({
+  core: createInitialCoreState(),
   entities: createInitialEntityState(),
   tracking: createInitialTrackingState(),
   visuals: createInitialVisuals(),

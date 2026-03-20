@@ -159,6 +159,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.visuals.goldPopups.push(...burnPopups);
         tryUnlockAchievement("burn_kill", state);
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        if (enemy.enemyType === "beast") tryUnlockAchievement("fast_killer", state);
         burnSlimeChildren.push(...spawnSplitterChildren(enemy));
       });
       const aliveEnemies = [...removeDeadEnemies(enemiesWithBurnDamage), ...burnSlimeChildren];
@@ -263,6 +264,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
       state.core.totalGoldEarned += goldGained;
       killedEnemies.forEach(({ enemy, damage }) => {
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        if (enemy.enemyType === "beast") tryUnlockAchievement("fast_killer", state);
         if (damage >= enemy.maxHealth * 100) tryUnlockAchievement("overkill", state);
         if (enemy.slowEffect && enemy.slowEndTime && now < enemy.slowEndTime) {
           tryUnlockAchievement("slow_kill", state);
@@ -290,6 +292,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.totalGoldEarned += splashGold;
         state.visuals.goldPopups.push(...splashPopups);
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        if (enemy.enemyType === "beast") tryUnlockAchievement("fast_killer", state);
         splashSlimeChildren.push(...spawnSplitterChildren(enemy));
       });
 
@@ -417,6 +420,7 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
         state.core.totalEnemiesKilled++;
         state.visuals.goldPopups.push(...deathPopups);
         if (enemy.isGiant) tryUnlockAchievement("giant_killer", state);
+        if (enemy.enemyType === "beast") tryUnlockAchievement("fast_killer", state);
       }
 
       triggerRender();
