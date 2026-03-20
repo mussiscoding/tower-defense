@@ -1,5 +1,6 @@
 .fire-particles {
   position: absolute;
+  inset: 0;
   pointer-events: none;
   z-index: 6;
 }
@@ -13,26 +14,26 @@
 
 .particle-1 {
   animation-delay: 0s;
-  left: 5px;
-  top: 35px;
+  left: -2px;
+  top: 15px;
 }
 
 .particle-2 {
   animation-delay: 0.25s;
-  left: 10px;
-  top: 35px;
+  left: 5px;
+  top: 15px;
 }
 
 .particle-3 {
   animation-delay: 0.5s;
-  left: 13px;
-  top: 32px;
+  left: 8px;
+  top: 12px;
 }
 
 .particle-4 {
   animation-delay: 0.75s;
-  left: 18px;
-  top: 26px;
+  left: 13px;
+  top: 6px;
 }
 
 @keyframes particleFade {

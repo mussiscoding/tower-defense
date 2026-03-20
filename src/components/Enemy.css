@@ -39,10 +39,9 @@
   }
 }
 
-.enemy-sprite {
-  font-size: 2em;
+.enemy-sprite-area {
+  position: relative;
   text-align: center;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
 
@@ -67,7 +66,7 @@
 }
 
 /* Ice effect with sprite-shaped glow */
-.enemy-slow .enemy-sprite {
+.enemy-slow .enemy-sprite-area .enemy-sprite {
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))
     drop-shadow(0 0 4px #4fc3f7);
 }

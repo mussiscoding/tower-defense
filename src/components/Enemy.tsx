@@ -93,35 +93,23 @@ const Enemy: React.FC<EnemyProps> = ({ enemy, onClick, isPaused }) => {
             style={{ width: `${healthPercentage}%` }}
           ></div>
         </div>
-        <div className="enemy-sprite">
+        <div className="enemy-sprite-area">
           <EnemySprite colorIndex={enemy.colorIndex} enemyType={enemy.enemyType} isPaused={isPaused} />
+          <IceBlockEffect isFrozen={isFrozen} />
+          <FireParticles
+            isBurning={
+              !!(
+                enemy.burnDamage &&
+                enemy.burnEndTime &&
+                Date.now() < enemy.burnEndTime
+              )
+            }
+          />
         </div>
         <div className="enemy-health-text">
           {enemy.health}/{enemy.maxHealth}
         </div>
       </div>
-
-      {/* Fire particles for burning enemies */}
-      <FireParticles
-        x={isGiant ? enemy.x - 15 : enemy.x}
-        y={isGiant ? enemy.y - 18 : enemy.y}
-        isBurning={
-          !!(
-            enemy.burnDamage &&
-            enemy.burnEndTime &&
-            Date.now() < enemy.burnEndTime
-          )
-        }
-        isGiant={isGiant}
-      />
-
-      {/* Ice block effect for frozen enemies */}
-      <IceBlockEffect
-        x={isGiant ? enemy.x - 10 : enemy.x + 9}
-        y={isGiant ? enemy.y + 19 : enemy.y + 31}
-        isFrozen={isFrozen}
-        isGiant={isGiant}
-      />
 
       {/* Burn damage numbers */}
       {burnDamageNumbers.map((damageNumber) => (
