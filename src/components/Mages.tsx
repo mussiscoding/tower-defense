@@ -427,7 +427,7 @@ const Mages: React.FC<MagesProps> = ({
                 const canAfford = currentGold >= empowerCost;
                 return (
                   <div
-                    className={`shop-item ${!canAfford ? "disabled" : ""}`}
+                    className={`shop-item general-upgrade ${!canAfford ? "disabled" : ""}`}
                     onClick={() => canAfford && onPurchaseUpgrade?.(empowerClickUpgrade.id)}
                   >
                     <h5 className="shop-item-name">

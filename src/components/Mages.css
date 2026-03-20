@@ -395,6 +395,12 @@
   box-shadow: none;
 }
 
+.shop-item.general-upgrade {
+  --element-color-dim: #555;
+  --element-color: #888;
+  --element-bg: #243d24;
+}
+
 .shop-item-name {
   margin: 0 0 6px 0;
   font-size: 14px;

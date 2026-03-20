@@ -401,6 +401,15 @@ const GameArea: React.FC<GameAreaProps> = ({ stateRef, triggerRender }) => {
 
       const { enemy: damagedEnemy, isDead } = damageEnemy(enemy, clickDamage);
 
+      state.visuals.damageNumbers.push({
+        id: `dmg_click_${now}_${Math.random().toString(36).substr(2, 6)}`,
+        damage: clickDamage,
+        x: enemy.x + (Math.random() - 0.5) * 20,
+        y: enemy.y - 10,
+        elementType: "air",
+        startTime: now,
+      });
+
       state.entities.enemies = state.entities.enemies.map((e) =>
         e.id === enemy.id ? damagedEnemy : e
       );
