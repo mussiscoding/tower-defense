@@ -86,7 +86,7 @@ const Mages: React.FC<MagesProps> = ({
       case "earth":
         return "#cd853f";
       case "air":
-        return "#b8d4e8";
+        return "#7eacc4";
       default:
         return "#666666";
     }
@@ -97,7 +97,7 @@ const Mages: React.FC<MagesProps> = ({
       fire:  { color: "#ff4444", dim: "rgba(255, 68, 68, 0.3)",  bg: "rgba(255, 68, 68, 0.06)" },
       ice:   { color: "#6688ff", dim: "rgba(102, 136, 255, 0.3)", bg: "rgba(102, 136, 255, 0.06)" },
       earth: { color: "#cd853f", dim: "rgba(205, 133, 63, 0.3)",  bg: "rgba(205, 133, 63, 0.06)" },
-      air:   { color: "#b8d4e8", dim: "rgba(184, 212, 232, 0.3)", bg: "rgba(184, 212, 232, 0.06)" },
+      air:   { color: "#7eacc4", dim: "rgba(126, 172, 196, 0.3)", bg: "rgba(126, 172, 196, 0.06)" },
     };
     const t = themes[elementType];
     return {
