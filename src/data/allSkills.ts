@@ -440,11 +440,11 @@ function createSkill(config: {
           purchases,
           config.maxValue
         );
-        return `${finalValue}${config.unit || "%"}`;
+        return `${finalValue}${config.unit || ""}`;
       };
     } else {
       // Static stat value
-      skill.statValue = `${config.baseValue}${config.unit || "%"}`;
+      skill.statValue = `${config.baseValue}${config.unit || ""}`;
     }
   }
 
