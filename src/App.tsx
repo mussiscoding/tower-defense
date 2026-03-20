@@ -10,7 +10,7 @@ import type { GameState } from "./types/GameStateSlices";
 
 function App() {
   const { stateRef, triggerRender } = useGameStateRef<GameState>(
-    createInitialGameState(true) // dev mode = true for 500 starting gold
+    createInitialGameState() // dev mode = true for 500 starting gold
   );
 
   // Load save on mount
@@ -35,7 +35,7 @@ function App() {
 
   const resetGame = () => {
     clearSave();
-    stateRef.current = createInitialGameState(true); // dev mode
+    stateRef.current = createInitialGameState(); // dev mode
     triggerRender();
   };
 
