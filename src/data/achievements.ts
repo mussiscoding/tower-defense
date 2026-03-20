@@ -111,7 +111,7 @@ export const achievements: AchievementDef[] = [
     name: "Apprentice Rank",
     description: "Reach Apprentice rank on any element",
     icon: "🎓",
-    reward: 5000,
+    reward: 10000,
     category: "progression",
     hidden: false,
     tieredGroup: "rank",
