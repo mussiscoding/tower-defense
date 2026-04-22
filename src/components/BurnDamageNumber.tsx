@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./BurnDamageNumber.css";
+import { formatNumber } from "../utils/formatNumber";
 
 interface BurnDamageNumberProps {
   damage: number;
@@ -35,7 +36,7 @@ const BurnDamageNumber: React.FC<BurnDamageNumberProps> = ({
         top: `${y}px`,
       }}
     >
-      🔥 {damage}
+      🔥 {formatNumber(damage)}
     </div>
   );
 };

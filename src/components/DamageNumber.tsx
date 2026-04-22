@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./DamageNumber.css";
 import type { ElementType } from "../data/elements";
 import { getElementColor } from "../constants/elementColors";
+import { formatNumber } from "../utils/formatNumber";
 
 interface DamageNumberProps {
   damage: number;
@@ -42,7 +43,7 @@ const DamageNumber: React.FC<DamageNumberProps> = ({
         color: getElementColor(elementType),
       }}
     >
-      {damage}
+      {formatNumber(damage)}
     </div>
   );
 };
